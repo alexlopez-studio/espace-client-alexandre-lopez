@@ -76,3 +76,10 @@ npm run build
 - Ajout de `public/robots.txt` avec `Disallow: /`.
 - Dossier local renommé en `/Users/AlexandreLopez/Documents/GitHub/espace-client-alexandre-lopez`.
 - Vérification : `npm run build` OK.
+
+### 12/07/2026 - Harmonisation typographique
+
+- Typographie principale alignée sur les autres projets : `Inter`.
+- Ajout du chargement Google Fonts dans `index.html`.
+- Définition des tokens Tailwind v4 `--font-sans` et `--font-mono` dans `src/index.css`.
+- Application d’Inter au document via `html` et `body`.
