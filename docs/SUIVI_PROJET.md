@@ -83,3 +83,18 @@ npm run build
 - Ajout du chargement Google Fonts dans `index.html`.
 - Définition des tokens Tailwind v4 `--font-sans` et `--font-mono` dans `src/index.css`.
 - Application d’Inter au document via `html` et `body`.
+
+### 12/07/2026 - Passerelle Mandat OS vers Espace Client
+
+- Choix d’architecture : Mandat OS reste source de vérité métier, Supabase sert de couche partagée sécurisée.
+- Le portail client lit uniquement la projection publiable `client_dossiers`, pas les routes admin Mandat OS.
+- Ajout d’un client Supabase côté Vite avec session persistée et détection des liens magiques.
+- Ajout d’un adaptateur `client_dossiers.property_snapshot` + `client_dossiers.professional_opinion.iad_report` vers l’état actuel du portail.
+- Le mode démonstration local reste disponible si Supabase ou la session client ne sont pas configurés.
+
+### 12/07/2026 - Configuration Supabase et callback client
+
+- Ajout des variables locales ignorées `.env.local` pour Supabase côté portail.
+- Ajout des variables Vercel `VITE_SUPABASE_URL` et `VITE_SUPABASE_ANON_KEY` pour Production, Development et Preview branche `preview`.
+- Ajout d’une réécriture Vercel SPA vers `index.html` pour que `/auth/callback` fonctionne avec les liens magiques Supabase.
+- Vérification : `npm run lint` OK et `npm run build` OK.

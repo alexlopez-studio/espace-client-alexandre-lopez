@@ -60,12 +60,14 @@ import OffersSection from './components/OffersSection';
 import StatsSection from './components/StatsSection';
 import AdminPortal from './components/AdminPortal';
 import { DocumentItem, ViewingReport, SalesStep, BuyerOffer, PortalStat, ClientRecord, AppState } from './types';
+import { loadMandatOsPortalState, type RemotePortalStatus } from './lib/mandat-os-portal';
 
 export default function App() {
   const [multiClientState, setMultiClientState] = useState(() => getMultiClientState());
   const [activeSection, setActiveSection] = useState<string>('cover');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const [showScrollTop, setShowScrollTop] = useState<boolean>(false);
+  const [remoteStatus, setRemoteStatus] = useState<RemotePortalStatus>('idle');
 
   const [lastEvalSection, setLastEvalSection] = useState<string>('situation');
   const [lastTransSection, setLastTransSection] = useState<string>('documents');
@@ -160,6 +162,31 @@ export default function App() {
   useEffect(() => {
     saveMultiClientState(multiClientState);
   }, [multiClientState]);
+
+  // Hydrate the standalone portal from Mandat OS / Supabase when a client
+  // session exists. Without Supabase envs or auth, the local demo remains active.
+  useEffect(() => {
+    let cancelled = false;
+
+    const hydrateFromMandatOs = async () => {
+      setRemoteStatus('loading');
+      try {
+        const result = await loadMandatOsPortalState();
+        if (cancelled) return;
+        if (result.state) setMultiClientState(result.state);
+        setRemoteStatus(result.status);
+      } catch (error) {
+        console.error('[Mandat OS portal bridge]', error);
+        if (!cancelled) setRemoteStatus('error');
+      }
+    };
+
+    hydrateFromMandatOs();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Handle client selection, adding, and deleting
   const handleSelectClient = (clientId: string) => {
@@ -426,6 +453,18 @@ export default function App() {
               </div>
 
               <div className="hidden sm:block h-5 w-px bg-slate-200" />
+
+              {remoteStatus === 'synced' && (
+                <span className="hidden md:inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-emerald-700">
+                  Mandat OS synchronisé
+                </span>
+              )}
+
+              {remoteStatus === 'error' && (
+                <span className="hidden md:inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-amber-700">
+                  Mode démo
+                </span>
+              )}
 
               <div className="min-w-0 hidden sm:block">
                 <p className="text-[11px] text-slate-400 font-semibold truncate flex items-center gap-1 mt-0.5">
