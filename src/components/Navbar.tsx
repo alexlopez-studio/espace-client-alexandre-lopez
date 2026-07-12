@@ -3,7 +3,6 @@ import {
   Home, 
   TrendingUp, 
   Handshake, 
-  Settings,
   Phone,
   Mail
 } from 'lucide-react';
@@ -16,7 +15,6 @@ interface NavbarProps {
   advisor: AdvisorInfo;
   lastEvalSection?: string;
   lastTransSection?: string;
-  lastAdminSection?: string;
 }
 
 export default function Navbar({ 
@@ -25,12 +23,10 @@ export default function Navbar({
   advisor,
   lastEvalSection = 'situation',
   lastTransSection = 'documents',
-  lastAdminSection = 'admin-clients'
 }: NavbarProps) {
   
   const isEvaluationActive = ['situation', 'property', 'market', 'comparables', 'positioning', 'conclusion', 'services'].includes(activeSection);
   const isTransactionActive = ['documents', 'viewings', 'salesPlan', 'offers', 'stats'].includes(activeSection);
-  const isAdminActive = ['admin', 'admin-clients', 'admin-profile', 'admin-property', 'admin-points', 'admin-stats'].includes(activeSection);
 
   const mainCategories = [
     { 
@@ -53,13 +49,6 @@ export default function Navbar({
       icon: Handshake,
       isActive: isTransactionActive,
       onClick: () => setActiveSection(lastTransSection)
-    },
-    { 
-      id: 'admin', 
-      label: 'Espace Conseiller (Admin)', 
-      icon: Settings,
-      isActive: isAdminActive,
-      onClick: () => setActiveSection(lastAdminSection)
     }
   ];
 

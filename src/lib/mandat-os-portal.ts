@@ -1,10 +1,13 @@
 import type {
   AdvisorInfo,
+  BuyerOffer,
   ClientRecord,
   ComparableProperty,
   DocumentItem,
+  PortalStat,
   PropertyPoint,
   SalesStep,
+  ViewingReport,
 } from '../types';
 import { advisorInfo as defaultAdvisorInfo } from '../data';
 import { defaultClients, defaultDocuments, defaultOffers, defaultPortalStats, defaultSalesSteps, defaultViewings, type MultiClientState } from './store';
@@ -37,9 +40,12 @@ type ClientDocumentRow = {
   name?: string | null;
   category?: string | null;
   status?: string | null;
-  storage_path?: string | null;
+  signed_url?: string | null;
   file_url?: string | null;
   file_size?: number | null;
+  file_name?: string | null;
+  uploaded_at?: string | null;
+  validated_at?: string | null;
   created_by?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
@@ -47,15 +53,24 @@ type ClientDocumentRow = {
 
 type ClientEventRow = {
   id: string;
+  type?: string | null;
   title?: string | null;
   description?: string | null;
-  content?: string | null;
   status?: string | null;
   event_date?: string | null;
+  payload?: unknown;
   created_at?: string | null;
 };
 
 export type RemotePortalStatus = 'idle' | 'loading' | 'synced' | 'demo' | 'unauthenticated' | 'empty' | 'error';
+
+type ClientPortalPayload = {
+  readOnly: true;
+  profile: ClientProfileRow;
+  dossier: ClientDossierRow;
+  documents: ClientDocumentRow[];
+  events: ClientEventRow[];
+};
 
 export type RemotePortalLoadResult = {
   status: Exclude<RemotePortalStatus, 'idle' | 'loading'>;
@@ -64,107 +79,49 @@ export type RemotePortalLoadResult = {
 };
 
 export async function loadMandatOsPortalState(): Promise<RemotePortalLoadResult> {
+  const previewToken = getPreviewToken();
+  if (previewToken) {
+    return loadPortalPayload({ previewToken });
+  }
+
   if (!isSupabaseConfigured()) {
-    return { status: 'demo', message: 'Supabase non configuré : le portail reste en mode démonstration.' };
+    return isLocalDev()
+      ? { status: 'demo', message: 'Supabase non configuré : le portail reste en mode démonstration.' }
+      : { status: 'unauthenticated', message: 'Connexion client requise.' };
   }
 
   const supabase = getSupabaseClient();
-  if (!supabase) return { status: 'demo' };
+  if (!supabase) return { status: 'unauthenticated' };
 
-  const { data: userResult, error: userError } = await supabase.auth.getUser();
-  const user = userResult?.user;
+  const { data: sessionResult, error: sessionError } = await supabase.auth.getSession();
+  const accessToken = sessionResult?.session?.access_token;
 
-  if (userError || !user?.email) {
+  if (sessionError || !accessToken) {
     return { status: 'unauthenticated', message: 'Aucune session client active.' };
   }
 
-  const profile = await findClientProfile(user.id, user.email);
-  if (!profile) return { status: 'empty', message: 'Aucun profil client rattaché à cette session.' };
+  return loadPortalPayload({ accessToken, dossierId: getRequestedDossierId() });
+}
 
-  const dossier = await findActiveDossier(profile.id);
-  if (!dossier) return { status: 'empty', message: 'Aucun dossier client actif pour ce profil.' };
+async function loadPortalPayload(input: { accessToken?: string; previewToken?: string; dossierId?: string | null }): Promise<RemotePortalLoadResult> {
+  const url = new URL('/api/client-portal/dossier', getMandatOsApiUrl());
+  if (input.previewToken) url.searchParams.set('preview_token', input.previewToken);
+  if (input.dossierId) url.searchParams.set('dossier', input.dossierId);
 
-  const [documents, events] = await Promise.all([
-    loadDocuments(dossier.id),
-    loadEvents(dossier.id),
-  ]);
+  const response = await fetch(url.toString(), {
+    headers: input.accessToken ? { Authorization: `Bearer ${input.accessToken}` } : undefined,
+  });
+  const json = await response.json().catch(() => null) as { success?: boolean; data?: ClientPortalPayload; error?: string } | null;
+
+  if (!response.ok || !json?.success || !json.data) {
+    if (response.status === 401) return { status: 'unauthenticated', message: json?.error ?? 'Accès client requis.' };
+    return { status: 'error', message: json?.error ?? 'Lecture du portail impossible.' };
+  }
 
   return {
     status: 'synced',
-    state: mapDossierToMultiClientState(profile, dossier, documents, events),
+    state: mapDossierToMultiClientState(json.data.profile, json.data.dossier, json.data.documents, json.data.events),
   };
-}
-
-async function findClientProfile(userId: string, email: string) {
-  const supabase = getSupabaseClient();
-  if (!supabase) return null;
-
-  const byUser = await supabase
-    .from('client_profiles')
-    .select('*')
-    .eq('user_id', userId)
-    .maybeSingle();
-
-  if (byUser.error) throw byUser.error;
-  if (byUser.data) return byUser.data as ClientProfileRow;
-
-  const byEmail = await supabase
-    .from('client_profiles')
-    .select('*')
-    .eq('email', email.trim().toLowerCase())
-    .maybeSingle();
-
-  if (byEmail.error) throw byEmail.error;
-  return (byEmail.data as ClientProfileRow | null) ?? null;
-}
-
-async function findActiveDossier(profileId: string) {
-  const supabase = getSupabaseClient();
-  if (!supabase) return null;
-
-  const requestedDossierId = getRequestedDossierId();
-  let query = supabase
-    .from('client_dossiers')
-    .select('*')
-    .eq('client_profile_id', profileId)
-    .eq('status', 'active')
-    .order('updated_at', { ascending: false })
-    .limit(1);
-
-  if (requestedDossierId) query = query.eq('id', requestedDossierId);
-
-  const { data, error } = await query.maybeSingle();
-  if (error) throw error;
-  return (data as ClientDossierRow | null) ?? null;
-}
-
-async function loadDocuments(dossierId: string) {
-  const supabase = getSupabaseClient();
-  if (!supabase) return [];
-
-  const { data, error } = await supabase
-    .from('client_documents')
-    .select('*')
-    .eq('dossier_id', dossierId)
-    .order('created_at', { ascending: true });
-
-  if (error) throw error;
-  return (data ?? []) as ClientDocumentRow[];
-}
-
-async function loadEvents(dossierId: string) {
-  const supabase = getSupabaseClient();
-  if (!supabase) return [];
-
-  const { data, error } = await supabase
-    .from('client_dossier_events')
-    .select('*')
-    .eq('dossier_id', dossierId)
-    .order('event_date', { ascending: true, nullsFirst: false })
-    .order('created_at', { ascending: true });
-
-  if (error) throw error;
-  return (data ?? []) as ClientEventRow[];
 }
 
 function mapDossierToMultiClientState(
@@ -219,10 +176,10 @@ function mapDossierToMultiClientState(
     pointsForts: mapPoints(property.strengths, baseClient.pointsForts),
     pointsDefendre: mapPoints(property.objections, baseClient.pointsDefendre),
     documents: documents.length > 0 ? documents.map(mapDocument) : defaultDocuments,
-    viewings: defaultViewings,
-    salesSteps: events.length > 0 ? events.map(mapEvent) : defaultSalesSteps,
-    offers: defaultOffers,
-    portalStats: defaultPortalStats,
+    viewings: mapViewings(events) ?? defaultViewings,
+    salesSteps: mapSalesSteps(events) ?? defaultSalesSteps,
+    offers: mapOffers(events) ?? defaultOffers,
+    portalStats: mapPortalStats(opinion.audience) ?? defaultPortalStats,
     cadastralParcels: mapCadastralRows(report) ?? baseClient.cadastralParcels,
     marketPriceRanges: {
       low: numberValue(market.price_per_sqm_low, positioning.low_per_sqm) ?? baseClient.marketPriceRanges?.low ?? 3000,
@@ -257,13 +214,13 @@ function mapAdvisor(advisor: JsonRecord): AdvisorInfo {
 function mapDocument(document: ClientDocumentRow): DocumentItem {
   return {
     id: document.id,
-    name: text(document.label, document.name, 'Document client'),
+    name: text(document.label, document.name, document.file_name, 'Document client'),
     category: mapDocumentCategory(document.category),
     size: document.file_size ? formatFileSize(document.file_size) : '',
-    dateAdded: formatDate(document.updated_at ?? document.created_at),
+    dateAdded: formatDate(document.validated_at ?? document.uploaded_at ?? document.updated_at ?? document.created_at),
     status: mapDocumentStatus(document.status),
     uploadedBy: document.created_by === 'client' ? 'Vendeur' : 'Conseiller',
-    fileUrl: document.file_url ?? document.storage_path ?? undefined,
+    fileUrl: document.signed_url ?? document.file_url ?? undefined,
   };
 }
 
@@ -272,11 +229,84 @@ function mapEvent(event: ClientEventRow, index: number): SalesStep {
     id: event.id,
     order: index + 1,
     title: text(event.title, `Étape ${index + 1}`),
-    description: text(event.description, event.content, ''),
+    description: text(event.description, ''),
     status: mapEventStatus(event.status),
     completedDate: ['done', 'completed', 'validated'].includes(String(event.status)) ? formatDate(event.event_date ?? event.created_at) : undefined,
     responsible: 'Conseiller',
   };
+}
+
+function mapSalesSteps(events: ClientEventRow[]): SalesStep[] | undefined {
+  const rows = events
+    .filter((event) => !['visit', 'offer'].includes(String(event.type)))
+    .map(mapEvent);
+  return rows.length > 0 ? rows : undefined;
+}
+
+function mapViewings(events: ClientEventRow[]): ViewingReport[] | undefined {
+  const rows = events
+    .filter((event) => event.type === 'visit')
+    .map((event, index) => {
+      const payload = asRecord(event.payload);
+      return {
+        id: event.id,
+        date: formatDate(event.event_date ?? event.created_at) || `Visite ${index + 1}`,
+        buyerName: text(payload.buyerName, payload.buyer_name, payload.name, event.title, 'Acquéreur'),
+        rating: numberValue(payload.rating, payload.note) ?? 3,
+        solvencyStatus: mapSolvencyStatus(payload.solvencyStatus ?? payload.solvency_status),
+        comment: text(event.description, payload.comment, payload.feedback, ''),
+        interestLevel: mapInterestLevel(payload.interestLevel ?? payload.interest_level ?? event.status),
+      } satisfies ViewingReport;
+    });
+  return rows.length > 0 ? rows : undefined;
+}
+
+function mapOffers(events: ClientEventRow[]): BuyerOffer[] | undefined {
+  const rows = events
+    .filter((event) => event.type === 'offer')
+    .map((event) => {
+      const payload = asRecord(event.payload);
+      return {
+        id: event.id,
+        buyerName: text(payload.buyerName, payload.buyer_name, event.title, 'Acquéreur'),
+        price: numberValue(payload.price, payload.amount, payload.montant) ?? 0,
+        date: formatDate(event.event_date ?? event.created_at),
+        financingType: mapFinancingType(payload.financingType ?? payload.financing_type),
+        financingDetails: text(payload.financingDetails, payload.financing_details, payload.financing, 'Informations financières non renseignées'),
+        solvencyCertificate: Boolean(payload.solvencyCertificate ?? payload.solvency_certificate ?? payload.solver_validated),
+        status: mapOfferStatus(event.status),
+        comments: text(event.description, payload.comments, payload.comment) || undefined,
+      } satisfies BuyerOffer;
+    })
+    .filter((offer) => offer.price > 0 || offer.buyerName !== 'Acquéreur');
+  return rows.length > 0 ? rows : undefined;
+}
+
+function mapPortalStats(value: unknown): PortalStat[] | undefined {
+  const record = asRecord(value);
+  const rows = asArray(record.portals ?? record.supports ?? value)
+    .map((item, index) => {
+      const portal = asRecord(item);
+      return {
+        portalName: text(portal.portalName, portal.portal, portal.name, `Portail ${index + 1}`),
+        views: numberValue(portal.views, portal.vues) ?? 0,
+        detailedViews: numberValue(portal.detailedViews, portal.detailed_views, portal.consultations) ?? 0,
+        contacts: numberValue(portal.contacts) ?? 0,
+        phoneClicks: numberValue(portal.phoneClicks, portal.phone_clicks, portal.clics_telephone) ?? 0,
+        performanceIndex: numberValue(portal.performanceIndex, portal.performance_index) ?? 0,
+        history: asArray(portal.history).map((point) => {
+          const row = asRecord(point);
+          return {
+            date: text(row.date, row.captured_on, ''),
+            views: numberValue(row.views, row.vues) ?? 0,
+            detailedViews: numberValue(row.detailedViews, row.detailed_views, row.consultations) ?? 0,
+            contacts: numberValue(row.contacts) ?? 0,
+            phoneClicks: numberValue(row.phoneClicks, row.phone_clicks, row.clics_telephone) ?? 0,
+          };
+        }),
+      } satisfies PortalStat;
+    });
+  return rows.length > 0 ? rows : undefined;
 }
 
 function mapPoints(value: unknown, fallback: PropertyPoint[]) {
@@ -354,6 +384,19 @@ function getRequestedDossierId() {
   return params.get('dossier') ?? params.get('dossier_id') ?? import.meta.env.VITE_CLIENT_DOSSIER_ID ?? null;
 }
 
+function getPreviewToken() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('token') ?? params.get('preview_token');
+}
+
+function getMandatOsApiUrl() {
+  return (import.meta.env.VITE_MANDAT_OS_API_URL || 'https://app.alexandrelopez.fr').replace(/\/+$/, '');
+}
+
+function isLocalDev() {
+  return import.meta.env.DEV || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+}
+
 function mapDocumentCategory(category: string | null | undefined): DocumentItem['category'] {
   const normalized = String(category ?? '').toLowerCase();
   if (normalized.includes('diagnostic')) return 'Diagnostic';
@@ -376,6 +419,36 @@ function mapEventStatus(status: string | null | undefined): SalesStep['status'] 
   if (['done', 'completed', 'validated', 'termine', 'terminé'].includes(normalized)) return 'Terminé';
   if (['in_progress', 'progress', 'en_cours', 'en cours'].includes(normalized)) return 'En cours';
   return 'A faire';
+}
+
+function mapSolvencyStatus(value: unknown): ViewingReport['solvencyStatus'] {
+  const normalized = String(value ?? '').toLowerCase();
+  if (normalized.includes('non')) return 'Non validée';
+  if (normalized.includes('cours') || normalized.includes('pending')) return 'En cours';
+  return 'Validée';
+}
+
+function mapInterestLevel(value: unknown): ViewingReport['interestLevel'] {
+  const normalized = String(value ?? '').toLowerCase();
+  if (normalized.includes('offre')) return 'Offre formulée';
+  if (normalized.includes('faible') || normalized.includes('low')) return 'Faible';
+  if (normalized.includes('moyen') || normalized.includes('medium')) return 'Moyen';
+  return 'Élevé';
+}
+
+function mapFinancingType(value: unknown): BuyerOffer['financingType'] {
+  const normalized = String(value ?? '').toLowerCase();
+  if (normalized.includes('apport')) return 'Apport Personnel';
+  if (normalized.includes('mix')) return 'Mixte';
+  return 'Emprunt Bancaire';
+}
+
+function mapOfferStatus(value: unknown): BuyerOffer['status'] {
+  const normalized = String(value ?? '').toLowerCase();
+  if (normalized.includes('accept')) return 'Acceptée';
+  if (normalized.includes('refus') || normalized.includes('reject')) return 'Refusée';
+  if (normalized.includes('contre') || normalized.includes('counter')) return 'Contre-proposition';
+  return 'Reçue';
 }
 
 function formatDate(value: string | null | undefined) {

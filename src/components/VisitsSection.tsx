@@ -20,13 +20,15 @@ interface VisitsSectionProps {
   onAddViewing: (viewing: Omit<ViewingReport, 'id'>) => void;
   onDeleteViewing: (id: string) => void;
   isAdmin?: boolean;
+  readOnly?: boolean;
 }
 
 export default function VisitsSection({ 
   viewings, 
   onAddViewing, 
   onDeleteViewing,
-  isAdmin = false 
+  isAdmin = false,
+  readOnly = false,
 }: VisitsSectionProps) {
   const [showAddForm, setShowAddForm] = useState<boolean>(false);
   const [buyerName, setBuyerName] = useState<string>('');
@@ -160,18 +162,20 @@ export default function VisitsSection({
             <p className="text-xs text-slate-500">Consultez en temps réel les comptes rendus détaillés et retours d'acheteurs.</p>
           </div>
 
-          <button
-            id="btn-toggle-add-viewing"
-            onClick={() => setShowAddForm(!showAddForm)}
-            className="flex items-center gap-1.5 bg-[#00A0E2] hover:bg-[#008cc7] text-white font-bold py-2 px-3.5 rounded-xl text-xs shadow-md shadow-[#00A0E2]/10 transition-colors shrink-0"
-          >
-            {showAddForm ? 'Fermer le formulaire' : 'Enregistrer une visite'}
-            {!showAddForm && <Plus className="w-4 h-4" />}
-          </button>
+          {!readOnly && (
+            <button
+              id="btn-toggle-add-viewing"
+              onClick={() => setShowAddForm(!showAddForm)}
+              className="flex items-center gap-1.5 bg-[#00A0E2] hover:bg-[#008cc7] text-white font-bold py-2 px-3.5 rounded-xl text-xs shadow-md shadow-[#00A0E2]/10 transition-colors shrink-0"
+            >
+              {showAddForm ? 'Fermer le formulaire' : 'Enregistrer une visite'}
+              {!showAddForm && <Plus className="w-4 h-4" />}
+            </button>
+          )}
         </div>
 
         {/* Add viewing inline Form */}
-        {showAddForm && (
+        {!readOnly && showAddForm && (
           <form 
             onSubmit={handleSubmit}
             className="bg-slate-50 border border-slate-100 p-5 rounded-2xl grid grid-cols-1 md:grid-cols-12 gap-4 animate-in slide-in-from-top-4 duration-300"
@@ -287,7 +291,7 @@ export default function VisitsSection({
             <Users className="w-12 h-12 opacity-30 stroke-[1.5]" />
             <div>
               <p className="text-xs font-bold text-slate-600 font-mono">Aucun compte rendu de visite enregistré</p>
-              <p className="text-[10px] text-slate-400 mt-0.5">Cliquez sur "Enregistrer une visite" pour créer une entrée.</p>
+              <p className="text-[10px] text-slate-400 mt-0.5">Les comptes rendus partagés par votre conseiller apparaîtront ici.</p>
             </div>
           </div>
         ) : (
@@ -344,15 +348,16 @@ export default function VisitsSection({
 
                 </div>
 
-                {/* Delete button (Advisor/Admin action) */}
-                <button
-                  id={`btn-delete-viewing-${view.id}`}
-                  onClick={() => onDeleteViewing(view.id)}
-                  className="p-2 border border-slate-100 hover:border-rose-100 text-slate-400 hover:text-rose-600 hover:bg-rose-50 bg-white rounded-xl shadow-sm self-end lg:self-start transition-all"
-                  title="Supprimer la visite"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                {!readOnly && (
+                  <button
+                    id={`btn-delete-viewing-${view.id}`}
+                    onClick={() => onDeleteViewing(view.id)}
+                    className="p-2 border border-slate-100 hover:border-rose-100 text-slate-400 hover:text-rose-600 hover:bg-rose-50 bg-white rounded-xl shadow-sm self-end lg:self-start transition-all"
+                    title="Supprimer la visite"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
 
               </div>
             ))}

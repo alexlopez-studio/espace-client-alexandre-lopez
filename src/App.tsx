@@ -23,9 +23,7 @@ import {
   Handshake,
   BarChart3,
   ChevronDown,
-  User,
-  Sparkles,
-  Settings
+  LockKeyhole
 } from 'lucide-react';
 
 import { 
@@ -58,7 +56,6 @@ import VisitsSection from './components/VisitsSection';
 import SalesPlanSection from './components/SalesPlanSection';
 import OffersSection from './components/OffersSection';
 import StatsSection from './components/StatsSection';
-import AdminPortal from './components/AdminPortal';
 import { DocumentItem, ViewingReport, SalesStep, BuyerOffer, PortalStat, ClientRecord, AppState } from './types';
 import { loadMandatOsPortalState, type RemotePortalStatus } from './lib/mandat-os-portal';
 
@@ -71,7 +68,6 @@ export default function App() {
 
   const [lastEvalSection, setLastEvalSection] = useState<string>('situation');
   const [lastTransSection, setLastTransSection] = useState<string>('documents');
-  const [lastAdminSection, setLastAdminSection] = useState<string>('admin-clients');
 
   // Derive current client and appState
   const currentClient = multiClientState.clients.find(c => c.id === multiClientState.currentClientId) || multiClientState.clients[0];
@@ -153,8 +149,6 @@ export default function App() {
       setLastEvalSection(activeSection);
     } else if (['documents', 'viewings', 'salesPlan', 'offers', 'stats'].includes(activeSection)) {
       setLastTransSection(activeSection);
-    } else if (['admin-clients', 'admin-profile', 'admin-property', 'admin-points', 'admin-stats'].includes(activeSection)) {
-      setLastAdminSection(activeSection);
     }
   }, [activeSection]);
 
@@ -393,7 +387,20 @@ export default function App() {
 
   const isEvaluation = ['situation', 'property', 'market', 'comparables', 'positioning', 'conclusion', 'services'].includes(activeSection);
   const isTransaction = ['documents', 'viewings', 'salesPlan', 'offers', 'stats'].includes(activeSection);
-  const isAdmin = ['admin', 'admin-clients', 'admin-profile', 'admin-property', 'admin-points', 'admin-stats'].includes(activeSection);
+  const shouldBlockForAccess = ['unauthenticated', 'empty', 'error'].includes(remoteStatus);
+
+  if (remoteStatus === 'loading') {
+    return <AccessState title="Chargement de votre espace" description="Nous préparons votre dossier client sécurisé." />;
+  }
+
+  if (shouldBlockForAccess) {
+    return (
+      <AccessState
+        title="Accès client requis"
+        description="Connectez-vous depuis le lien sécurisé transmis par votre conseiller pour consulter ce portail."
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 flex" id="app-root-layout">
@@ -408,7 +415,6 @@ export default function App() {
         advisor={appState.advisorInfo}
         lastEvalSection={lastEvalSection}
         lastTransSection={lastTransSection}
-        lastAdminSection={lastAdminSection}
       />
 
       {/* 2. Main Content Window */}
@@ -535,8 +541,7 @@ export default function App() {
                   {[
                     { id: 'cover', label: 'Accueil', target: 'cover', active: activeSection === 'cover' },
                     { id: 'evaluation', label: 'Estimation', target: lastEvalSection, active: isEvaluation },
-                    { id: 'transaction', label: 'Suivi de Vente', target: lastTransSection, active: isTransaction },
-                    { id: 'admin', label: 'Espace Conseiller (Admin)', target: lastAdminSection, active: isAdmin }
+                    { id: 'transaction', label: 'Suivi de Vente', target: lastTransSection, active: isTransaction }
                   ].map((item) => (
                     <button
                       key={item.id}
@@ -578,33 +583,6 @@ export default function App() {
 
         {/* Dynamic Section Renderer Container */}
         <main className="flex-1 p-5 md:p-8 max-w-7xl mx-auto w-full flex flex-col gap-6" id="main-content-container">
-          
-          {/* Top Header Controls bar for Admin Space */}
-          {isAdmin && (
-            <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4" id="admin-panel-header">
-              <div className="flex flex-col gap-1">
-                <span className="text-[10px] font-mono font-bold text-[#00A0E2] uppercase tracking-wider">Espace d'Administration & Gestion</span>
-                <h2 className="text-2xl font-extrabold text-slate-800 tracking-tight flex items-center gap-2">
-                  <Settings className="w-6 h-6 text-[#00A0E2] animate-spin-slow" />
-                  Console du Conseiller iad
-                </h2>
-                <p className="text-xs text-slate-500">Adaptez l'intégralité du dossier d'estimation en modifiant les fiches et statistiques en temps réel.</p>
-              </div>
-
-              {/* Action button */}
-              <button
-                id="btn-restore-app"
-                onClick={() => {
-                  if (window.confirm("Êtes-vous sûr de vouloir réinitialiser toutes les données de l'application à leur état d'origine ?")) {
-                    handleResetToDefaults();
-                  }
-                }}
-                className="bg-slate-50 hover:bg-rose-50 hover:text-rose-600 border border-slate-200 text-slate-600 font-bold py-2 px-4 rounded-xl text-xs transition-colors shrink-0 cursor-pointer"
-              >
-                Réinitialiser l'application
-              </button>
-            </div>
-          )}
 
           {/* Division sub-tabs bar */}
           {activeSection !== 'cover' && (
@@ -627,14 +605,6 @@ export default function App() {
                     { id: 'salesPlan', label: 'Plan de Vente', icon: Compass },
                     { id: 'offers', label: "Offres d'Achat", icon: Handshake, badge: appState.offers.filter(o => o.status === 'Reçue').length || undefined },
                     { id: 'stats', label: 'Performance Web', icon: BarChart3 },
-                  ];
-                } else if (isAdmin) {
-                  return [
-                    { id: 'admin-clients', label: 'Gestion des Clients', icon: Users, badge: multiClientState.clients.length },
-                    { id: 'admin-profile', label: 'Profil Conseiller', icon: User },
-                    { id: 'admin-property', label: 'Caractéristiques du Bien', icon: Info },
-                    { id: 'admin-points', label: 'Points Forts/Faibles', icon: Sparkles },
-                    { id: 'admin-stats', label: 'Performance Portails', icon: BarChart3 },
                   ];
                 }
                 return [];
@@ -740,6 +710,7 @@ export default function App() {
                   documents={appState.documents}
                   onAddDocument={handleAddDocument}
                   onDeleteDocument={handleDeleteDocument}
+                  readOnly
                 />
               )}
               {activeSection === 'viewings' && (
@@ -747,14 +718,14 @@ export default function App() {
                   viewings={appState.viewings}
                   onAddViewing={handleAddViewing}
                   onDeleteViewing={handleDeleteViewing}
-                  isAdmin={true}
+                  readOnly
                 />
               )}
               {activeSection === 'salesPlan' && (
                 <SalesPlanSection 
                   salesSteps={appState.salesSteps}
                   onUpdateStepStatus={handleUpdateStepStatus}
-                  isAdmin={true}
+                  readOnly
                 />
               )}
               {activeSection === 'offers' && (
@@ -763,41 +734,12 @@ export default function App() {
                   onAddOffer={handleAddOffer}
                   onDeleteOffer={handleDeleteOffer}
                   onUpdateOfferStatus={handleUpdateOfferStatus}
-                  isAdmin={true}
+                  readOnly
                 />
               )}
               {activeSection === 'stats' && (
                 <StatsSection 
                   portalStats={appState.portalStats}
-                />
-              )}
-              {isAdmin && (
-                <AdminPortal 
-                  appState={appState}
-                  onUpdateState={handleUpdateState}
-                  onResetToDefaults={handleResetToDefaults}
-                  clients={multiClientState.clients}
-                  currentClientId={multiClientState.currentClientId}
-                  onSelectClient={handleSelectClient}
-                  onAddClient={handleAddClient}
-                  onDeleteClient={handleDeleteClient}
-                  activeTab={(() => {
-                    if (activeSection === 'admin-profile') return 'profile';
-                    if (activeSection === 'admin-property') return 'property';
-                    if (activeSection === 'admin-points') return 'points';
-                    if (activeSection === 'admin-stats') return 'stats';
-                    return 'clients';
-                  })()}
-                  onTabChange={(tab) => {
-                    const sectionMap = {
-                      clients: 'admin-clients',
-                      profile: 'admin-profile',
-                      property: 'admin-property',
-                      points: 'admin-points',
-                      stats: 'admin-stats',
-                    };
-                    setActiveSection(sectionMap[tab]);
-                  }}
                 />
               )}
             </motion.div>
@@ -834,6 +776,20 @@ export default function App() {
           )}
         </AnimatePresence>
 
+      </div>
+    </div>
+  );
+}
+
+function AccessState({ title, description }: { title: string; description: string }) {
+  return (
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-6" id="portal-access-state">
+      <div className="max-w-md w-full bg-white border border-slate-100 rounded-3xl shadow-sm p-8 text-center">
+        <div className="mx-auto w-12 h-12 rounded-2xl bg-[#00A0E2]/10 text-[#00A0E2] flex items-center justify-center">
+          <LockKeyhole className="w-6 h-6" />
+        </div>
+        <h1 className="mt-5 text-2xl font-black tracking-tight text-slate-900">{title}</h1>
+        <p className="mt-2 text-sm leading-relaxed text-slate-500">{description}</p>
       </div>
     </div>
   );

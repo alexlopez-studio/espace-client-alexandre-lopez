@@ -17,12 +17,14 @@ interface SalesPlanSectionProps {
   salesSteps: SalesStep[];
   onUpdateStepStatus: (id: string, status: SalesStep['status']) => void;
   isAdmin?: boolean;
+  readOnly?: boolean;
 }
 
 export default function SalesPlanSection({ 
   salesSteps, 
   onUpdateStepStatus,
-  isAdmin = false 
+  isAdmin = false,
+  readOnly = false,
 }: SalesPlanSectionProps) {
   
   // Sort steps by order
@@ -84,6 +86,7 @@ export default function SalesPlanSection({
 
   // Click to Cycle Status (For quick and visual interactive user feedback)
   const handleCycleStatus = (step: SalesStep) => {
+    if (readOnly) return;
     let nextStatus: SalesStep['status'] = 'A faire';
     if (step.status === 'A faire') nextStatus = 'En cours';
     else if (step.status === 'En cours') nextStatus = 'Terminé';
@@ -139,7 +142,7 @@ export default function SalesPlanSection({
               Chronologie des étapes de vente iad
             </h4>
             <p className="text-xs text-slate-500">
-              {isAdmin 
+              {isAdmin && !readOnly
                 ? "Cliquez directement sur n'importe quelle étape pour faire évoluer son statut (À faire → En cours → Terminé)."
                 : "Consultez le statut de préparation, d'administration et de commercialisation de votre maison."
               }
@@ -167,7 +170,7 @@ export default function SalesPlanSection({
                 key={step.id}
                 id={`timeline-item-${step.id}`}
                 onClick={() => handleCycleStatus(step)}
-                className={`relative z-10 p-4.5 rounded-2xl border text-left flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all duration-200 cursor-pointer group ${getStatusStyle(step.status)} hover:shadow-sm`}
+                className={`relative z-10 p-4.5 rounded-2xl border text-left flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all duration-200 group ${readOnly ? 'cursor-default' : 'cursor-pointer'} ${getStatusStyle(step.status)} hover:shadow-sm`}
               >
                 {/* Number & Icon indicators on the absolute left outside the card */}
                 <div 
@@ -213,10 +216,11 @@ export default function SalesPlanSection({
                     {step.status}
                   </span>
                   
-                  {/* Subtle hover instructions */}
-                  <div className="w-5 h-5 rounded-full hover:bg-slate-100 flex items-center justify-center transition-colors">
-                    <RefreshCw className="w-3 h-3 text-slate-400 group-hover:text-slate-600 transition-transform duration-300 group-hover:rotate-45" />
-                  </div>
+                  {!readOnly && (
+                    <div className="w-5 h-5 rounded-full hover:bg-slate-100 flex items-center justify-center transition-colors">
+                      <RefreshCw className="w-3 h-3 text-slate-400 group-hover:text-slate-600 transition-transform duration-300 group-hover:rotate-45" />
+                    </div>
+                  )}
                 </div>
 
               </div>

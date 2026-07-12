@@ -98,3 +98,11 @@ npm run build
 - Ajout des variables Vercel `VITE_SUPABASE_URL` et `VITE_SUPABASE_ANON_KEY` pour Production, Development et Preview branche `preview`.
 - Ajout d’une réécriture Vercel SPA vers `index.html` pour que `/auth/callback` fonctionne avec les liens magiques Supabase.
 - Vérification : `npm run lint` OK et `npm run build` OK.
+
+### 12/07/2026 - Portail client lecture seule
+
+- Suppression du composant conseiller/admin `AdminPortal` et retrait de la navigation “Espace Conseiller”.
+- Les sections Documents, Visites, Plan de vente et Offres sont passées en visualisation uniquement.
+- Le portail consomme désormais la projection publique Mandat OS via `VITE_MANDAT_OS_API_URL`, avec session Supabase client ou token d’aperçu.
+- En production, l’absence de session ou un lien invalide affiche un écran “Accès client requis” au lieu du fallback démo.
+- Le mode démo reste disponible en développement local lorsque Supabase n’est pas configuré.
