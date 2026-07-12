@@ -87,6 +87,18 @@ export default function StatsSection({
 
   const activeConf = metricConfigs[activeMetric];
 
+  if (portalStats.length === 0) {
+    return (
+      <div className="w-full flex flex-col gap-6" id="stats-section-root">
+        <div className="rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-12 text-center shadow-sm" id="empty-stats-message">
+          <Activity className="mx-auto h-8 w-8 text-slate-300" />
+          <p className="mt-3 text-xs font-bold text-slate-700 font-mono">Aucune statistique de diffusion publiée pour le moment</p>
+          <p className="mt-1 text-[11px] text-slate-400">Les performances de l’annonce apparaîtront ici après les premiers relevés.</p>
+        </div>
+      </div>
+    );
+  }
+
   // Extract all unique dates/periods in order from first portal
   const periods = portalStats[0]?.history.map(h => h.date) || [];
 

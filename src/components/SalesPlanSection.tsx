@@ -156,8 +156,14 @@ export default function SalesPlanSection({
           </div>
         </div>
 
-        {/* Timeline Line Grid */}
-        <div className="relative pl-6 sm:pl-10 flex flex-col gap-5 mt-2" id="timeline-items-flow">
+        {sortedSteps.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 px-5 py-10 text-center" id="empty-sales-plan-message">
+            <CheckSquare className="mx-auto h-7 w-7 text-slate-300" />
+            <p className="mt-3 text-xs font-bold text-slate-700 font-mono">Aucune étape de vente publiée pour le moment</p>
+            <p className="mt-1 text-[11px] text-slate-400">Votre conseiller affichera ici les étapes du suivi dès qu’elles seront prêtes.</p>
+          </div>
+        ) : (
+          <div className="relative pl-6 sm:pl-10 flex flex-col gap-5 mt-2" id="timeline-items-flow">
           {/* Timeline background vertical line */}
           <div className="absolute left-[13px] sm:left-[21px] top-4 bottom-4 w-1 bg-slate-100 z-0 rounded-full" />
 
@@ -226,7 +232,8 @@ export default function SalesPlanSection({
               </div>
             );
           })}
-        </div>
+          </div>
+        )}
 
       </div>
 

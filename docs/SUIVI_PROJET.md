@@ -48,6 +48,15 @@ npm run build
 ## Points de vigilance
 
 - Garder le portail orienté client final : lisible, rassurant, rapide et mobile-first.
+
+### 12/07/2026 - Lien client stable et suivi vide
+
+- Lecture du dossier client via URL stable `/dossier/<public_token>`.
+- Conservation du fallback `?dossier=<token>` pour compatibilité locale et callback auth.
+- Les sections Documents, Plan de vente, Visites, Offres et Statistiques restent vides si Mandat OS n’a rien publié.
+- Ajout d’états vides dédiés pour le Plan de vente et les Statistiques.
+- L’estimation reste affichable si elle est publiée dans la projection Mandat OS.
+- Vérification technique : `npx tsc --noEmit` OK.
 - Ne pas exposer de données internes Mandat OS.
 - Ne pas ajouter de dépendance implicite au repo `site-alex-lopez-provence`.
 - Toute donnée sensible doit passer par des API contrôlées ou des règles Supabase adaptées.

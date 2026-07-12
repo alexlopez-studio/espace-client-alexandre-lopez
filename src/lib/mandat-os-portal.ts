@@ -10,7 +10,7 @@ import type {
   ViewingReport,
 } from '../types';
 import { advisorInfo as defaultAdvisorInfo } from '../data';
-import { defaultClients, defaultDocuments, defaultOffers, defaultPortalStats, defaultSalesSteps, defaultViewings, type MultiClientState } from './store';
+import { defaultClients, type MultiClientState } from './store';
 import { getSupabaseClient, isSupabaseConfigured } from './supabase';
 
 type JsonRecord = Record<string, unknown>;
@@ -25,6 +25,7 @@ type ClientProfileRow = {
 
 type ClientDossierRow = {
   id: string;
+  public_token?: string | null;
   title?: string | null;
   status?: string | null;
   property_snapshot?: unknown;
@@ -175,11 +176,11 @@ function mapDossierToMultiClientState(
     },
     pointsForts: mapPoints(property.strengths, baseClient.pointsForts),
     pointsDefendre: mapPoints(property.objections, baseClient.pointsDefendre),
-    documents: documents.length > 0 ? documents.map(mapDocument) : defaultDocuments,
-    viewings: mapViewings(events) ?? defaultViewings,
-    salesSteps: mapSalesSteps(events) ?? defaultSalesSteps,
-    offers: mapOffers(events) ?? defaultOffers,
-    portalStats: mapPortalStats(opinion.audience) ?? defaultPortalStats,
+    documents: documents.map(mapDocument),
+    viewings: mapViewings(events) ?? [],
+    salesSteps: mapSalesSteps(events) ?? [],
+    offers: mapOffers(events) ?? [],
+    portalStats: mapPortalStats(opinion.audience) ?? [],
     cadastralParcels: mapCadastralRows(report) ?? baseClient.cadastralParcels,
     marketPriceRanges: {
       low: numberValue(market.price_per_sqm_low, positioning.low_per_sqm) ?? baseClient.marketPriceRanges?.low ?? 3000,
@@ -380,6 +381,9 @@ function findStat(property: JsonRecord, labelNeedle: string) {
 }
 
 function getRequestedDossierId() {
+  const pathMatch = window.location.pathname.match(/^\/dossier\/([^/?#]+)/);
+  if (pathMatch?.[1]) return decodeURIComponent(pathMatch[1]);
+
   const params = new URLSearchParams(window.location.search);
   return params.get('dossier') ?? params.get('dossier_id') ?? import.meta.env.VITE_CLIENT_DOSSIER_ID ?? null;
 }

@@ -5,7 +5,7 @@
   "installCommand": "npm install",
   "rewrites": [
     {
-      "source": "/((?!assets/|robots.txt|favicon.ico).*)",
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ]
