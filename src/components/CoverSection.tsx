@@ -60,7 +60,7 @@ export default function CoverSection({ client, advisor, onStart }: CoverSectionP
         {/* Client & Date Details Panel */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-6 border-t border-b border-slate-100 mt-2 z-10" id="cover-details-grid">
           <div className="flex flex-col gap-1.5" id="cover-detail-client">
-            <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider font-mono">À l'attention de</span>
+            <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">À l'attention de</span>
             <div className="flex items-center gap-2.5">
               <div className="p-2 bg-slate-50 text-slate-700 rounded-lg">
                 <User className="w-4 h-4" />

@@ -481,7 +481,7 @@ const MULTI_CLIENT_STORAGE_KEY = 'iad_estimation_multi_client_state_v1';
 
 export interface MultiClientState {
   currentClientId: string;
-  clients: typeof defaultClients;
+  clients: ClientRecord[];
   advisorInfo: AdvisorInfo;
 }
 

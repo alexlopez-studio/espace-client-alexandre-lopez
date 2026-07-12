@@ -23,6 +23,7 @@ interface OffersSectionProps {
   onDeleteOffer: (id: string) => void;
   onUpdateOfferStatus: (id: string, status: BuyerOffer['status']) => void;
   isAdmin?: boolean;
+  readOnly?: boolean;
 }
 
 export default function OffersSection({ 
@@ -30,7 +31,8 @@ export default function OffersSection({
   onAddOffer, 
   onDeleteOffer,
   onUpdateOfferStatus,
-  isAdmin = false 
+  isAdmin = false,
+  readOnly = false,
 }: OffersSectionProps) {
   const [showAddForm, setShowAddForm] = useState<boolean>(false);
   const [buyerName, setBuyerName] = useState<string>('');
@@ -193,18 +195,20 @@ export default function OffersSection({
             <p className="text-xs text-slate-500">Toutes les offres d'achat écrites et motivées reçues pour la vente de votre maison.</p>
           </div>
 
-          <button
-            id="btn-toggle-add-offer"
-            onClick={() => setShowAddForm(!showAddForm)}
-            className="flex items-center gap-1.5 bg-[#00A0E2] hover:bg-[#008cc7] text-white font-bold py-2 px-3.5 rounded-xl text-xs shadow-md shadow-[#00A0E2]/10 transition-colors shrink-0"
-          >
-            {showAddForm ? 'Fermer le formulaire' : 'Enregistrer une offre'}
-            {!showAddForm && <Plus className="w-4 h-4" />}
-          </button>
+          {!readOnly && (
+            <button
+              id="btn-toggle-add-offer"
+              onClick={() => setShowAddForm(!showAddForm)}
+              className="flex items-center gap-1.5 bg-[#00A0E2] hover:bg-[#008cc7] text-white font-bold py-2 px-3.5 rounded-xl text-xs shadow-md shadow-[#00A0E2]/10 transition-colors shrink-0"
+            >
+              {showAddForm ? 'Fermer le formulaire' : 'Enregistrer une offre'}
+              {!showAddForm && <Plus className="w-4 h-4" />}
+            </button>
+          )}
         </div>
 
         {/* Add Offer inline Form */}
-        {showAddForm && (
+        {!readOnly && showAddForm && (
           <form 
             onSubmit={handleAddSubmit}
             className="bg-slate-50 border border-slate-100 p-5 rounded-2xl grid grid-cols-1 md:grid-cols-12 gap-4 animate-in slide-in-from-top-4 duration-300"
@@ -402,7 +406,7 @@ export default function OffersSection({
 
                   </div>
 
-                  {/* Actions footer (Allow modifying and deleting) */}
+                  {!readOnly && (
                   <div className="flex items-center justify-between border-t border-slate-100/80 pt-3.5 mt-2" id={`offer-actions-${offer.id}`}>
                     
                     {/* Accept / Decline triggers (Advisor/Seller panel) */}
@@ -451,6 +455,7 @@ export default function OffersSection({
                     </button>
 
                   </div>
+                  )}
 
                 </div>
               );
