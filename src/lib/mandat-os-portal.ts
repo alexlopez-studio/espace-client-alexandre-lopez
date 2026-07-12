@@ -9,8 +9,7 @@ import type {
   SalesStep,
   ViewingReport,
 } from '../types';
-import { advisorInfo as defaultAdvisorInfo } from '../data';
-import { defaultClients, type MultiClientState } from './store';
+import { emptyAdvisorInfo, emptyClient, type MultiClientState } from './store';
 import { getSupabaseClient, isSupabaseConfigured } from './supabase';
 
 type JsonRecord = Record<string, unknown>;
@@ -71,6 +70,10 @@ type ClientPortalPayload = {
   dossier: ClientDossierRow;
   documents: ClientDocumentRow[];
   events: ClientEventRow[];
+  estimation?: {
+    status: 'empty' | 'draft' | 'published';
+    published_at?: string | null;
+  };
 };
 
 export type RemotePortalLoadResult = {
@@ -86,9 +89,7 @@ export async function loadMandatOsPortalState(): Promise<RemotePortalLoadResult>
   }
 
   if (!isSupabaseConfigured()) {
-    return isLocalDev()
-      ? { status: 'demo', message: 'Supabase non configuré : le portail reste en mode démonstration.' }
-      : { status: 'unauthenticated', message: 'Connexion client requise.' };
+    return { status: 'unauthenticated', message: 'Connexion client requise.' };
   }
 
   const supabase = getSupabaseClient();
@@ -121,17 +122,12 @@ async function loadPortalPayload(input: { accessToken?: string; previewToken?: s
 
   return {
     status: 'synced',
-    state: mapDossierToMultiClientState(json.data.profile, json.data.dossier, json.data.documents, json.data.events),
+    state: mapDossierToMultiClientState(json.data),
   };
 }
 
-function mapDossierToMultiClientState(
-  profile: ClientProfileRow,
-  dossier: ClientDossierRow,
-  documents: ClientDocumentRow[],
-  events: ClientEventRow[],
-): MultiClientState {
-  const baseClient = defaultClients[0];
+function mapDossierToMultiClientState(payload: ClientPortalPayload): MultiClientState {
+  const { profile, dossier, documents, events } = payload;
   const snapshot = asRecord(dossier.property_snapshot);
   const opinion = asRecord(dossier.professional_opinion);
   const report = asRecord(opinion.iad_report ?? opinion.report);
@@ -141,59 +137,51 @@ function mapDossierToMultiClientState(
   const market = asRecord(report.market);
   const positioning = asRecord(report.positioning);
   const comparables = asRecord(report.comparables);
+  const estimationStatus = payload.estimation?.status ?? inferEstimationStatus(opinion);
 
   const address = text(
     snapshot.adresse,
     snapshot.address,
     cover.subtitle,
-    baseClient.clientInfo.address,
   );
 
   const client: ClientRecord = {
-    ...baseClient,
+    ...emptyClient,
     id: dossier.id,
+    estimationStatus,
     clientInfo: {
       names: text(
         cover.recipient,
         [profile.first_name, profile.last_name].filter(Boolean).join(' '),
         profile.email,
-        baseClient.clientInfo.names,
+        emptyClient.clientInfo.names,
       ),
       address,
-      date: text(cover.date, formatDate(dossier.updated_at), baseClient.clientInfo.date),
-      projectTitle: text(cover.title, dossier.title, baseClient.clientInfo.projectTitle),
+      date: text(cover.date, formatDate(dossier.updated_at)),
+      projectTitle: text(cover.title, dossier.title, 'Espace client'),
     },
     propertyDetails: {
-      ...baseClient.propertyDetails,
-      surface: numberValue(snapshot.surface, snapshot.surface_habitable, findStat(property, 'surface')) ?? baseClient.propertyDetails.surface,
-      rooms: numberValue(snapshot.nb_pieces, snapshot.rooms, findStat(property, 'pièce')) ?? baseClient.propertyDetails.rooms,
-      floors: numberValue(snapshot.floors, snapshot.niveaux, findStat(property, 'niveau')) ?? baseClient.propertyDetails.floors,
-      landSurface: numberValue(snapshot.surface_terrain, snapshot.land_surface, findStat(property, 'terrain')) ?? baseClient.propertyDetails.landSurface,
-      bedrooms: numberValue(snapshot.bedrooms, snapshot.chambres, findStat(property, 'chambre')) ?? baseClient.propertyDetails.bedrooms,
-      year: numberValue(snapshot.year, snapshot.annee_construction, findStat(property, 'année')) ?? baseClient.propertyDetails.year,
+      ...emptyClient.propertyDetails,
+      surface: numberValue(snapshot.surface, snapshot.surface_habitable, findStat(property, 'surface')) ?? 0,
+      rooms: numberValue(snapshot.nb_pieces, snapshot.rooms, findStat(property, 'pièce')) ?? 0,
+      floors: numberValue(snapshot.floors, snapshot.niveaux, findStat(property, 'niveau')) ?? 0,
+      landSurface: numberValue(snapshot.surface_terrain, snapshot.land_surface, findStat(property, 'terrain')) ?? 0,
+      bedrooms: numberValue(snapshot.bedrooms, snapshot.chambres, findStat(property, 'chambre')) ?? 0,
+      year: numberValue(snapshot.year, snapshot.annee_construction, findStat(property, 'année')) ?? 0,
       address,
-      description: text(property.title, snapshot.description, dossier.advisor_note, baseClient.propertyDetails.description),
+      description: text(property.title, snapshot.description, dossier.advisor_note),
     },
-    pointsForts: mapPoints(property.strengths, baseClient.pointsForts),
-    pointsDefendre: mapPoints(property.objections, baseClient.pointsDefendre),
+    pointsForts: mapPoints(property.strengths),
+    pointsDefendre: mapPoints(property.objections),
     documents: documents.map(mapDocument),
     viewings: mapViewings(events) ?? [],
     salesSteps: mapSalesSteps(events) ?? [],
     offers: mapOffers(events) ?? [],
     portalStats: mapPortalStats(opinion.audience) ?? [],
-    cadastralParcels: mapCadastralRows(report) ?? baseClient.cadastralParcels,
-    marketPriceRanges: {
-      low: numberValue(market.price_per_sqm_low, positioning.low_per_sqm) ?? baseClient.marketPriceRanges?.low ?? 3000,
-      median: numberValue(market.price_per_sqm_median, positioning.median_per_sqm) ?? baseClient.marketPriceRanges?.median ?? 4000,
-      high: numberValue(market.price_per_sqm_high, positioning.high_per_sqm) ?? baseClient.marketPriceRanges?.high ?? 5000,
-      currentReferencePrice: numberValue(positioning.reference_price, opinion.price_suggested, snapshot.prix_estime) ?? baseClient.marketPriceRanges?.currentReferencePrice,
-      currentReferencePricePerSqm: numberValue(positioning.reference_price_per_sqm, market.price_per_sqm_median) ?? baseClient.marketPriceRanges?.currentReferencePricePerSqm,
-    },
-    soldComparables: mapComparables(comparables.sold ?? opinion.comparables) ?? baseClient.soldComparables,
-    recommendedPriceRange: {
-      low: numberValue(opinion.price_low, positioning.threshold_low_price) ?? baseClient.recommendedPriceRange?.low ?? 0,
-      high: numberValue(opinion.price_high, positioning.threshold_high_price) ?? baseClient.recommendedPriceRange?.high ?? 0,
-    },
+    cadastralParcels: estimationStatus === 'published' ? mapCadastralRows(report) ?? [] : [],
+    marketPriceRanges: estimationStatus === 'published' ? mapMarketPriceRanges(market, positioning, opinion) : undefined,
+    soldComparables: estimationStatus === 'published' ? mapComparables(comparables.sold ?? opinion.comparables) ?? [] : [],
+    recommendedPriceRange: estimationStatus === 'published' ? mapRecommendedPriceRange(opinion, positioning) : undefined,
   };
 
   return {
@@ -205,10 +193,12 @@ function mapDossierToMultiClientState(
 
 function mapAdvisor(advisor: JsonRecord): AdvisorInfo {
   return {
-    ...defaultAdvisorInfo,
-    name: text(advisor.name, defaultAdvisorInfo.name),
-    phone: text(advisor.phone, defaultAdvisorInfo.phone),
-    email: text(advisor.email, defaultAdvisorInfo.email),
+    ...emptyAdvisorInfo,
+    name: text(advisor.name, emptyAdvisorInfo.name),
+    title: text(advisor.title, advisor.role, emptyAdvisorInfo.title),
+    phone: text(advisor.phone, emptyAdvisorInfo.phone),
+    email: text(advisor.email, emptyAdvisorInfo.email),
+    avatar: text(advisor.avatar, advisor.avatar_url, emptyAdvisorInfo.avatar),
   };
 }
 
@@ -310,7 +300,40 @@ function mapPortalStats(value: unknown): PortalStat[] | undefined {
   return rows.length > 0 ? rows : undefined;
 }
 
-function mapPoints(value: unknown, fallback: PropertyPoint[]) {
+function mapMarketPriceRanges(market: JsonRecord, positioning: JsonRecord, opinion: JsonRecord) {
+  const low = numberValue(market.price_per_sqm_low, positioning.low_per_sqm);
+  const median = numberValue(market.price_per_sqm_median, positioning.median_per_sqm);
+  const high = numberValue(market.price_per_sqm_high, positioning.high_per_sqm);
+  const currentReferencePrice = numberValue(positioning.reference_price, opinion.price_suggested, opinion.price);
+  const currentReferencePricePerSqm = numberValue(positioning.reference_price_per_sqm, market.price_per_sqm_median);
+
+  if (!low && !median && !high && !currentReferencePrice && !currentReferencePricePerSqm) return undefined;
+
+  return {
+    low: low ?? 0,
+    median: median ?? 0,
+    high: high ?? 0,
+    currentReferencePrice,
+    currentReferencePricePerSqm,
+  };
+}
+
+function mapRecommendedPriceRange(opinion: JsonRecord, positioning: JsonRecord) {
+  const low = numberValue(opinion.price_low, positioning.threshold_low_price);
+  const high = numberValue(opinion.price_high, positioning.threshold_high_price);
+  if (!low && !high) return undefined;
+  return {
+    low: low ?? 0,
+    high: high ?? 0,
+  };
+}
+
+function inferEstimationStatus(opinion: JsonRecord): 'empty' | 'draft' | 'published' {
+  if (opinion.client_portal_published === true) return 'published';
+  return Object.keys(opinion).length > 0 ? 'draft' : 'empty';
+}
+
+function mapPoints(value: unknown) {
   const values = asArray(value)
     .map((item) => {
       if (typeof item === 'string') return { text: item, description: item };
@@ -322,7 +345,7 @@ function mapPoints(value: unknown, fallback: PropertyPoint[]) {
     })
     .filter((point) => point.text);
 
-  return values.length > 0 ? values : fallback;
+  return values.length > 0 ? values : [];
 }
 
 function mapComparables(value: unknown): ComparableProperty[] | undefined {
@@ -395,10 +418,6 @@ function getPreviewToken() {
 
 function getMandatOsApiUrl() {
   return (import.meta.env.VITE_MANDAT_OS_API_URL || 'https://app.alexandrelopez.fr').replace(/\/+$/, '');
-}
-
-function isLocalDev() {
-  return import.meta.env.DEV || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 }
 
 function mapDocumentCategory(category: string | null | undefined): DocumentItem['category'] {

@@ -12,11 +12,8 @@ import {
   Share2,
   Calendar,
   Info,
-  TrendingUp,
   GitCompare,
-  Sliders,
   CheckSquare,
-  Star,
   FolderOpen,
   Users,
   Compass,
@@ -26,28 +23,14 @@ import {
   LockKeyhole
 } from 'lucide-react';
 
-import { 
-  getInitialState, 
-  saveAppState, 
-  clearAppState,
-  defaultDocuments,
-  defaultViewings,
-  defaultSalesSteps,
-  defaultOffers,
-  defaultPortalStats,
-  getMultiClientState,
-  saveMultiClientState
-} from './lib/store';
+import { clearAppState, getMultiClientState, saveMultiClientState } from './lib/store';
 
 import Navbar from './components/Navbar';
 import CoverSection from './components/CoverSection';
 import SituationSection from './components/SituationSection';
 import PropertySection from './components/PropertySection';
-import MarketSection from './components/MarketSection';
 import ComparablesSection from './components/ComparablesSection';
-import PositioningSection from './components/PositioningSection';
 import ConclusionSection from './components/ConclusionSection';
-import ServicesSection from './components/ServicesSection';
 import IadLogo from './components/IadLogo';
 
 // Admin modules imports
@@ -74,6 +57,7 @@ export default function App() {
   const appState: AppState = {
     clientInfo: currentClient.clientInfo,
     advisorInfo: multiClientState.advisorInfo,
+    estimationStatus: currentClient.estimationStatus,
     propertyDetails: currentClient.propertyDetails,
     pointsForts: currentClient.pointsForts,
     pointsDefendre: currentClient.pointsDefendre,
@@ -83,9 +67,9 @@ export default function App() {
     offers: currentClient.offers,
     portalStats: currentClient.portalStats,
     cadastralParcels: currentClient.cadastralParcels || [],
-    marketPriceRanges: currentClient.marketPriceRanges || { low: 3000, median: 4000, high: 5000, currentReferencePrice: 400000, currentReferencePricePerSqm: 3200 },
+    marketPriceRanges: currentClient.marketPriceRanges,
     soldComparables: currentClient.soldComparables || [],
-    recommendedPriceRange: currentClient.recommendedPriceRange || { low: 380000, high: 420000 }
+    recommendedPriceRange: currentClient.recommendedPriceRange
   };
 
   // Custom setAppState to map state updates back into the multiClientState
@@ -95,6 +79,7 @@ export default function App() {
       const currentAppState: AppState = {
         clientInfo: currentClient.clientInfo,
         advisorInfo: prev.advisorInfo,
+        estimationStatus: currentClient.estimationStatus,
         propertyDetails: currentClient.propertyDetails,
         pointsForts: currentClient.pointsForts,
         pointsDefendre: currentClient.pointsDefendre,
@@ -104,9 +89,9 @@ export default function App() {
         offers: currentClient.offers,
         portalStats: currentClient.portalStats,
         cadastralParcels: currentClient.cadastralParcels || [],
-        marketPriceRanges: currentClient.marketPriceRanges || { low: 3000, median: 4000, high: 5000, currentReferencePrice: 400000, currentReferencePricePerSqm: 3200 },
+        marketPriceRanges: currentClient.marketPriceRanges,
         soldComparables: currentClient.soldComparables || [],
-        recommendedPriceRange: currentClient.recommendedPriceRange || { low: 380000, high: 420000 }
+        recommendedPriceRange: currentClient.recommendedPriceRange
       };
 
       const newState = typeof updater === 'function' ? updater(currentAppState) : updater;
@@ -116,6 +101,7 @@ export default function App() {
           return {
             ...c,
             clientInfo: newState.clientInfo,
+            estimationStatus: newState.estimationStatus,
             propertyDetails: newState.propertyDetails,
             pointsForts: newState.pointsForts,
             pointsDefendre: newState.pointsDefendre,
@@ -145,7 +131,7 @@ export default function App() {
 
   // Track and remember the last sub-sections within main divisions
   useEffect(() => {
-    if (['situation', 'property', 'market', 'comparables', 'positioning', 'conclusion', 'services'].includes(activeSection)) {
+    if (['estimationEmpty', 'situation', 'property', 'comparables', 'conclusion'].includes(activeSection)) {
       setLastEvalSection(activeSection);
     } else if (['documents', 'viewings', 'salesPlan', 'offers', 'stats'].includes(activeSection)) {
       setLastTransSection(activeSection);
@@ -182,7 +168,7 @@ export default function App() {
     };
   }, []);
 
-  // Handle client selection, adding, and deleting
+  // Handle client selection
   const handleSelectClient = (clientId: string) => {
     setMultiClientState(prev => {
       const nextState = { ...prev, currentClientId: clientId };
@@ -190,83 +176,6 @@ export default function App() {
       return nextState;
     });
     setActiveSection('cover'); // Return to home page on client switch
-  };
-
-  const handleAddClient = (names: string, address: string) => {
-    const newId = `client-${Date.now()}`;
-    const newClient: ClientRecord = {
-      id: newId,
-      clientInfo: {
-        names,
-        address,
-        date: new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }),
-        projectTitle: "Dossier de commercialisation & Suivi de vente"
-      },
-      propertyDetails: {
-        surface: 100,
-        rooms: 4,
-        floors: 1,
-        landSurface: 200,
-        bedrooms: 3,
-        year: 2000,
-        address,
-        description: "Description de votre nouveau bien immobilier..."
-      },
-      pointsForts: [],
-      pointsDefendre: [],
-      documents: [],
-      viewings: [],
-      salesSteps: defaultSalesSteps.map(step => ({ ...step, status: 'A faire' })),
-      offers: [],
-      portalStats: defaultPortalStats.map(portal => ({
-        ...portal,
-        views: 0,
-        detailedViews: 0,
-        contacts: 0,
-        phoneClicks: 0,
-        performanceIndex: 0,
-        history: []
-      })),
-      cadastralParcels: [
-        { section: "D", prefixe: "000", numero: "123", superficie: 200 }
-      ],
-      marketPriceRanges: {
-        low: 2500,
-        median: 3500,
-        high: 4500,
-        currentReferencePrice: 350000,
-        currentReferencePricePerSqm: 3500
-      },
-      soldComparables: [],
-      recommendedPriceRange: { low: 340000, high: 360000 }
-    };
-
-    setMultiClientState(prev => {
-      const nextState = {
-        ...prev,
-        clients: [...prev.clients, newClient],
-        currentClientId: newId
-      };
-      saveMultiClientState(nextState);
-      return nextState;
-    });
-    setActiveSection('cover');
-  };
-
-  const handleDeleteClient = (clientId: string) => {
-    setMultiClientState(prev => {
-      if (prev.clients.length <= 1) return prev;
-      const remainingClients = prev.clients.filter(c => c.id !== clientId);
-      const nextId = prev.currentClientId === clientId ? remainingClients[0].id : prev.currentClientId;
-      const nextState = {
-        ...prev,
-        clients: remainingClients,
-        currentClientId: nextId
-      };
-      saveMultiClientState(nextState);
-      return nextState;
-    });
-    setActiveSection('cover');
   };
 
   // Monitor scroll for back-to-top button
@@ -283,7 +192,7 @@ export default function App() {
   };
 
   const handleStartPresentation = () => {
-    setActiveSection('situation');
+    setActiveSection(appState.estimationStatus === 'published' ? 'situation' : 'estimationEmpty');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -375,17 +284,13 @@ export default function App() {
     });
   };
 
-  // 5. General Admin State Override
-  const handleUpdateState = (newState: typeof appState) => {
-    setAppState(newState);
-  };
-
   const handleResetToDefaults = () => {
     clearAppState();
     window.location.reload();
   };
 
-  const isEvaluation = ['situation', 'property', 'market', 'comparables', 'positioning', 'conclusion', 'services'].includes(activeSection);
+  const isEstimationPublished = appState.estimationStatus === 'published';
+  const isEvaluation = ['estimationEmpty', 'situation', 'property', 'comparables', 'conclusion'].includes(activeSection);
   const isTransaction = ['documents', 'viewings', 'salesPlan', 'offers', 'stats'].includes(activeSection);
   const shouldBlockForAccess = ['unauthenticated', 'empty', 'error'].includes(remoteStatus);
 
@@ -413,7 +318,7 @@ export default function App() {
           scrollToTop();
         }} 
         advisor={appState.advisorInfo}
-        lastEvalSection={lastEvalSection}
+        lastEvalSection={isEstimationPublished ? lastEvalSection : 'estimationEmpty'}
         lastTransSection={lastTransSection}
       />
 
@@ -468,7 +373,7 @@ export default function App() {
 
               {remoteStatus === 'error' && (
                 <span className="hidden md:inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-amber-700">
-                  Mode démo
+                  Synchronisation indisponible
                 </span>
               )}
 
@@ -540,7 +445,7 @@ export default function App() {
                 <nav className="flex-1 flex flex-col gap-1.5 overflow-y-auto" id="mobile-drawer-nav">
                   {[
                     { id: 'cover', label: 'Accueil', target: 'cover', active: activeSection === 'cover' },
-                    { id: 'evaluation', label: 'Estimation', target: lastEvalSection, active: isEvaluation },
+                    { id: 'evaluation', label: 'Estimation', target: isEstimationPublished ? lastEvalSection : 'estimationEmpty', active: isEvaluation },
                     { id: 'transaction', label: 'Suivi de Vente', target: lastTransSection, active: isTransaction }
                   ].map((item) => (
                     <button
@@ -589,14 +494,16 @@ export default function App() {
             <div className="bg-white border border-slate-100 p-1.5 rounded-2xl flex items-center gap-1 overflow-x-auto scrollbar-none snap-x snap-mandatory shadow-sm" id="main-subtabs-bar">
               {(() => {
                 if (isEvaluation) {
+                  if (!isEstimationPublished) {
+                    return [
+                      { id: 'estimationEmpty', label: 'Estimation en préparation', icon: Info },
+                    ];
+                  }
                   return [
                     { id: 'situation', label: 'Situation & Cadastre', icon: MapPin },
                     { id: 'property', label: 'Fiche du Bien', icon: Info },
-                    { id: 'market', label: 'Marché Local', icon: TrendingUp },
                     { id: 'comparables', label: 'Comparables', icon: GitCompare },
-                    { id: 'positioning', label: 'Simulateur', icon: Sliders },
                     { id: 'conclusion', label: 'Recommandations', icon: CheckSquare },
-                    { id: 'services', label: 'Avis & Services', icon: Star },
                   ];
                 } else if (isTransaction) {
                   return [
@@ -659,50 +566,61 @@ export default function App() {
                 <CoverSection 
                   client={appState.clientInfo} 
                   advisor={appState.advisorInfo} 
+                  propertyDetails={appState.propertyDetails}
+                  estimationStatus={appState.estimationStatus}
                   onStart={handleStartPresentation} 
                 />
               )}
-              {activeSection === 'situation' && (
-                <SituationSection 
-                  cadastralParcels={appState.cadastralParcels}
-                  clientAddress={appState.clientInfo.address}
+              {activeSection === 'estimationEmpty' && (
+                <EmptyContentState
+                  title="Estimation en préparation"
+                  description="Votre conseiller prépare l’avis de valeur. Dès qu’il sera publié depuis Mandat OS, il apparaîtra ici sans donnée générique."
                 />
+              )}
+              {activeSection === 'situation' && (
+                appState.cadastralParcels && appState.cadastralParcels.length > 0 ? (
+                  <SituationSection 
+                    cadastralParcels={appState.cadastralParcels}
+                    clientAddress={appState.clientInfo.address}
+                  />
+                ) : (
+                  <EmptyContentState title="Situation en préparation" description="Les informations cadastrales seront visibles dès publication du rapport." />
+                )
               )}
               {activeSection === 'property' && (
-                <PropertySection 
-                  propertyDetails={appState.propertyDetails}
-                  pointsForts={appState.pointsForts}
-                  pointsDefendre={appState.pointsDefendre}
-                />
-              )}
-              {activeSection === 'market' && (
-                <MarketSection 
-                  marketPriceRanges={appState.marketPriceRanges}
-                  propertySize={appState.propertyDetails.surface}
-                />
+                hasPropertyDetails(appState.propertyDetails) ? (
+                  <PropertySection 
+                    propertyDetails={appState.propertyDetails}
+                    pointsForts={appState.pointsForts}
+                    pointsDefendre={appState.pointsDefendre}
+                  />
+                ) : (
+                  <EmptyContentState title="Fiche bien en préparation" description="Les caractéristiques détaillées seront visibles après publication." />
+                )
               )}
               {activeSection === 'comparables' && (
-                <ComparablesSection 
-                  soldComparables={appState.soldComparables}
-                  propertyDetails={appState.propertyDetails}
-                  referencePrice={appState.marketPriceRanges?.currentReferencePrice || 400000}
-                />
-              )}
-              {activeSection === 'positioning' && (
-                <PositioningSection 
-                  referencePrice={appState.marketPriceRanges?.currentReferencePrice || 400000}
-                  propertySize={appState.propertyDetails.surface}
-                />
+                appState.soldComparables && appState.soldComparables.length > 0 ? (
+                  <ComparablesSection 
+                    soldComparables={appState.soldComparables}
+                    propertyDetails={appState.propertyDetails}
+                    referencePrice={appState.marketPriceRanges?.currentReferencePrice}
+                  />
+                ) : (
+                  <EmptyContentState title="Comparables en préparation" description="Aucun comparable publié pour le moment." />
+                )
               )}
               {activeSection === 'conclusion' && (
-                <ConclusionSection 
-                  clientInfo={appState.clientInfo}
-                  advisorInfo={appState.advisorInfo}
-                  recommendedPriceRange={appState.recommendedPriceRange}
-                  propertySize={appState.propertyDetails.surface}
-                />
+                appState.recommendedPriceRange ? (
+                  <ConclusionSection 
+                    clientInfo={appState.clientInfo}
+                    advisorInfo={appState.advisorInfo}
+                    recommendedPriceRange={appState.recommendedPriceRange}
+                    propertySize={appState.propertyDetails.surface}
+                  />
+                ) : (
+                  <EmptyContentState title="Recommandations en préparation" description="Les recommandations seront visibles après publication de l’avis de valeur." />
+                )
               )}
-              {activeSection === 'services' && <ServicesSection />}
               
               {/* Follow-up Interactive sections */}
               {activeSection === 'documents' && (
@@ -792,5 +710,29 @@ function AccessState({ title, description }: { title: string; description: strin
         <p className="mt-2 text-sm leading-relaxed text-slate-500">{description}</p>
       </div>
     </div>
+  );
+}
+
+function EmptyContentState({ title, description }: { title: string; description: string }) {
+  return (
+    <section className="w-full rounded-3xl border border-dashed border-slate-200 bg-white p-8 text-center shadow-sm">
+      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-50 text-[#00A0E2]">
+        <Info className="h-6 w-6" />
+      </div>
+      <h2 className="mt-4 text-xl font-extrabold tracking-tight text-slate-900">{title}</h2>
+      <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-slate-500">{description}</p>
+    </section>
+  );
+}
+
+function hasPropertyDetails(property: AppState['propertyDetails']) {
+  return Boolean(
+    property.address ||
+    property.description ||
+    property.surface > 0 ||
+    property.rooms > 0 ||
+    property.landSurface > 0 ||
+    property.bedrooms > 0 ||
+    property.year > 0
   );
 }

@@ -15,18 +15,27 @@ import {
   Bed,
   Euro
 } from 'lucide-react';
-import { soldComparables as defaultComparables, propertyDetails as defaultPropertyDetails } from '../data';
-import { ComparableProperty } from '../types';
+import { ComparableProperty, PropertyDetails } from '../types';
 
 interface ComparablesSectionProps {
   soldComparables?: ComparableProperty[];
-  propertyDetails?: typeof defaultPropertyDetails;
+  propertyDetails?: PropertyDetails;
   referencePrice?: number;
 }
 
-export default function ComparablesSection({ soldComparables: propComparables, propertyDetails: propDetails, referencePrice = 400000 }: ComparablesSectionProps) {
-  const activeComparables = propComparables && propComparables.length > 0 ? propComparables : defaultComparables;
-  const activeDetails = propDetails || defaultPropertyDetails;
+export default function ComparablesSection({ soldComparables: propComparables, propertyDetails: propDetails, referencePrice }: ComparablesSectionProps) {
+  const activeComparables = propComparables ?? [];
+  const activeDetails = propDetails ?? {
+    surface: 0,
+    rooms: 0,
+    floors: 0,
+    landSurface: 0,
+    bedrooms: 0,
+    year: 0,
+    address: '',
+    description: '',
+  };
+  const safeReferencePrice = referencePrice ?? 0;
 
   const [selectedComparable, setSelectedComparable] = useState<ComparableProperty | null>(activeComparables[0] || null);
   const [filterQuery, setFilterQuery] = useState<'all' | 'escourtines' | 'eauxvives' | 'other'>('all');
@@ -35,7 +44,7 @@ export default function ComparablesSection({ soldComparables: propComparables, p
     setSelectedComparable(activeComparables[0] || null);
   }, [activeComparables]);
 
-  const referencePricePerSqm = Math.round(referencePrice / activeDetails.surface);
+  const referencePricePerSqm = safeReferencePrice && activeDetails.surface ? Math.round(safeReferencePrice / activeDetails.surface) : 0;
 
   const formatEuro = (val: number) => {
     return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(val);
@@ -62,15 +71,15 @@ export default function ComparablesSection({ soldComparables: propComparables, p
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-mono font-bold text-[#00A0E2] uppercase tracking-wider">Analyse comparative du marché</span>
           <h2 className="text-2xl font-extrabold text-slate-800 tracking-tight">Biens comparables récemment vendus</h2>
-          <p className="text-xs text-slate-500">Sélection de 6 maisons similaires vendues dans le secteur direct (Boulevard des Catacholis, Escourtines, Eaux Vives).</p>
+          <p className="text-xs text-slate-500">Sélection publiée par votre conseiller depuis Mandat OS.</p>
         </div>
         
         {/* Neighborhood Filter Tags */}
         <div className="flex flex-wrap gap-1.5 bg-slate-100 p-1 rounded-xl self-start md:self-center" id="comparable-filters">
           {[
             { id: 'all', label: 'Tous' },
-            { id: 'escourtines', label: 'Escourtines' },
-            { id: 'eauxvives', label: 'Eaux Vives' },
+            { id: 'escourtines', label: 'Secteur A' },
+            { id: 'eauxvives', label: 'Secteur B' },
             { id: 'other', label: 'Autres' },
           ].map(tab => (
             <button
@@ -230,7 +239,7 @@ export default function ComparablesSection({ soldComparables: propComparables, p
                   {/* Row: Price */}
                   <div className="grid grid-cols-3 items-center py-2 border-b border-slate-50 text-xs" id="row-price">
                     <div className="text-slate-500 font-semibold">Prix de vente</div>
-                    <div className="text-slate-400 font-mono font-medium">Référence : <span className="font-extrabold text-slate-700">{Math.round(referencePrice / 1000)}k €</span></div>
+                    <div className="text-slate-400 font-mono font-medium">Référence : <span className="font-extrabold text-slate-700">{Math.round(safeReferencePrice / 1000)}k €</span></div>
                     <div className="text-right font-mono font-bold text-[#00A0E2]">
                       {formatEuro(selectedComparable.price)}
                     </div>

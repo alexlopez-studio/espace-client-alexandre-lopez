@@ -25,7 +25,7 @@ export default function Navbar({
   lastTransSection = 'documents',
 }: NavbarProps) {
   
-  const isEvaluationActive = ['situation', 'property', 'market', 'comparables', 'positioning', 'conclusion', 'services'].includes(activeSection);
+  const isEvaluationActive = ['estimationEmpty', 'situation', 'property', 'market', 'comparables', 'conclusion'].includes(activeSection);
   const isTransactionActive = ['documents', 'viewings', 'salesPlan', 'offers', 'stats'].includes(activeSection);
 
   const mainCategories = [
@@ -97,34 +97,44 @@ export default function Navbar({
       {/* Advisor Quick Card */}
       <div className="p-5 border-t border-slate-800 bg-slate-950/40 m-4 rounded-2xl flex flex-col gap-3" id="sidebar-advisor-card">
         <div className="flex items-center gap-3">
-          <img 
-            src={advisor.avatar} 
-            alt={advisor.name} 
-            className="w-10 h-10 rounded-full object-cover border border-[#00A0E2]/30 shadow-md referrerPolicy='no-referrer'"
-            id="sidebar-advisor-avatar"
-          />
+          {advisor.avatar ? (
+            <img 
+              src={advisor.avatar} 
+              alt={advisor.name} 
+              className="w-10 h-10 rounded-full object-cover border border-[#00A0E2]/30 shadow-md referrerPolicy='no-referrer'"
+              id="sidebar-advisor-avatar"
+            />
+          ) : (
+            <div className="flex h-10 w-10 items-center justify-center rounded-full border border-[#00A0E2]/30 bg-slate-800 text-xs font-black text-white">
+              {advisor.name.slice(0, 1)}
+            </div>
+          )}
           <div className="min-w-0">
             <h4 className="text-xs font-bold text-white truncate">{advisor.name}</h4>
             <p className="text-[10px] text-slate-400 truncate">{advisor.title}</p>
           </div>
         </div>
         <div className="flex flex-col gap-1.5 text-xs text-slate-300 mt-1">
-          <a 
-            href={`tel:${advisor.phone.replace(/\s/g, '')}`} 
-            className="flex items-center gap-2 hover:text-[#00A0E2] transition-colors"
-            id="sidebar-advisor-phone"
-          >
-            <Phone className="w-3.5 h-3.5 text-[#00A0E2]" />
-            <span>{advisor.phone}</span>
-          </a>
-          <a 
-            href={`mailto:${advisor.email}`} 
-            className="flex items-center gap-2 hover:text-[#00A0E2] transition-colors truncate"
-            id="sidebar-advisor-email"
-          >
-            <Mail className="w-3.5 h-3.5 text-[#00A0E2] shrink-0" />
-            <span className="truncate">{advisor.email}</span>
-          </a>
+          {advisor.phone && (
+            <a 
+              href={`tel:${advisor.phone.replace(/\s/g, '')}`} 
+              className="flex items-center gap-2 hover:text-[#00A0E2] transition-colors"
+              id="sidebar-advisor-phone"
+            >
+              <Phone className="w-3.5 h-3.5 text-[#00A0E2]" />
+              <span>{advisor.phone}</span>
+            </a>
+          )}
+          {advisor.email && (
+            <a 
+              href={`mailto:${advisor.email}`} 
+              className="flex items-center gap-2 hover:text-[#00A0E2] transition-colors truncate"
+              id="sidebar-advisor-email"
+            >
+              <Mail className="w-3.5 h-3.5 text-[#00A0E2] shrink-0" />
+              <span className="truncate">{advisor.email}</span>
+            </a>
+          )}
         </div>
       </div>
     </aside>

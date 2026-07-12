@@ -12,7 +12,6 @@ import {
   CheckCircle,
   HelpCircle
 } from 'lucide-react';
-import { cadastralParcels as defaultParcels } from '../data';
 import { CadastralParcel } from '../types';
 
 interface SituationSectionProps {
@@ -25,13 +24,13 @@ export default function SituationSection({ cadastralParcels: propParcels, client
   const [selectedParcel, setSelectedParcel] = useState<CadastralParcel | null>(null);
   const [hoveredParcel, setHoveredParcel] = useState<string | null>(null);
 
-  const activeParcels = propParcels && propParcels.length > 0 ? propParcels : defaultParcels;
+  const activeParcels = propParcels ?? [];
   const totalSuperficie = activeParcels.reduce((acc, p) => acc + parseInt((p.superficie || 0).toString()), 0);
-  const addressToDisplay = clientAddress || "30 Boulevard des Catacholis, 13011 Marseille";
+  const addressToDisplay = clientAddress || "Adresse du bien";
 
   const getCity = (addr: string) => {
     const parts = addr.split(',');
-    return parts[parts.length - 1]?.trim() || "Marseille";
+    return parts[parts.length - 1]?.trim() || "À renseigner";
   };
 
   return (
@@ -133,10 +132,10 @@ export default function SituationSection({ cadastralParcels: propParcels, client
                   <path d="M120 0 L150 400" fill="none" stroke="#cfd8dc" strokeWidth="4" />
                   <text x="70" y="220" fill="#78909c" className="text-[8px] rotate-75 font-semibold">Ch. de la Penne-sur-Huveaune</text>
                   
-                  {/* Bd des Catacholis winding street */}
+                  {/* Représentation schématique du secteur */}
                   <path d="M135 180 Q250 220 320 280 T450 390" fill="none" stroke="#ffffff" strokeWidth="10" />
                   <path d="M135 180 Q250 220 320 280 T450 390" fill="none" stroke="#b0bec5" strokeWidth="5" />
-                  <text x="210" y="245" fill="#546e7a" className="text-[9px] font-bold">Bd des Catacholis</text>
+                  <text x="210" y="245" fill="#546e7a" className="text-[9px] font-bold">Secteur du bien</text>
 
                   {/* Other minor streets */}
                   <path d="M300 263 L500 240" fill="none" stroke="#cfd8dc" strokeWidth="3" />
@@ -155,7 +154,7 @@ export default function SituationSection({ cadastralParcels: propParcels, client
                   <foreignObject x="215" y="308" width="210" height="60" id="map-info-card-box">
                     <div className="bg-slate-900/90 text-white p-2.5 rounded-xl border border-slate-700 text-center flex flex-col gap-0.5 shadow-lg">
                       <span className="text-[10px] font-bold text-[#00A0E2]">VOTRE MAISON</span>
-                      <span className="text-[9px] text-slate-300">30 Bd des Catacholis</span>
+                      <span className="text-[9px] text-slate-300">{addressToDisplay}</span>
                     </div>
                   </foreignObject>
                 </svg>
@@ -171,7 +170,7 @@ export default function SituationSection({ cadastralParcels: propParcels, client
                 exit={{ opacity: 0 }}
                 className="absolute inset-0 bg-slate-950"
               >
-                {/* Visual rendering representing Marseille 13011 green suburbs */}
+                {/* Visualisation schématique du terrain */}
                 <svg viewBox="0 0 500 400" className="w-full h-full object-cover" id="svg-aerial-map">
                   {/* Sat photo simulated background */}
                   <rect width="500" height="400" fill="#2d3725" />
@@ -186,7 +185,7 @@ export default function SituationSection({ cadastralParcels: propParcels, client
                   <polygon points="400,100 440,90 450,130 410,140" fill="#9e9d24" opacity="0.8" />
                   <polygon points="350,330 380,310 400,345 370,365" fill="#ef6c00" opacity="0.85" />
 
-                  {/* Access road (Bd des Catacholis) */}
+                  {/* Voie d'accès */}
                   <path d="M0 240 Q150 230 250 250 T500 320" fill="none" stroke="#37474f" strokeWidth="18" />
                   <path d="M0 240 Q150 230 250 250 T500 320" fill="none" stroke="#263238" strokeWidth="16" />
 
@@ -407,7 +406,7 @@ export default function SituationSection({ cadastralParcels: propParcels, client
                   <p className="text-xs text-slate-700 leading-relaxed" id="parcel-info-body">
                     {selectedParcel.numero === '111' 
                       ? "La parcelle D 111 supporte la maison d'habitation ainsi que sa terrasse, l'ancienne cave réaménagée et une partie du jardin paysager en restanques." 
-                      : "La parcelle D 548 comprend principalement la zone d'accès à la propriété, la descente de garage et le raccordement en bordure du Boulevard des Catacholis."}
+                      : "Cette parcelle comprend principalement une zone d'accès ou un espace annexe selon les informations cadastrales publiées."}
                   </p>
                 </motion.div>
               ) : (

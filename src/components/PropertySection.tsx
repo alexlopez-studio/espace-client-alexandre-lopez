@@ -14,18 +14,10 @@ import {
   ShieldCheck,
   AlertCircle
 } from 'lucide-react';
-import { PropertyPoint } from '../types';
+import { PropertyDetails, PropertyPoint } from '../types';
 
 interface PropertySectionProps {
-  propertyDetails: {
-    surface: number;
-    rooms: number;
-    bedrooms: number;
-    landSurface: number;
-    year: number;
-    floors: number;
-    description: string;
-  };
+  propertyDetails: PropertyDetails;
   pointsForts: PropertyPoint[];
   pointsDefendre: PropertyPoint[];
 }
@@ -59,6 +51,7 @@ export default function PropertySection({
     { label: 'Chambres', value: `${propertyDetails.bedrooms} chambres`, icon: Bed, bg: 'bg-violet-50', text: 'text-violet-600' },
     { label: 'Année de constr.', value: `${propertyDetails.year}`, icon: Hammer, bg: 'bg-slate-100', text: 'text-slate-600' },
   ];
+  const locationLabel = propertyDetails.address ? ` de ${propertyDetails.address}` : '';
 
   return (
     <div className="w-full flex flex-col gap-6 lg:p-4" id="property-section-container">
@@ -67,7 +60,7 @@ export default function PropertySection({
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-mono font-bold text-[#00A0E2] uppercase tracking-wider">Fiche technique du bien</span>
           <h2 className="text-2xl font-extrabold text-slate-800 tracking-tight">Caractéristiques principales</h2>
-          <p className="text-xs text-slate-500">Synthèse technique complète de votre maison à Marseille 11e.</p>
+          <p className="text-xs text-slate-500">Synthèse technique complète du bien{locationLabel}.</p>
         </div>
 
         {/* Bento Grid of Specs */}
@@ -256,7 +249,7 @@ export default function PropertySection({
 
                 {/* Footnote card with Olivier's avatar */}
                 <div className="flex items-center gap-3 pt-4 border-t border-slate-100 mt-auto" id="explainer-footer">
-                  <span className="text-[10px] font-mono text-slate-400 italic">Olivier Gomez • Conseiller expert Marseille 11e</span>
+                  <span className="text-[10px] font-mono text-slate-400 italic">Votre conseiller immobilier</span>
                 </div>
 
               </motion.div>

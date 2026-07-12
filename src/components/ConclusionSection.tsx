@@ -16,12 +16,12 @@ import {
   ChevronRight,
   Sparkles
 } from 'lucide-react';
-import { advisorInfo as defaultAdvisorInfo, clientInfo as defaultClientInfo } from '../data';
+import type { AdvisorInfo, ClientInfo } from '../types';
 
 interface ConclusionSectionProps {
-  clientInfo?: typeof defaultClientInfo;
-  advisorInfo?: typeof defaultAdvisorInfo;
-  recommendedPriceRange?: { low: number; high: number };
+  clientInfo: ClientInfo;
+  advisorInfo: AdvisorInfo;
+  recommendedPriceRange: { low: number; high: number };
   propertySize?: number;
 }
 
@@ -29,11 +29,11 @@ export default function ConclusionSection({
   clientInfo: propClient, 
   advisorInfo: propAdvisor, 
   recommendedPriceRange,
-  propertySize = 125 
+  propertySize = 0 
 }: ConclusionSectionProps) {
-  const activeClient = propClient || defaultClientInfo;
-  const activeAdvisor = propAdvisor || defaultAdvisorInfo;
-  const activePriceRange = recommendedPriceRange || { low: 400000, high: 420000 };
+  const activeClient = propClient;
+  const activeAdvisor = propAdvisor;
+  const activePriceRange = recommendedPriceRange;
 
   const formatEuro = (val: number) => {
     return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(val);
@@ -41,8 +41,8 @@ export default function ConclusionSection({
 
   const formattedLow = formatEuro(activePriceRange.low);
   const formattedHigh = formatEuro(activePriceRange.high);
-  const formattedLowPerSqm = formatEuro(Math.round(activePriceRange.low / propertySize));
-  const formattedHighPerSqm = formatEuro(Math.round(activePriceRange.high / propertySize));
+  const formattedLowPerSqm = propertySize > 0 ? formatEuro(Math.round(activePriceRange.low / propertySize)) : '—';
+  const formattedHighPerSqm = propertySize > 0 ? formatEuro(Math.round(activePriceRange.high / propertySize)) : '—';
 
   const [activeStep, setActiveStep] = useState<number>(0);
   const [meetingDate, setMeetingDate] = useState<string>('');

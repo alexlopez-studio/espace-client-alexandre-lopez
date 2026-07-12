@@ -13,6 +13,17 @@ export interface AdvisorInfo {
   avatar: string;
 }
 
+export interface PropertyDetails {
+  surface: number;
+  rooms: number;
+  floors: number;
+  landSurface: number;
+  bedrooms: number;
+  year: number;
+  address: string;
+  description: string;
+}
+
 export interface CadastralParcel {
   section: string;
   prefixe: string;
@@ -152,7 +163,8 @@ export interface PortalStat {
 export interface AppState {
   clientInfo: ClientInfo;
   advisorInfo: AdvisorInfo;
-  propertyDetails: typeof import('./data').propertyDetails;
+  estimationStatus: 'empty' | 'draft' | 'published';
+  propertyDetails: PropertyDetails;
   pointsForts: PropertyPoint[];
   pointsDefendre: PropertyPoint[];
   documents: DocumentItem[];
@@ -178,7 +190,8 @@ export interface AppState {
 export interface ClientRecord {
   id: string;
   clientInfo: ClientInfo;
-  propertyDetails: typeof import('./data').propertyDetails;
+  estimationStatus: 'empty' | 'draft' | 'published';
+  propertyDetails: PropertyDetails;
   pointsForts: PropertyPoint[];
   pointsDefendre: PropertyPoint[];
   documents: DocumentItem[];
@@ -200,5 +213,4 @@ export interface ClientRecord {
     high: number;
   };
 }
-
 
