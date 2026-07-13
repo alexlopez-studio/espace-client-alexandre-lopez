@@ -73,25 +73,25 @@ export default function VisitsSection({
     switch (level) {
       case 'Offre formulée':
         return (
-          <span className="bg-emerald-50 text-emerald-700 text-[10px] font-black font-mono px-2.5 py-0.5 rounded-full border border-emerald-100 uppercase tracking-wider animate-bounce">
+          <span className="bg-emerald-50 text-emerald-700 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-emerald-100 uppercase tracking-wider animate-bounce">
             Offre formulée
           </span>
         );
       case 'Élevé':
         return (
-          <span className="bg-[#00A0E2]/10 text-[#00A0E2] text-[10px] font-bold font-mono px-2 py-0.5 rounded-full border border-[#00A0E2]/20 uppercase">
+          <span className="bg-[#00A0E2]/10 text-[#00A0E2] text-[10px] font-bold px-2 py-0.5 rounded-full border border-[#00A0E2]/20 uppercase">
             Intérêt élevé
           </span>
         );
       case 'Moyen':
         return (
-          <span className="bg-amber-50 text-amber-700 text-[10px] font-bold font-mono px-2 py-0.5 rounded-full border border-amber-100 uppercase">
+          <span className="bg-amber-50 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-100 uppercase">
             Intérêt moyen
           </span>
         );
       case 'Faible':
         return (
-          <span className="bg-slate-100 text-slate-500 text-[10px] font-bold font-mono px-2 py-0.5 rounded-full border border-slate-200 uppercase">
+          <span className="bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-0.5 rounded-full border border-slate-200 uppercase">
             Désisté
           </span>
         );
@@ -110,8 +110,8 @@ export default function VisitsSection({
             <Users className="w-5 h-5" />
           </div>
           <div>
-            <span className="text-[10px] text-slate-400 font-mono font-bold uppercase block">Visites totales</span>
-            <span className="text-xl font-black font-mono text-slate-800 leading-none mt-1 inline-block">{totalVisits}</span>
+            <span className="text-[10px] text-slate-400 font-bold uppercase block">Visites totales</span>
+            <span className="text-xl font-black text-slate-800 leading-none mt-1 inline-block">{totalVisits}</span>
           </div>
         </div>
 
@@ -121,8 +121,8 @@ export default function VisitsSection({
             <Star className="w-5 h-5 fill-current" />
           </div>
           <div>
-            <span className="text-[10px] text-slate-400 font-mono font-bold uppercase block">Note moyenne</span>
-            <span className="text-xl font-black font-mono text-slate-800 leading-none mt-1 inline-block">{averageRating} / 5</span>
+            <span className="text-[10px] text-slate-400 font-bold uppercase block">Note moyenne</span>
+            <span className="text-xl font-black text-slate-800 leading-none mt-1 inline-block">{averageRating} / 5</span>
           </div>
         </div>
 
@@ -132,8 +132,8 @@ export default function VisitsSection({
             <ShieldCheck className="w-5 h-5" />
           </div>
           <div>
-            <span className="text-[10px] text-slate-400 font-mono font-bold uppercase block">Solvabilité vérifiée</span>
-            <span className="text-xl font-black font-mono text-slate-800 leading-none mt-1 inline-block">{solvencyRate}%</span>
+            <span className="text-[10px] text-slate-400 font-bold uppercase block">Solvabilité vérifiée</span>
+            <span className="text-xl font-black text-slate-800 leading-none mt-1 inline-block">{solvencyRate}%</span>
           </div>
         </div>
 
@@ -143,8 +143,8 @@ export default function VisitsSection({
             <Award className="w-5 h-5" />
           </div>
           <div>
-            <span className="text-[10px] text-slate-400 font-mono font-bold uppercase block">Offre(s) formulée(s)</span>
-            <span className="text-xl font-black font-mono text-slate-800 leading-none mt-1 inline-block">{offersFormed}</span>
+            <span className="text-[10px] text-slate-400 font-bold uppercase block">Offre(s) formulée(s)</span>
+            <span className="text-xl font-black text-slate-800 leading-none mt-1 inline-block">{offersFormed}</span>
           </div>
         </div>
 
@@ -182,7 +182,7 @@ export default function VisitsSection({
             id="form-add-viewing"
           >
             <div className="md:col-span-6 flex flex-col gap-1.5" id="form-viewing-buyer">
-              <label className="text-[10px] font-bold text-slate-400 uppercase font-mono">Nom de l'acquéreur *</label>
+              <label className="text-[10px] font-bold text-slate-400 uppercase">Nom de l'acquéreur *</label>
               <input 
                 id="input-viewing-buyer"
                 type="text" 
@@ -195,7 +195,7 @@ export default function VisitsSection({
             </div>
 
             <div className="md:col-span-3 flex flex-col gap-1.5" id="form-viewing-date">
-              <label className="text-[10px] font-bold text-slate-400 uppercase font-mono">Date de visite *</label>
+              <label className="text-[10px] font-bold text-slate-400 uppercase">Date de visite *</label>
               <input 
                 id="input-viewing-date"
                 type="date" 
@@ -207,7 +207,7 @@ export default function VisitsSection({
             </div>
 
             <div className="md:col-span-3 flex flex-col gap-1.5" id="form-viewing-stars">
-              <label className="text-[10px] font-bold text-slate-400 uppercase font-mono">Note d'intérêt (1-5) *</label>
+              <label className="text-[10px] font-bold text-slate-400 uppercase">Note d'intérêt (1-5) *</label>
               <div className="flex items-center gap-1.5 h-10" id="stars-selector">
                 {[1, 2, 3, 4, 5].map((s) => (
                   <button
@@ -224,7 +224,7 @@ export default function VisitsSection({
             </div>
 
             <div className="md:col-span-6 flex flex-col gap-1.5" id="form-viewing-solv">
-              <label className="text-[10px] font-bold text-slate-400 uppercase font-mono">Validation financière *</label>
+              <label className="text-[10px] font-bold text-slate-400 uppercase">Validation financière *</label>
               <select 
                 id="select-viewing-solv"
                 value={solvencyStatus}
@@ -238,7 +238,7 @@ export default function VisitsSection({
             </div>
 
             <div className="md:col-span-6 flex flex-col gap-1.5" id="form-viewing-interest">
-              <label className="text-[10px] font-bold text-slate-400 uppercase font-mono">Retour d'intérêt *</label>
+              <label className="text-[10px] font-bold text-slate-400 uppercase">Retour d'intérêt *</label>
               <select 
                 id="select-viewing-interest"
                 value={interestLevel}
@@ -253,7 +253,7 @@ export default function VisitsSection({
             </div>
 
             <div className="md:col-span-12 flex flex-col gap-1.5" id="form-viewing-comment">
-              <label className="text-[10px] font-bold text-slate-400 uppercase font-mono">Compte rendu détaillé (Retour acheteur) *</label>
+              <label className="text-[10px] font-bold text-slate-400 uppercase">Compte rendu détaillé (Retour acheteur) *</label>
               <textarea 
                 id="input-viewing-comment"
                 required
@@ -290,7 +290,7 @@ export default function VisitsSection({
           <div className="py-12 text-center flex flex-col items-center gap-3 text-slate-400" id="empty-viewings-message">
             <Users className="w-12 h-12 opacity-30 stroke-[1.5]" />
             <div>
-              <p className="text-xs font-bold text-slate-600 font-mono">Aucun compte rendu de visite enregistré</p>
+              <p className="text-xs font-bold text-slate-600">Aucun compte rendu de visite enregistré</p>
               <p className="text-[10px] text-slate-400 mt-0.5">Les comptes rendus partagés par votre conseiller apparaîtront ici.</p>
             </div>
           </div>
@@ -322,12 +322,12 @@ export default function VisitsSection({
                       
                       {/* Solvency badge */}
                       {view.solvencyStatus === 'Validée' ? (
-                        <span className="bg-emerald-50 text-emerald-700 border border-emerald-100 text-[9px] font-extrabold font-mono px-2 py-0.5 rounded-md flex items-center gap-1">
+                        <span className="bg-emerald-50 text-emerald-700 border border-emerald-100 text-[9px] font-extrabold px-2 py-0.5 rounded-md flex items-center gap-1">
                           <CheckCircle className="w-2.5 h-2.5" />
                           <span>Solvabilité validée</span>
                         </span>
                       ) : (
-                        <span className="bg-amber-50 text-amber-700 border border-amber-100 text-[9px] font-extrabold font-mono px-2 py-0.5 rounded-md flex items-center gap-1">
+                        <span className="bg-amber-50 text-amber-700 border border-amber-100 text-[9px] font-extrabold px-2 py-0.5 rounded-md flex items-center gap-1">
                           <AlertCircle className="w-2.5 h-2.5 text-amber-500" />
                           <span>Validation en cours</span>
                         </span>

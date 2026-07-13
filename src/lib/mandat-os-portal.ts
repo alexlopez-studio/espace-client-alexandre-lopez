@@ -70,6 +70,13 @@ type ClientPortalPayload = {
   dossier: ClientDossierRow;
   documents: ClientDocumentRow[];
   events: ClientEventRow[];
+  property_context?: {
+    type?: string | null;
+    commune?: string | null;
+  };
+  sales_follow_up?: {
+    status?: 'teaser' | 'active';
+  };
   estimation?: {
     status: 'empty' | 'draft' | 'published';
     published_at?: string | null;
@@ -80,6 +87,18 @@ export type RemotePortalLoadResult = {
   status: Exclude<RemotePortalStatus, 'idle' | 'loading'>;
   state?: MultiClientState;
   message?: string;
+};
+
+export type LocalTestDossier = {
+  id: string;
+  title: string;
+  clientName: string;
+  propertyLabel: string;
+  opportunityStage: string;
+  estimationStatus: 'empty' | 'draft' | 'published';
+  salesFollowUpStatus: 'teaser' | 'active';
+  previewToken: string;
+  previewPath: string;
 };
 
 export async function loadMandatOsPortalState(): Promise<RemotePortalLoadResult> {
@@ -103,6 +122,19 @@ export async function loadMandatOsPortalState(): Promise<RemotePortalLoadResult>
   }
 
   return loadPortalPayload({ accessToken, dossierId: getRequestedDossierId() });
+}
+
+export async function loadLocalTestDossiers(): Promise<LocalTestDossier[]> {
+  if (!import.meta.env.DEV) return [];
+
+  const url = new URL('/api/dev/client-portal-test-dossiers', getMandatOsApiUrl());
+  url.searchParams.set('portal_origin', window.location.origin);
+
+  const response = await fetch(url.toString());
+  const json = await response.json().catch(() => null) as { success?: boolean; data?: { dossiers?: LocalTestDossier[] } } | null;
+
+  if (!response.ok || !json?.success) return [];
+  return json.data?.dossiers ?? [];
 }
 
 async function loadPortalPayload(input: { accessToken?: string; previewToken?: string; dossierId?: string | null }): Promise<RemotePortalLoadResult> {
@@ -149,6 +181,11 @@ function mapDossierToMultiClientState(payload: ClientPortalPayload): MultiClient
     ...emptyClient,
     id: dossier.id,
     estimationStatus,
+    salesFollowUpStatus: payload.sales_follow_up?.status === 'active' ? 'active' : 'teaser',
+    propertyContext: {
+      type: text(payload.property_context?.type, snapshot.type_bien, snapshot.property_type, snapshot.type),
+      commune: text(payload.property_context?.commune, snapshot.commune, snapshot.city, snapshot.ville),
+    },
     clientInfo: {
       names: text(
         cover.recipient,
@@ -192,14 +229,8 @@ function mapDossierToMultiClientState(payload: ClientPortalPayload): MultiClient
 }
 
 function mapAdvisor(advisor: JsonRecord): AdvisorInfo {
-  return {
-    ...emptyAdvisorInfo,
-    name: text(advisor.name, emptyAdvisorInfo.name),
-    title: text(advisor.title, advisor.role, emptyAdvisorInfo.title),
-    phone: text(advisor.phone, emptyAdvisorInfo.phone),
-    email: text(advisor.email, emptyAdvisorInfo.email),
-    avatar: text(advisor.avatar, advisor.avatar_url, emptyAdvisorInfo.avatar),
-  };
+  void advisor;
+  return emptyAdvisorInfo;
 }
 
 function mapDocument(document: ClientDocumentRow): DocumentItem {
@@ -417,7 +448,8 @@ function getPreviewToken() {
 }
 
 function getMandatOsApiUrl() {
-  return (import.meta.env.VITE_MANDAT_OS_API_URL || 'https://app.alexandrelopez.fr').replace(/\/+$/, '');
+  const fallback = import.meta.env.DEV ? 'http://localhost:3002' : 'https://app.alexandrelopez.fr';
+  return (import.meta.env.VITE_MANDAT_OS_API_URL || fallback).replace(/\/+$/, '');
 }
 
 function mapDocumentCategory(category: string | null | undefined): DocumentItem['category'] {

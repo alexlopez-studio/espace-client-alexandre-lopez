@@ -38,7 +38,7 @@ export default function SituationSection({ cadastralParcels: propParcels, client
       {/* Title & Description Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm" id="situation-header">
         <div className="flex flex-col gap-1">
-          <span className="text-[10px] font-mono font-bold text-[#00A0E2] uppercase tracking-wider">Plan de situation & Cadastre</span>
+          <span className="text-[10px] font-bold text-[#00A0E2] uppercase tracking-wider">Plan de situation & Cadastre</span>
           <h2 className="text-2xl font-extrabold text-slate-800 tracking-tight">{addressToDisplay}</h2>
           <p className="text-xs text-slate-500">Localisation précise du bien et analyse parcellaire officielle issue du cadastre national.</p>
         </div>
@@ -56,7 +56,7 @@ export default function SituationSection({ cadastralParcels: propParcels, client
           
           {/* Map Header Controls */}
           <div className="bg-slate-50/80 px-5 py-3 border-b border-slate-100 flex items-center justify-between" id="map-controls">
-            <span className="text-xs font-bold text-slate-700 uppercase tracking-wider font-mono flex items-center gap-1.5">
+            <span className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
               <Layers className="w-4 h-4 text-[#00A0E2]" />
               Visualisation du terrain
             </span>
@@ -125,7 +125,7 @@ export default function SituationSection({ cadastralParcels: propParcels, client
                   {/* Motorway A50 */}
                   <path d="M-10 80 L510 110" fill="none" stroke="#ffa726" strokeWidth="8" />
                   <path d="M-10 80 L510 110" fill="none" stroke="#fff" strokeWidth="2" strokeDasharray="5,5" />
-                  <text x="370" y="95" fill="#b76c00" className="text-[9px] font-bold tracking-wider font-mono">AUTOROUTE A50</text>
+                  <text x="370" y="95" fill="#b76c00" className="text-[9px] font-bold tracking-wider">AUTOROUTE A50</text>
 
                   {/* Local Streets */}
                   <path d="M120 0 L150 400" fill="none" stroke="#ffffff" strokeWidth="8" />
@@ -212,7 +212,7 @@ export default function SituationSection({ cadastralParcels: propParcels, client
                     
                     <foreignObject x="310" y="80" width="160" height="60" id="aerial-label">
                       <div className="bg-[#00A0E2] text-white p-2 rounded-lg border border-cyan-400 text-center flex flex-col shadow-xl">
-                        <span className="text-[10px] font-bold font-mono">ZONE PARCELLES</span>
+                        <span className="text-[10px] font-bold">ZONE PARCELLES</span>
                         <span className="text-[9px]">343 m² • Maison & Piscine</span>
                       </div>
                     </foreignObject>
@@ -234,13 +234,13 @@ export default function SituationSection({ cadastralParcels: propParcels, client
                 <svg viewBox="0 0 500 400" className="w-full h-full" id="svg-cadastre-map">
                   {/* Parcel lines of neighbors */}
                   <polygon points="10,10 120,10 110,150 10,130" fill="none" stroke="#a1887f" strokeWidth="1" />
-                  <text x="50" y="80" fill="#8d6e63" className="text-[9px] font-mono">110</text>
+                  <text x="50" y="80" fill="#8d6e63" className="text-[9px]">110</text>
 
                   <polygon points="120,10 280,10 260,140 110,150" fill="none" stroke="#a1887f" strokeWidth="1" />
-                  <text x="180" y="80" fill="#8d6e63" className="text-[9px] font-mono">112</text>
+                  <text x="180" y="80" fill="#8d6e63" className="text-[9px]">112</text>
 
                   <polygon points="280,10 490,10 470,160 260,140" fill="none" stroke="#a1887f" strokeWidth="1" />
-                  <text x="360" y="80" fill="#8d6e63" className="text-[9px] font-mono">113</text>
+                  <text x="360" y="80" fill="#8d6e63" className="text-[9px]">113</text>
 
                   {/* PARCELLE 111 (Maison principale) */}
                   <g 
@@ -258,8 +258,8 @@ export default function SituationSection({ cadastralParcels: propParcels, client
                       strokeWidth={selectedParcel?.numero === '111' || hoveredParcel === '111' ? '2.5' : '1.5'} 
                       transition="all 0.3s"
                     />
-                    <text x="180" y="210" fill="#0284c7" className="text-xs font-mono font-bold">D - 111</text>
-                    <text x="165" y="225" fill="#546e7a" className="text-[9px] font-mono">276 m²</text>
+                    <text x="180" y="210" fill="#0284c7" className="text-xs font-bold">D - 111</text>
+                    <text x="165" y="225" fill="#546e7a" className="text-[9px]">276 m²</text>
                   </g>
 
                   {/* PARCELLE 548 (Allée / Accès / Restanque) */}
@@ -278,20 +278,20 @@ export default function SituationSection({ cadastralParcels: propParcels, client
                       strokeWidth={selectedParcel?.numero === '548' || hoveredParcel === '548' ? '2.5' : '1.5'} 
                       transition="all 0.3s"
                     />
-                    <text x="190" y="295" fill="#047857" className="text-[10px] font-mono font-bold">D - 548</text>
-                    <text x="180" y="307" fill="#546e7a" className="text-[8px] font-mono">67 m²</text>
+                    <text x="190" y="295" fill="#047857" className="text-[10px] font-bold">D - 548</text>
+                    <text x="180" y="307" fill="#546e7a" className="text-[8px]">67 m²</text>
                   </g>
 
                   {/* Neighbors below */}
                   <polygon points="135,275 10,290 10,380 145,320" fill="none" stroke="#a1887f" strokeWidth="1" />
-                  <text x="50" y="340" fill="#8d6e63" className="text-[9px] font-mono">114</text>
+                  <text x="50" y="340" fill="#8d6e63" className="text-[9px]">114</text>
                   
                   <polygon points="285,260 490,240 490,380 295,305" fill="none" stroke="#a1887f" strokeWidth="1" />
-                  <text x="380" y="310" fill="#8d6e63" className="text-[9px] font-mono">115</text>
+                  <text x="380" y="310" fill="#8d6e63" className="text-[9px]">115</text>
 
                   {/* Access road */}
                   <path d="M145 320 L295 305 L300 325 L150 340 Z" fill="#e0e0e0" opacity="0.5" />
-                  <text x="200" y="333" fill="#757575" className="text-[7px] font-semibold tracking-wider font-mono">CHEMIN D'ACCÈS PRIVÉ</text>
+                  <text x="200" y="333" fill="#757575" className="text-[7px] font-semibold tracking-wider">CHEMIN D'ACCÈS PRIVÉ</text>
                 </svg>
               </motion.div>
             )}
@@ -314,7 +314,7 @@ export default function SituationSection({ cadastralParcels: propParcels, client
             <div className="absolute -left-12 -top-12 w-32 h-32 bg-emerald-500 rounded-full opacity-10 filter blur-xl" />
 
             <div>
-              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest font-mono">Contenance cadastrale</span>
+              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Contenance cadastrale</span>
               <h3 className="text-3xl font-extrabold tracking-tight mt-1" id="total-superficie-text">
                 {totalSuperficie} m² <span className="text-xs font-normal text-slate-400">de terrain</span>
               </h3>
@@ -326,11 +326,11 @@ export default function SituationSection({ cadastralParcels: propParcels, client
 
             <div className="grid grid-cols-2 gap-4 pt-3 border-t border-slate-700/60" id="cadastre-mini-metrics">
               <div className="flex flex-col gap-0.5" id="mini-metric-1">
-                <span className="text-[9px] text-slate-400 font-mono uppercase font-bold">Parcelle Principale</span>
+                <span className="text-[9px] text-slate-400 uppercase font-bold">Parcelle Principale</span>
                 <span className="text-sm font-extrabold text-white">276 m² (N° 111)</span>
               </div>
               <div className="flex flex-col gap-0.5" id="mini-metric-2">
-                <span className="text-[9px] text-slate-400 font-mono uppercase font-bold">Parcelle Secondaire</span>
+                <span className="text-[9px] text-slate-400 uppercase font-bold">Parcelle Secondaire</span>
                 <span className="text-sm font-extrabold text-[#10b981]">67 m² (N° 548)</span>
               </div>
             </div>
@@ -346,7 +346,7 @@ export default function SituationSection({ cadastralParcels: propParcels, client
             <div className="flex-1 overflow-x-auto" id="cadastre-table-wrapper">
               <table className="w-full text-left border-collapse" id="cadastral-ledger-table">
                 <thead>
-                  <tr className="border-b border-slate-100 text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+                  <tr className="border-b border-slate-100 text-[10px] font-bold uppercase tracking-wider text-slate-400">
                     <th className="py-2.5 px-2">Section</th>
                     <th className="py-2.5 px-2">Préfixe</th>
                     <th className="py-2.5 px-2">Numéro</th>
@@ -370,12 +370,12 @@ export default function SituationSection({ cadastralParcels: propParcels, client
                       }`}
                     >
                       <td className="py-3 px-2">
-                        <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-bold font-mono">
+                        <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-bold">
                           {parcel.section}
                         </span>
                       </td>
-                      <td className="py-3 px-2 font-mono text-slate-600">{parcel.prefixe}</td>
-                      <td className="py-3 px-2 font-mono text-slate-800 font-bold">{parcel.numero}</td>
+                      <td className="py-3 px-2 text-slate-600">{parcel.prefixe}</td>
+                      <td className="py-3 px-2 text-slate-800 font-bold">{parcel.numero}</td>
                       <td className="py-3 px-2 text-right font-extrabold text-slate-900">{parcel.superficie} m²</td>
                     </tr>
                   ))}
@@ -394,7 +394,7 @@ export default function SituationSection({ cadastralParcels: propParcels, client
                   id="parcel-info-panel"
                 >
                   <div className="flex items-center justify-between" id="parcel-info-header">
-                    <span className="text-[11px] font-bold text-[#00A0E2] uppercase font-mono">Focus : Parcelle {selectedParcel.numero}</span>
+                    <span className="text-[11px] font-bold text-[#00A0E2] uppercase">Focus : Parcelle {selectedParcel.numero}</span>
                     <button 
                       id="btn-close-parcel-info"
                       onClick={() => setSelectedParcel(null)} 

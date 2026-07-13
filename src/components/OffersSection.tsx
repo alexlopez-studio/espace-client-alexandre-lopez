@@ -98,28 +98,28 @@ export default function OffersSection({
     switch (status) {
       case 'Acceptée':
         return (
-          <span className="bg-emerald-50 text-emerald-700 text-[10px] font-black font-mono px-2.5 py-0.5 rounded-full border border-emerald-100 flex items-center gap-1 uppercase tracking-wider animate-pulse">
+          <span className="bg-emerald-50 text-emerald-700 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-emerald-100 flex items-center gap-1 uppercase tracking-wider animate-pulse">
             <CheckCircle className="w-3 h-3 text-emerald-500" />
             <span>Offre Acceptée</span>
           </span>
         );
       case 'Refusée':
         return (
-          <span className="bg-rose-50 text-rose-700 text-[10px] font-bold font-mono px-2.5 py-0.5 rounded-full border border-rose-100 flex items-center gap-1 uppercase">
+          <span className="bg-rose-50 text-rose-700 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-rose-100 flex items-center gap-1 uppercase">
             <XCircle className="w-3 h-3 text-rose-500" />
             <span>Offre Refusée</span>
           </span>
         );
       case 'Contre-proposition':
         return (
-          <span className="bg-amber-50 text-amber-700 text-[10px] font-bold font-mono px-2.5 py-0.5 rounded-full border border-amber-100 flex items-center gap-1 uppercase">
+          <span className="bg-amber-50 text-amber-700 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-amber-100 flex items-center gap-1 uppercase">
             <RefreshCw className="w-3 h-3 text-amber-500" />
             <span>Contre-Proposition</span>
           </span>
         );
       case 'Reçue':
         return (
-          <span className="bg-cyan-50 text-cyan-700 text-[10px] font-extrabold font-mono px-2.5 py-0.5 rounded-full border border-cyan-100 flex items-center gap-1 uppercase">
+          <span className="bg-cyan-50 text-cyan-700 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border border-cyan-100 flex items-center gap-1 uppercase">
             <Clock className="w-3 h-3 text-cyan-500" />
             <span>Offre Reçue (À l'étude)</span>
           </span>
@@ -139,10 +139,10 @@ export default function OffersSection({
             <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-emerald-400">
               <DollarSign className="w-6 h-6" />
             </div>
-            <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full uppercase tracking-wider">Meilleure offre</span>
+            <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full uppercase tracking-wider">Meilleure offre</span>
           </div>
           <div>
-            <span className="text-3xl font-black font-mono text-emerald-400 leading-none">{formatEuro(highestOffer || recommendedMidPrice)}</span>
+            <span className="text-3xl font-black text-emerald-400 leading-none">{formatEuro(highestOffer || recommendedMidPrice)}</span>
             <p className="text-xs text-slate-300 mt-1">Comparé au prix recommandé de {formatEuro(recommendedMidPrice)}</p>
           </div>
         </div>
@@ -153,9 +153,9 @@ export default function OffersSection({
             <Award className="w-6 h-6 text-indigo-600" />
           </div>
           <div>
-            <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider block">Offres écrites</span>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Offres écrites</span>
             <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-2xl font-black text-slate-800 font-mono">{totalOffers}</span>
+              <span className="text-2xl font-black text-slate-800">{totalOffers}</span>
               <span className="text-xs text-slate-500">formulées</span>
             </div>
             <div className="flex gap-3 text-[10px] text-slate-400 mt-1 font-semibold">
@@ -171,9 +171,9 @@ export default function OffersSection({
             <Building className="w-6 h-6 text-cyan-600" />
           </div>
           <div>
-            <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider block">Moyenne des propositions</span>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Moyenne des propositions</span>
             <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-xl font-black text-slate-800 font-mono">{formatEuro(averageOffer || recommendedMidPrice)}</span>
+              <span className="text-xl font-black text-slate-800">{formatEuro(averageOffer || recommendedMidPrice)}</span>
             </div>
             <p className="text-[10px] text-slate-400 mt-1 font-semibold leading-relaxed">
               Ratio de {totalOffers > 0 ? Math.round(((averageOffer || recommendedMidPrice) / recommendedMidPrice) * 100) : 100}% par rapport à l'estimation médiane.
@@ -215,7 +215,7 @@ export default function OffersSection({
             id="form-add-offer"
           >
             <div className="md:col-span-6 flex flex-col gap-1.5" id="form-offer-buyer">
-              <label className="text-[10px] font-bold text-slate-400 uppercase font-mono">Nom de l'offrant *</label>
+              <label className="text-[10px] font-bold text-slate-400 uppercase">Nom de l'offrant *</label>
               <input 
                 id="input-offer-buyer"
                 type="text" 
@@ -228,7 +228,7 @@ export default function OffersSection({
             </div>
 
             <div className="md:col-span-3 flex flex-col gap-1.5" id="form-offer-price">
-              <label className="text-[10px] font-bold text-slate-400 uppercase font-mono">Montant de l'offre (€) *</label>
+              <label className="text-[10px] font-bold text-slate-400 uppercase">Montant de l'offre (€) *</label>
               <input 
                 id="input-offer-price"
                 type="number" 
@@ -236,12 +236,12 @@ export default function OffersSection({
                 min={10000}
                 value={price}
                 onChange={(e) => setPrice(parseInt(e.target.value))}
-                className="w-full bg-white border border-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#00A0E2] transition-all font-mono"
+                className="w-full bg-white border border-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#00A0E2] transition-all"
               />
             </div>
 
             <div className="md:col-span-3 flex flex-col gap-1.5" id="form-offer-date">
-              <label className="text-[10px] font-bold text-slate-400 uppercase font-mono">Date de l'offre *</label>
+              <label className="text-[10px] font-bold text-slate-400 uppercase">Date de l'offre *</label>
               <input 
                 id="input-offer-date"
                 type="date" 
@@ -253,7 +253,7 @@ export default function OffersSection({
             </div>
 
             <div className="md:col-span-4 flex flex-col gap-1.5" id="form-offer-fintype">
-              <label className="text-[10px] font-bold text-slate-400 uppercase font-mono">Type de Financement *</label>
+              <label className="text-[10px] font-bold text-slate-400 uppercase">Type de Financement *</label>
               <select 
                 id="select-offer-fintype"
                 value={financingType}
@@ -267,7 +267,7 @@ export default function OffersSection({
             </div>
 
             <div className="md:col-span-5 flex flex-col gap-1.5" id="form-offer-findetails">
-              <label className="text-[10px] font-bold text-slate-400 uppercase font-mono">Détails du Financement / Courtier *</label>
+              <label className="text-[10px] font-bold text-slate-400 uppercase">Détails du Financement / Courtier *</label>
               <input 
                 id="input-offer-findetails"
                 type="text" 
@@ -280,7 +280,7 @@ export default function OffersSection({
             </div>
 
             <div className="md:col-span-3 flex flex-col gap-1.5" id="form-offer-cert">
-              <label className="text-[10px] font-bold text-slate-400 uppercase font-mono">Certificat d'accord validé ? *</label>
+              <label className="text-[10px] font-bold text-slate-400 uppercase">Certificat d'accord validé ? *</label>
               <div className="flex items-center gap-2 h-10" id="cert-toggle-group">
                 <input 
                   id="checkbox-solvency-cert"
@@ -294,7 +294,7 @@ export default function OffersSection({
             </div>
 
             <div className="md:col-span-12 flex flex-col gap-1.5" id="form-offer-comments">
-              <label className="text-[10px] font-bold text-slate-400 uppercase font-mono">Commentaires additionnels (Facultatif)</label>
+              <label className="text-[10px] font-bold text-slate-400 uppercase">Commentaires additionnels (Facultatif)</label>
               <textarea 
                 id="input-offer-comments"
                 rows={2}
@@ -330,7 +330,7 @@ export default function OffersSection({
           <div className="py-12 text-center flex flex-col items-center gap-3 text-slate-400" id="empty-offers-message">
             <DollarSign className="w-12 h-12 opacity-30 stroke-[1.5]" />
             <div>
-              <p className="text-xs font-bold text-slate-600 font-mono">Aucune offre d'achat répertoriée</p>
+              <p className="text-xs font-bold text-slate-600">Aucune offre d'achat répertoriée</p>
               <p className="text-[10px] text-slate-400 mt-0.5">Les propositions reçues s'afficheront ici au fur et à mesure.</p>
             </div>
           </div>
@@ -360,16 +360,16 @@ export default function OffersSection({
 
                     {/* Huge Offer price */}
                     <div className="flex items-baseline gap-1" id={`offer-card-price-${offer.id}`}>
-                      <span className="text-2xl font-black font-mono tracking-tight text-slate-800">
+                      <span className="text-2xl font-black tracking-tight text-slate-800">
                         {formatEuro(offer.price)}
                       </span>
-                      <span className="text-[10px] text-slate-400 font-semibold font-mono">FAI (Frais d'Agence Inclus)</span>
+                      <span className="text-[10px] text-slate-400 font-semibold">FAI (Frais d'Agence Inclus)</span>
                     </div>
 
                     {/* Financing block */}
                     <div className="bg-white/80 p-3 rounded-xl border border-slate-100/60 flex flex-col gap-2" id={`offer-card-financing-${offer.id}`}>
                       <div className="flex justify-between items-center text-[10px] font-bold text-slate-400" id={`offer-fin-header-${offer.id}`}>
-                        <span className="font-mono">STRUCTURE FINANCIÈRE</span>
+                        <span className="">STRUCTURE FINANCIÈRE</span>
                         <span>{offer.financingType}</span>
                       </div>
                       <p className="text-[11px] text-slate-700 leading-normal font-semibold">
@@ -400,7 +400,7 @@ export default function OffersSection({
                       </div>
                     )}
 
-                    <span className="text-[10px] text-slate-400 font-mono font-bold leading-none block">
+                    <span className="text-[10px] text-slate-400 font-bold leading-none block">
                       Offre reçue le {offer.date}
                     </span>
 

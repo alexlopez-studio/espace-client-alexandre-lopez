@@ -49,6 +49,20 @@ npm run build
 
 - Garder le portail orienté client final : lisible, rassurant, rapide et mobile-first.
 
+### 14/07/2026 - Corrections métier & UX du portail client
+
+- Le `Suivi de Vente` reste visible avant mandat signé sous forme de teaser verrouillé.
+- Le vrai suivi devient consultable uniquement lorsque Mandat OS retourne `sales_follow_up.status = active`.
+- Quand l’estimation n’est pas publiée, la barre d’onglets d’estimation est masquée et seul l’état “Estimation en préparation” reste visible.
+- Header simplifié : plus de dropdown client ni badge “Mandat OS synchronisé”, affichage client + contexte bien/commune.
+- Sidebar simplifiée : suppression du libellé “Navigation principale”.
+- Identité conseiller forcée sur Alexandre Lopez avec téléphone, email et photo réelle.
+- Remplacement du logo SVG maison par les vrais assets iad bleu/blanc.
+- Typographie portail rebasculée en `Inter`, y compris la variable `font-mono` et les contrôles de formulaire.
+- Recadrage des photos conseiller via `.advisor-portrait` pour prioriser le visage d’Alexandre dans les avatars.
+- Ajout d’un panneau `Mode test local` sur l’écran “Accès client requis” en développement.
+- Le panneau local liste les dossiers actifs de Mandat OS local et ouvre un aperçu temporaire sans login client.
+
 ### 12/07/2026 - Lien client stable et suivi vide
 
 - Lecture du dossier client via URL stable `/dossier/<public_token>`.

@@ -58,7 +58,7 @@ export default function PropertySection({
       {/* Overview Block */}
       <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 lg:p-8 flex flex-col gap-6" id="property-overview-card">
         <div className="flex flex-col gap-1">
-          <span className="text-[10px] font-mono font-bold text-[#00A0E2] uppercase tracking-wider">Fiche technique du bien</span>
+          <span className="text-[10px] font-bold text-[#00A0E2] uppercase tracking-wider">Fiche technique du bien</span>
           <h2 className="text-2xl font-extrabold text-slate-800 tracking-tight">Caractéristiques principales</h2>
           <p className="text-xs text-slate-500">Synthèse technique complète du bien{locationLabel}.</p>
         </div>
@@ -80,7 +80,7 @@ export default function PropertySection({
                   <Icon className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider font-mono leading-none">{spec.label}</p>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider leading-none">{spec.label}</p>
                   <p className="text-base font-extrabold text-slate-800 mt-1">{spec.value}</p>
                 </div>
               </motion.div>
@@ -94,7 +94,7 @@ export default function PropertySection({
             <Info className="w-5 h-5" />
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-[10px] text-slate-400 font-mono uppercase font-bold">L'avis d'expert de votre conseiller</span>
+            <span className="text-[10px] text-slate-400 uppercase font-bold">L'avis d'expert de votre conseiller</span>
             <p className="text-xs text-slate-700 leading-relaxed font-medium">
               "{propertyDetails.description}"
             </p>
@@ -208,7 +208,7 @@ export default function PropertySection({
                     {selectedPoint.type === 'fort' ? <ShieldCheck className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
                   </div>
                   <div>
-                    <span className="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-widest">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
                       {selectedPoint.type === 'fort' ? "Argument de vente clé" : "Négociation & Objection"}
                     </span>
                     <h4 className="text-base font-extrabold text-slate-800 tracking-tight">
@@ -219,7 +219,7 @@ export default function PropertySection({
 
                 <div className="flex-1 flex flex-col gap-4" id="explainer-body">
                   <div className="flex flex-col gap-1.5" id="explainer-description">
-                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider font-mono">Description du point</span>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Description du point</span>
                     <p className="text-xs text-slate-600 leading-relaxed font-medium">
                       {selectedPoint.point.description}
                     </p>
@@ -230,7 +230,7 @@ export default function PropertySection({
                       ? 'bg-emerald-50/40 border-emerald-100 text-emerald-950' 
                       : 'bg-amber-50/40 border-amber-100 text-amber-950'
                   }`} id="explainer-strategy">
-                    <span className="text-[9px] font-mono font-bold uppercase tracking-wider block mb-1.5">
+                    <span className="text-[9px] font-bold uppercase tracking-wider block mb-1.5">
                       {selectedPoint.type === 'fort' ? "Comment nous allons le valoriser" : "Ma stratégie de défense face aux acheteurs"}
                     </span>
                     <p className="text-xs leading-relaxed font-medium">
@@ -249,7 +249,7 @@ export default function PropertySection({
 
                 {/* Footnote card with Olivier's avatar */}
                 <div className="flex items-center gap-3 pt-4 border-t border-slate-100 mt-auto" id="explainer-footer">
-                  <span className="text-[10px] font-mono text-slate-400 italic">Votre conseiller immobilier</span>
+                  <span className="text-[10px] text-slate-400 italic">Votre conseiller immobilier</span>
                 </div>
 
               </motion.div>

@@ -159,10 +159,10 @@ export default function DocumentsSection({
             <div className="p-3 bg-[#00A0E2]/10 border border-[#00A0E2]/20 rounded-2xl text-[#00A0E2]">
               <FileCheck className="w-6 h-6" />
             </div>
-            <span className="text-2xl font-black font-mono text-[#00A0E2]">{progressPercent}%</span>
+            <span className="text-2xl font-black text-[#00A0E2]">{progressPercent}%</span>
           </div>
           <div>
-            <h4 className="text-xs font-bold font-mono uppercase text-slate-400 tracking-wider">Complétude du dossier</h4>
+            <h4 className="text-xs font-bold uppercase text-slate-400 tracking-wider">Complétude du dossier</h4>
             <p className="text-xs text-slate-300 mt-1">{validatedDocs} document(s) validé(s) sur {totalDocs - missingDocs} fournis.</p>
             <div className="w-full bg-slate-800 h-2 rounded-full mt-3 overflow-hidden">
               <div
@@ -179,9 +179,9 @@ export default function DocumentsSection({
             <FileText className="w-6 h-6" />
           </div>
           <div className="flex-1">
-            <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider">Constitution dossier</span>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Constitution dossier</span>
             <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-2xl font-black text-slate-800 font-mono">{totalDocs}</span>
+              <span className="text-2xl font-black text-slate-800">{totalDocs}</span>
               <span className="text-xs text-slate-500">fiches référencées</span>
             </div>
             <div className="flex gap-3 text-[10px] text-slate-400 mt-1 font-semibold">
@@ -296,7 +296,7 @@ export default function DocumentsSection({
                       <FileText className="w-5 h-5 text-slate-700" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <span className="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-wider block leading-none mb-1">
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block leading-none mb-1">
                         {doc.category}
                       </span>
                       <h5 className="text-xs font-bold text-slate-800 leading-snug line-clamp-2" title={doc.name}>
@@ -305,7 +305,7 @@ export default function DocumentsSection({
                       <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                         {getStatusBadge(doc.status)}
                         {doc.size && doc.size !== '0 KB' && (
-                          <span className="text-[9px] font-mono font-semibold text-slate-400">{doc.size}</span>
+                          <span className="text-[9px] font-semibold text-slate-400">{doc.size}</span>
                         )}
                       </div>
                     </div>
@@ -379,7 +379,7 @@ export default function DocumentsSection({
                             strokeDasharray={2 * Math.PI * 28}
                             strokeDashoffset={2 * Math.PI * 28 * (1 - uploadProgress / 100)} />
                   </svg>
-                  <div className="absolute inset-0 flex items-center justify-center text-xs font-black text-slate-800 font-mono">
+                  <div className="absolute inset-0 flex items-center justify-center text-xs font-black text-slate-800">
                     {uploadProgress}%
                   </div>
                 </div>
@@ -392,7 +392,7 @@ export default function DocumentsSection({
               <form onSubmit={handleFormSubmit} className="flex flex-col gap-4" id="upload-modal-form">
 
                 <div className="flex flex-col gap-1.5" id="upload-form-name">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase font-mono">Nom du document *</label>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase">Nom du document *</label>
                   <input
                     id="input-doc-name"
                     type="text"
@@ -405,7 +405,7 @@ export default function DocumentsSection({
                 </div>
 
                 <div className="flex flex-col gap-1.5" id="upload-form-cat">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase font-mono">Catégorie réglementaire *</label>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase">Catégorie réglementaire *</label>
                   <select
                     id="select-doc-cat"
                     value={customDocCategory}

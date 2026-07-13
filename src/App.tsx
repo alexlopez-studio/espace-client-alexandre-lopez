@@ -4,13 +4,11 @@ import {
   Menu, 
   X, 
   Phone, 
-  Mail, 
+  Mail,
   MapPin, 
   ChevronRight,
   ArrowUp,
   Download,
-  Share2,
-  Calendar,
   Info,
   GitCompare,
   CheckSquare,
@@ -19,8 +17,8 @@ import {
   Compass,
   Handshake,
   BarChart3,
-  ChevronDown,
-  LockKeyhole
+  LockKeyhole,
+  RefreshCw
 } from 'lucide-react';
 
 import { clearAppState, getMultiClientState, saveMultiClientState } from './lib/store';
@@ -40,7 +38,7 @@ import SalesPlanSection from './components/SalesPlanSection';
 import OffersSection from './components/OffersSection';
 import StatsSection from './components/StatsSection';
 import { DocumentItem, ViewingReport, SalesStep, BuyerOffer, PortalStat, ClientRecord, AppState } from './types';
-import { loadMandatOsPortalState, type RemotePortalStatus } from './lib/mandat-os-portal';
+import { loadLocalTestDossiers, loadMandatOsPortalState, type LocalTestDossier, type RemotePortalStatus } from './lib/mandat-os-portal';
 
 export default function App() {
   const [multiClientState, setMultiClientState] = useState(() => getMultiClientState());
@@ -58,6 +56,8 @@ export default function App() {
     clientInfo: currentClient.clientInfo,
     advisorInfo: multiClientState.advisorInfo,
     estimationStatus: currentClient.estimationStatus,
+    salesFollowUpStatus: currentClient.salesFollowUpStatus,
+    propertyContext: currentClient.propertyContext,
     propertyDetails: currentClient.propertyDetails,
     pointsForts: currentClient.pointsForts,
     pointsDefendre: currentClient.pointsDefendre,
@@ -80,6 +80,8 @@ export default function App() {
         clientInfo: currentClient.clientInfo,
         advisorInfo: prev.advisorInfo,
         estimationStatus: currentClient.estimationStatus,
+        salesFollowUpStatus: currentClient.salesFollowUpStatus,
+        propertyContext: currentClient.propertyContext,
         propertyDetails: currentClient.propertyDetails,
         pointsForts: currentClient.pointsForts,
         pointsDefendre: currentClient.pointsDefendre,
@@ -102,6 +104,8 @@ export default function App() {
             ...c,
             clientInfo: newState.clientInfo,
             estimationStatus: newState.estimationStatus,
+            salesFollowUpStatus: newState.salesFollowUpStatus,
+            propertyContext: newState.propertyContext,
             propertyDetails: newState.propertyDetails,
             pointsForts: newState.pointsForts,
             pointsDefendre: newState.pointsDefendre,
@@ -290,9 +294,11 @@ export default function App() {
   };
 
   const isEstimationPublished = appState.estimationStatus === 'published';
+  const isSalesFollowUpActive = appState.salesFollowUpStatus === 'active';
   const isEvaluation = ['estimationEmpty', 'situation', 'property', 'comparables', 'conclusion'].includes(activeSection);
-  const isTransaction = ['documents', 'viewings', 'salesPlan', 'offers', 'stats'].includes(activeSection);
+  const isTransaction = ['transactionTeaser', 'documents', 'viewings', 'salesPlan', 'offers', 'stats'].includes(activeSection);
   const shouldBlockForAccess = ['unauthenticated', 'empty', 'error'].includes(remoteStatus);
+  const headerContext = formatPropertyContext(appState.propertyContext, appState.clientInfo.address);
 
   if (remoteStatus === 'loading') {
     return <AccessState title="Chargement de votre espace" description="Nous préparons votre dossier client sécurisé." />;
@@ -303,6 +309,7 @@ export default function App() {
       <AccessState
         title="Accès client requis"
         description="Connectez-vous depuis le lien sécurisé transmis par votre conseiller pour consulter ce portail."
+        showLocalTestMode={import.meta.env.DEV}
       />
     );
   }
@@ -319,7 +326,7 @@ export default function App() {
         }} 
         advisor={appState.advisorInfo}
         lastEvalSection={isEstimationPublished ? lastEvalSection : 'estimationEmpty'}
-        lastTransSection={lastTransSection}
+        lastTransSection={isSalesFollowUpActive ? lastTransSection : 'transactionTeaser'}
       />
 
       {/* 2. Main Content Window */}
@@ -344,45 +351,14 @@ export default function App() {
             <div className="lg:hidden shrink-0">
               <IadLogo className="h-8" showText={false} />
             </div>
-            <div className="min-w-0 flex items-center gap-2.5" id="header-context-labels">
-              <div className="relative shrink-0">
-                <select 
-                  id="header-client-select"
-                  value={multiClientState.currentClientId}
-                  onChange={(e) => handleSelectClient(e.target.value)}
-                  className="appearance-none bg-slate-50 border border-slate-200 hover:border-slate-300 text-slate-800 text-xs font-bold pl-3.5 pr-8 py-2 rounded-xl transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#00A0E2]/20"
-                >
-                  {multiClientState.clients.map(c => (
-                    <option key={c.id} value={c.id}>
-                      {c.clientInfo.names}
-                    </option>
-                  ))}
-                </select>
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                  <ChevronDown className="w-3.5 h-3.5" />
-                </div>
-              </div>
-
-              <div className="hidden sm:block h-5 w-px bg-slate-200" />
-
-              {remoteStatus === 'synced' && (
-                <span className="hidden md:inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-emerald-700">
-                  Mandat OS synchronisé
-                </span>
-              )}
-
-              {remoteStatus === 'error' && (
-                <span className="hidden md:inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-amber-700">
-                  Synchronisation indisponible
-                </span>
-              )}
-
-              <div className="min-w-0 hidden sm:block">
-                <p className="text-[11px] text-slate-400 font-semibold truncate flex items-center gap-1 mt-0.5">
-                  <MapPin className="w-3 h-3 text-slate-300" />
-                  <span>{appState.clientInfo.address}</span>
-                </p>
-              </div>
+            <div className="min-w-0 flex flex-col" id="header-context-labels">
+              <p className="truncate text-sm font-extrabold tracking-tight text-slate-900">
+                {appState.clientInfo.names || 'Dossier client'}
+              </p>
+              <p className="mt-0.5 flex items-center gap-1 truncate text-[11px] font-medium text-slate-500">
+                <MapPin className="h-3 w-3 shrink-0 text-slate-300" />
+                <span className="truncate">{headerContext}</span>
+              </p>
             </div>
           </div>
 
@@ -429,7 +405,7 @@ export default function App() {
                 className="fixed inset-y-0 left-0 w-72 bg-slate-900 text-white p-6 z-40 lg:hidden flex flex-col gap-6"
               >
                 <div className="flex justify-between items-center" id="mobile-drawer-header">
-                  <IadLogo className="h-10 self-start" color="#00A0E2" showText={true} />
+                  <IadLogo className="h-10 self-start" color="#FFFFFF" showText={true} />
                   <button 
                     id="btn-close-mobile-drawer"
                     onClick={() => setIsMobileMenuOpen(false)} 
@@ -446,7 +422,7 @@ export default function App() {
                   {[
                     { id: 'cover', label: 'Accueil', target: 'cover', active: activeSection === 'cover' },
                     { id: 'evaluation', label: 'Estimation', target: isEstimationPublished ? lastEvalSection : 'estimationEmpty', active: isEvaluation },
-                    { id: 'transaction', label: 'Suivi de Vente', target: lastTransSection, active: isTransaction }
+                    { id: 'transaction', label: 'Suivi de Vente', target: isSalesFollowUpActive ? lastTransSection : 'transactionTeaser', active: isTransaction }
                   ].map((item) => (
                     <button
                       key={item.id}
@@ -469,15 +445,28 @@ export default function App() {
                 </nav>
 
                 {/* Mobile Drawer Footer advisor signature */}
-                <div className="bg-slate-950/40 p-4 rounded-xl border border-slate-800 flex items-center gap-3" id="mobile-drawer-advisor">
-                  <img 
-                    src={appState.advisorInfo.avatar} 
-                    alt={appState.advisorInfo.name} 
-                    className="w-9 h-9 rounded-full object-cover border border-[#00A0E2]/30 referrerPolicy='no-referrer'"
-                  />
-                  <div>
-                    <h4 className="text-xs font-bold text-white">{appState.advisorInfo.name}</h4>
-                    <p className="text-[10px] text-slate-400 font-mono">{appState.advisorInfo.title}</p>
+                <div className="bg-slate-950/40 p-4 rounded-xl border border-slate-800 flex flex-col gap-3" id="mobile-drawer-advisor">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={appState.advisorInfo.avatar}
+                      alt={appState.advisorInfo.name}
+                      className="advisor-portrait w-9 h-9 rounded-full object-cover border border-[#00A0E2]/30"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="min-w-0">
+                      <h4 className="text-xs font-bold text-white truncate">{appState.advisorInfo.name}</h4>
+                      <p className="text-[10px] text-slate-400 truncate">{appState.advisorInfo.title}</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1.5 text-[11px] text-slate-300">
+                    <a href={`tel:${appState.advisorInfo.phone.replace(/\s/g, '')}`} className="flex items-center gap-2 hover:text-[#00A0E2]">
+                      <Phone className="h-3.5 w-3.5 text-[#00A0E2]" />
+                      <span>{appState.advisorInfo.phone}</span>
+                    </a>
+                    <a href={`mailto:${appState.advisorInfo.email}`} className="flex items-center gap-2 hover:text-[#00A0E2]">
+                      <Mail className="h-3.5 w-3.5 shrink-0 text-[#00A0E2]" />
+                      <span className="truncate">{appState.advisorInfo.email}</span>
+                    </a>
                   </div>
                 </div>
 
@@ -490,7 +479,7 @@ export default function App() {
         <main className="flex-1 p-5 md:p-8 max-w-7xl mx-auto w-full flex flex-col gap-6" id="main-content-container">
 
           {/* Division sub-tabs bar */}
-          {activeSection !== 'cover' && (
+          {activeSection !== 'cover' && !(activeSection === 'estimationEmpty' && !isEstimationPublished) && !(isTransaction && !isSalesFollowUpActive) && (
             <div className="bg-white border border-slate-100 p-1.5 rounded-2xl flex items-center gap-1 overflow-x-auto scrollbar-none snap-x snap-mandatory shadow-sm" id="main-subtabs-bar">
               {(() => {
                 if (isEvaluation) {
@@ -624,41 +613,54 @@ export default function App() {
               
               {/* Follow-up Interactive sections */}
               {activeSection === 'documents' && (
-                <DocumentsSection 
-                  documents={appState.documents}
-                  onAddDocument={handleAddDocument}
-                  onDeleteDocument={handleDeleteDocument}
-                  readOnly
-                />
+                isSalesFollowUpActive ? (
+                  <DocumentsSection
+                    documents={appState.documents}
+                    onAddDocument={handleAddDocument}
+                    onDeleteDocument={handleDeleteDocument}
+                    readOnly
+                  />
+                ) : <SalesFollowUpTeaser />
               )}
               {activeSection === 'viewings' && (
-                <VisitsSection 
-                  viewings={appState.viewings}
-                  onAddViewing={handleAddViewing}
-                  onDeleteViewing={handleDeleteViewing}
-                  readOnly
-                />
+                isSalesFollowUpActive ? (
+                  <VisitsSection
+                    viewings={appState.viewings}
+                    onAddViewing={handleAddViewing}
+                    onDeleteViewing={handleDeleteViewing}
+                    readOnly
+                  />
+                ) : <SalesFollowUpTeaser />
               )}
               {activeSection === 'salesPlan' && (
-                <SalesPlanSection 
-                  salesSteps={appState.salesSteps}
-                  onUpdateStepStatus={handleUpdateStepStatus}
-                  readOnly
-                />
+                isSalesFollowUpActive ? (
+                  <SalesPlanSection
+                    salesSteps={appState.salesSteps}
+                    onUpdateStepStatus={handleUpdateStepStatus}
+                    readOnly
+                  />
+                ) : <SalesFollowUpTeaser />
               )}
               {activeSection === 'offers' && (
-                <OffersSection 
-                  offers={appState.offers}
-                  onAddOffer={handleAddOffer}
-                  onDeleteOffer={handleDeleteOffer}
-                  onUpdateOfferStatus={handleUpdateOfferStatus}
-                  readOnly
-                />
+                isSalesFollowUpActive ? (
+                  <OffersSection
+                    offers={appState.offers}
+                    onAddOffer={handleAddOffer}
+                    onDeleteOffer={handleDeleteOffer}
+                    onUpdateOfferStatus={handleUpdateOfferStatus}
+                    readOnly
+                  />
+                ) : <SalesFollowUpTeaser />
               )}
               {activeSection === 'stats' && (
-                <StatsSection 
-                  portalStats={appState.portalStats}
-                />
+                isSalesFollowUpActive ? (
+                  <StatsSection
+                    portalStats={appState.portalStats}
+                  />
+                ) : <SalesFollowUpTeaser />
+              )}
+              {activeSection === 'transactionTeaser' && (
+                <SalesFollowUpTeaser />
               )}
             </motion.div>
           </AnimatePresence>
@@ -699,17 +701,124 @@ export default function App() {
   );
 }
 
-function AccessState({ title, description }: { title: string; description: string }) {
+function AccessState({ title, description, showLocalTestMode = false }: { title: string; description: string; showLocalTestMode?: boolean }) {
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-6" id="portal-access-state">
-      <div className="max-w-md w-full bg-white border border-slate-100 rounded-3xl shadow-sm p-8 text-center">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-6 py-10" id="portal-access-state">
+      <div className="max-w-3xl w-full bg-white border border-slate-100 rounded-3xl shadow-sm p-8 text-center">
         <div className="mx-auto w-12 h-12 rounded-2xl bg-[#00A0E2]/10 text-[#00A0E2] flex items-center justify-center">
           <LockKeyhole className="w-6 h-6" />
         </div>
         <h1 className="mt-5 text-2xl font-black tracking-tight text-slate-900">{title}</h1>
         <p className="mt-2 text-sm leading-relaxed text-slate-500">{description}</p>
+        {showLocalTestMode && <LocalTestModePanel />}
       </div>
     </div>
+  );
+}
+
+function LocalTestModePanel() {
+  const [dossiers, setDossiers] = useState<LocalTestDossier[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const load = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const rows = await loadLocalTestDossiers();
+      setDossiers(rows);
+      if (rows.length === 0) {
+        setError('Aucun dossier actif disponible en local pour le moment.');
+      }
+    } catch {
+      setError('Impossible de charger les dossiers de test depuis Mandat OS local.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  return (
+    <div className="mt-8 rounded-3xl border border-dashed border-[#00A0E2]/30 bg-[#00A0E2]/5 p-5 text-left" id="local-test-mode-panel">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <span className="inline-flex rounded-full bg-white px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-[#0077B6]">
+            Mode test local
+          </span>
+          <h2 className="mt-3 text-base font-extrabold tracking-tight text-slate-900">
+            Ouvrir un dossier client sans login
+          </h2>
+          <p className="mt-1 text-xs leading-relaxed text-slate-500">
+            Disponible uniquement en développement. Chaque bouton ouvre un aperçu temporaire généré par Mandat OS local.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={load}
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:border-[#00A0E2]/40 hover:text-[#0077B6]"
+        >
+          <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+          Actualiser
+        </button>
+      </div>
+
+      <div className="mt-4 space-y-2">
+        {loading && (
+          <p className="rounded-2xl bg-white p-4 text-center text-xs font-semibold text-slate-500">
+            Chargement des dossiers test…
+          </p>
+        )}
+
+        {!loading && error && (
+          <p className="rounded-2xl border border-amber-100 bg-amber-50 p-4 text-xs font-semibold text-amber-700">
+            {error}
+          </p>
+        )}
+
+        {!loading && dossiers.map((dossier) => (
+          <button
+            key={dossier.id}
+            type="button"
+            onClick={() => {
+              window.location.href = dossier.previewPath;
+            }}
+            className="w-full rounded-2xl border border-slate-100 bg-white p-4 text-left shadow-sm transition hover:border-[#00A0E2]/40 hover:shadow-md"
+          >
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-extrabold text-slate-900">{dossier.title}</p>
+                <p className="mt-1 truncate text-xs font-medium text-slate-500">
+                  {dossier.clientName} · {dossier.propertyLabel || 'Bien non renseigné'}
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                <LocalStatusPill label={dossier.estimationStatus === 'published' ? 'Estimation publiée' : 'Estimation non publiée'} tone={dossier.estimationStatus === 'published' ? 'green' : 'amber'} />
+                <LocalStatusPill label={dossier.salesFollowUpStatus === 'active' ? 'Suivi actif' : 'Teaser suivi'} tone={dossier.salesFollowUpStatus === 'active' ? 'green' : 'blue'} />
+                {dossier.opportunityStage && <LocalStatusPill label={dossier.opportunityStage} tone="slate" />}
+              </div>
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function LocalStatusPill({ label, tone }: { label: string; tone: 'green' | 'amber' | 'blue' | 'slate' }) {
+  const classes = {
+    green: 'border-emerald-100 bg-emerald-50 text-emerald-700',
+    amber: 'border-amber-100 bg-amber-50 text-amber-700',
+    blue: 'border-[#00A0E2]/20 bg-[#00A0E2]/10 text-[#0077B6]',
+    slate: 'border-slate-100 bg-slate-50 text-slate-500',
+  }[tone];
+
+  return (
+    <span className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide ${classes}`}>
+      {label}
+    </span>
   );
 }
 
@@ -725,6 +834,63 @@ function EmptyContentState({ title, description }: { title: string; description:
   );
 }
 
+function SalesFollowUpTeaser() {
+  const steps = [
+    {
+      icon: FolderOpen,
+      title: 'Dossier vendeur centralisé',
+      description: 'Documents, diagnostics et pièces utiles sont suivis au même endroit.',
+    },
+    {
+      icon: Compass,
+      title: 'Méthode de commercialisation',
+      description: 'Plan de vente, diffusion, points de contrôle et prochaines étapes restent lisibles.',
+    },
+    {
+      icon: BarChart3,
+      title: 'Pilotage après mise en vente',
+      description: 'Visites, retours acquéreurs, offres et performances web sont partagés après signature.',
+    },
+  ];
+
+  return (
+    <section className="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm" id="sales-follow-up-teaser">
+      <div className="relative p-8 lg:p-10">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(0,160,226,0.12),transparent_34%),linear-gradient(135deg,#ffffff,#f8fafc)]" />
+        <div className="relative max-w-3xl">
+          <span className="inline-flex items-center gap-2 rounded-full border border-[#00A0E2]/20 bg-[#00A0E2]/10 px-3 py-1 text-xs font-bold text-[#0077B6]">
+            <LockKeyhole className="h-3.5 w-3.5" />
+            Disponible après signature du mandat
+          </span>
+          <h2 className="mt-5 text-2xl font-extrabold tracking-tight text-slate-900">
+            Votre suivi de vente, prêt à s’ouvrir au bon moment
+          </h2>
+          <p className="mt-3 text-sm leading-relaxed text-slate-600">
+            Cet espace vous donnera une vision claire de la méthode de commercialisation : documents,
+            plan de vente, visites, offres et performances. Avant signature, il reste verrouillé pour
+            préserver un suivi propre et uniquement alimenté par les actions réelles.
+          </p>
+        </div>
+
+        <div className="relative mt-8 grid gap-4 md:grid-cols-3">
+          {steps.map((step) => {
+            const Icon = step.icon;
+            return (
+              <article key={step.title} className="rounded-2xl border border-slate-100 bg-white/85 p-5 shadow-sm">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#00A0E2]/10 text-[#0077B6]">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <h3 className="mt-4 text-sm font-extrabold text-slate-900">{step.title}</h3>
+                <p className="mt-2 text-xs leading-relaxed text-slate-500">{step.description}</p>
+              </article>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function hasPropertyDetails(property: AppState['propertyDetails']) {
   return Boolean(
     property.address ||
@@ -735,4 +901,10 @@ function hasPropertyDetails(property: AppState['propertyDetails']) {
     property.bedrooms > 0 ||
     property.year > 0
   );
+}
+
+function formatPropertyContext(context: AppState['propertyContext'], address: string) {
+  const values = [context.type, context.commune].map((value) => value?.trim()).filter(Boolean);
+  if (values.length > 0) return values.join(' · ');
+  return address || 'Dossier immobilier';
 }

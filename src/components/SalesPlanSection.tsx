@@ -102,7 +102,7 @@ export default function SalesPlanSection({
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(0,160,226,0.12),transparent_100%)] pointer-events-none" />
         
         <div className="flex-1 flex flex-col gap-1.5" id="sales-plan-progress-labels">
-          <span className="text-[10px] font-mono font-bold text-cyan-400 uppercase tracking-widest">Plan opérationnel de transaction</span>
+          <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest">Plan opérationnel de transaction</span>
           <h3 className="text-xl font-black text-white tracking-tight">Fil directeur de votre vente</h3>
           <p className="text-xs text-slate-300 max-w-lg leading-relaxed">
             Suivez d'un coup d'œil l'avancement chronologique de la transaction, étape par étape, depuis l'estimation initiale jusqu'à la signature de l'acte authentique chez le notaire.
@@ -112,8 +112,8 @@ export default function SalesPlanSection({
         {/* Big circular progress or bar */}
         <div className="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl flex items-center gap-5 shrink-0 z-10" id="sales-plan-progress-box">
           <div className="flex flex-col text-right" id="progress-box-text">
-            <span className="text-[9px] text-slate-400 font-mono font-bold uppercase">ÉTAPES VALIDÉES</span>
-            <span className="text-2xl font-black font-mono text-emerald-400 mt-0.5">{completedSteps} / {totalSteps}</span>
+            <span className="text-[9px] text-slate-400 font-bold uppercase">ÉTAPES VALIDÉES</span>
+            <span className="text-2xl font-black text-emerald-400 mt-0.5">{completedSteps} / {totalSteps}</span>
             <span className="text-[10px] text-slate-300 font-semibold mt-1">({completionPercent}% d'accomplissement)</span>
           </div>
           <div className="w-px h-12 bg-slate-800" />
@@ -125,7 +125,7 @@ export default function SalesPlanSection({
                       strokeDashoffset={2 * Math.PI * 28 * (1 - completionPercent / 100)} 
                       className="transition-all duration-700" />
             </svg>
-            <div className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-white font-mono">
+            <div className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-white">
               {completionPercent}%
             </div>
           </div>
@@ -159,7 +159,7 @@ export default function SalesPlanSection({
         {sortedSteps.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 px-5 py-10 text-center" id="empty-sales-plan-message">
             <CheckSquare className="mx-auto h-7 w-7 text-slate-300" />
-            <p className="mt-3 text-xs font-bold text-slate-700 font-mono">Aucune étape de vente publiée pour le moment</p>
+            <p className="mt-3 text-xs font-bold text-slate-700">Aucune étape de vente publiée pour le moment</p>
             <p className="mt-1 text-[11px] text-slate-400">Votre conseiller affichera ici les étapes du suivi dès qu’elles seront prêtes.</p>
           </div>
         ) : (
@@ -180,7 +180,7 @@ export default function SalesPlanSection({
               >
                 {/* Number & Icon indicators on the absolute left outside the card */}
                 <div 
-                  className={`absolute -left-[23px] sm:-left-[35px] top-5 w-6 h-6 sm:w-8 sm:h-8 rounded-full border flex items-center justify-center text-[10px] font-black font-mono transition-all z-10 ${
+                  className={`absolute -left-[23px] sm:-left-[35px] top-5 w-6 h-6 sm:w-8 sm:h-8 rounded-full border flex items-center justify-center text-[10px] font-black transition-all z-10 ${
                     isCompleted 
                       ? 'bg-emerald-500 border-emerald-500 text-white' 
                       : isInProgress 
@@ -204,7 +204,7 @@ export default function SalesPlanSection({
                     {step.description}
                   </p>
                   {isCompleted && step.completedDate && (
-                    <span className="text-[9px] text-emerald-600 font-bold font-mono mt-1">
+                    <span className="text-[9px] text-emerald-600 font-bold mt-1">
                       Validé le {step.completedDate}
                     </span>
                   )}
@@ -212,7 +212,7 @@ export default function SalesPlanSection({
 
                 {/* Status Selector Trigger */}
                 <div className="flex items-center gap-2 shrink-0 self-end sm:self-center" id={`timeline-status-badge-${step.id}`}>
-                  <span className={`text-[9px] font-black uppercase font-mono px-2 py-0.5 rounded border transition-colors ${
+                  <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded border transition-colors ${
                     isCompleted 
                       ? 'bg-emerald-50 border-emerald-100 text-emerald-700' 
                       : isInProgress 
