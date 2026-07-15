@@ -94,7 +94,7 @@ export default function ConclusionSection({
           <div className="w-12 h-12 rounded-full bg-[#00A0E2]/10 border border-[#00A0E2]/30 flex items-center justify-center text-[#00A0E2] mb-1.5 animate-pulse">
             <Award className="w-6 h-6" />
           </div>
-          <span className="text-[10px] text-cyan-400 font-mono font-bold uppercase tracking-widest">Avis de valeur officiel • iad france</span>
+          <span className="text-[10px] text-cyan-400 font-bold uppercase tracking-widest">Avis de valeur officiel • iad france</span>
           <h2 className="text-2xl lg:text-3xl font-black tracking-tight text-white leading-none">Estimation recommandée de vente</h2>
           <p className="text-xs text-slate-300 max-w-lg mt-1">Établi par votre conseiller après étude approfondie des données réelles du marché en date du {activeClient.date}.</p>
         </div>
@@ -102,13 +102,13 @@ export default function ConclusionSection({
         {/* Big Certificate Price Numbers */}
         <div className="bg-slate-950/60 border border-slate-800/80 rounded-2xl py-6 px-8 lg:px-16 flex flex-col md:flex-row items-center gap-6 lg:gap-16 z-10 shadow-inner mt-2" id="certificate-price-box">
           <div className="flex flex-col text-center md:text-left" id="cert-val-range">
-            <span className="text-[10px] text-slate-400 font-mono uppercase font-bold tracking-wider">Prix de vente conseillé</span>
-            <span className="text-3xl lg:text-4xl font-black text-emerald-400 font-mono tracking-tight mt-1">{formattedLow} - {formattedHigh}</span>
+            <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Prix de vente conseillé</span>
+            <span className="text-3xl lg:text-4xl font-black text-emerald-400 tracking-tight mt-1">{formattedLow} - {formattedHigh}</span>
           </div>
           <div className="w-px h-10 bg-slate-800 hidden md:block" />
           <div className="flex flex-col text-center md:text-left" id="cert-val-sqm">
-            <span className="text-[10px] text-slate-400 font-mono uppercase font-bold tracking-wider">Prix au m² correspondant</span>
-            <span className="text-lg lg:text-xl font-black text-slate-200 font-mono mt-1">{formattedLowPerSqm} - {formattedHighPerSqm} / m²</span>
+            <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Prix au m² correspondant</span>
+            <span className="text-lg lg:text-xl font-black text-slate-200 mt-1">{formattedLowPerSqm} - {formattedHighPerSqm} / m²</span>
           </div>
         </div>
 
@@ -123,7 +123,7 @@ export default function ConclusionSection({
         {/* Left Column: Next Steps Roadmap Checklist (lg:col-span-7) */}
         <div className="lg:col-span-7 bg-white rounded-3xl border border-slate-100 shadow-sm p-6 lg:p-8 flex flex-col gap-5" id="onboarding-checklist-card">
           <div className="flex flex-col gap-1" id="checklist-header">
-            <span className="text-[10px] font-mono font-bold text-[#00A0E2] uppercase tracking-wider">Roadmap opérationnelle</span>
+            <span className="text-[10px] font-bold text-[#00A0E2] uppercase tracking-wider">Roadmap opérationnelle</span>
             <h3 className="text-lg font-extrabold text-slate-800 tracking-tight flex items-center gap-1.5">
               <CheckSquare className="w-5 h-5 text-emerald-600 animate-pulse" />
               Plan d'action pour la mise en vente
@@ -159,7 +159,7 @@ export default function ConclusionSection({
         {/* Right Column: Appointment Booker (lg:col-span-5) */}
         <div className="lg:col-span-5 bg-white rounded-3xl border border-slate-100 shadow-sm p-6 flex flex-col gap-5" id="appointment-booker-card">
           <div className="flex flex-col gap-1" id="booker-header">
-            <span className="text-[10px] font-mono font-bold text-[#00A0E2] uppercase tracking-wider">Prendre rendez-vous</span>
+            <span className="text-[10px] font-bold text-[#00A0E2] uppercase tracking-wider">Prendre rendez-vous</span>
             <h3 className="text-lg font-extrabold text-slate-800 tracking-tight flex items-center gap-1.5">
               <Calendar className="w-5 h-5 text-[#00A0E2]" />
               Planifier un débriefing stratégique
@@ -179,7 +179,7 @@ export default function ConclusionSection({
                 id="meeting-booker-form"
               >
                 <div className="flex flex-col gap-1.5" id="form-group-date">
-                  <label className="text-[10px] text-slate-400 font-bold uppercase font-mono">Date souhaitée</label>
+                  <label className="text-[10px] text-slate-400 font-bold uppercase">Date souhaitée</label>
                   <input 
                     id="input-meeting-date"
                     type="date" 
@@ -192,7 +192,7 @@ export default function ConclusionSection({
                 </div>
 
                 <div className="flex flex-col gap-1.5" id="form-group-time">
-                  <label className="text-[10px] text-slate-400 font-bold uppercase font-mono">Heure de rendez-vous</label>
+                  <label className="text-[10px] text-slate-400 font-bold uppercase">Heure de rendez-vous</label>
                   <select 
                     id="select-meeting-time"
                     required

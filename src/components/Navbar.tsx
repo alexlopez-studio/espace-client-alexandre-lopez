@@ -26,7 +26,7 @@ export default function Navbar({
 }: NavbarProps) {
   
   const isEvaluationActive = ['estimationEmpty', 'situation', 'property', 'market', 'comparables', 'conclusion'].includes(activeSection);
-  const isTransactionActive = ['documents', 'viewings', 'salesPlan', 'offers', 'stats'].includes(activeSection);
+  const isTransactionActive = ['transactionTeaser', 'documents', 'viewings', 'salesPlan', 'offers', 'stats'].includes(activeSection);
 
   const mainCategories = [
     { 
@@ -59,14 +59,13 @@ export default function Navbar({
     >
       {/* Sidebar Header with iad Logo */}
       <div className="p-6 border-b border-slate-800 flex flex-col items-center justify-center bg-slate-950/40" id="sidebar-logo-container">
-        <IadLogo className="h-12" color="#00A0E2" showText={true} />
-        <span className="text-[10px] text-slate-400 font-mono tracking-wider mt-2">PORTAIL DE SUIVI CLIENT</span>
+        <IadLogo className="h-12" color="#FFFFFF" showText={true} />
+        <span className="mt-2 text-[10px] font-semibold tracking-wider text-slate-400">PORTAIL DE SUIVI CLIENT</span>
       </div>
 
       {/* Navigation Links */}
       <nav className="flex-1 overflow-y-auto px-4 py-6 space-y-6" id="sidebar-navigation">
         <div>
-          <span className="text-[9px] font-mono font-bold text-slate-500 uppercase tracking-widest px-4 block mb-3">NAVIGATION PRINCIPALE</span>
           <div className="space-y-1.5">
             {mainCategories.map((cat) => {
               const Icon = cat.icon;
@@ -101,7 +100,8 @@ export default function Navbar({
             <img 
               src={advisor.avatar} 
               alt={advisor.name} 
-              className="w-10 h-10 rounded-full object-cover border border-[#00A0E2]/30 shadow-md referrerPolicy='no-referrer'"
+              className="advisor-portrait w-10 h-10 rounded-full object-cover border border-[#00A0E2]/30 shadow-md"
+              referrerPolicy="no-referrer"
               id="sidebar-advisor-avatar"
             />
           ) : (

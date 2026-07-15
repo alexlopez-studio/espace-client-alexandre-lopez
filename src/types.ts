@@ -24,6 +24,11 @@ export interface PropertyDetails {
   description: string;
 }
 
+export interface PropertyContext {
+  type: string;
+  commune: string;
+}
+
 export interface CadastralParcel {
   section: string;
   prefixe: string;
@@ -164,6 +169,8 @@ export interface AppState {
   clientInfo: ClientInfo;
   advisorInfo: AdvisorInfo;
   estimationStatus: 'empty' | 'draft' | 'published';
+  salesFollowUpStatus: 'teaser' | 'active';
+  propertyContext: PropertyContext;
   propertyDetails: PropertyDetails;
   pointsForts: PropertyPoint[];
   pointsDefendre: PropertyPoint[];
@@ -191,6 +198,8 @@ export interface ClientRecord {
   id: string;
   clientInfo: ClientInfo;
   estimationStatus: 'empty' | 'draft' | 'published';
+  salesFollowUpStatus: 'teaser' | 'active';
+  propertyContext: PropertyContext;
   propertyDetails: PropertyDetails;
   pointsForts: PropertyPoint[];
   pointsDefendre: PropertyPoint[];
@@ -213,4 +222,3 @@ export interface ClientRecord {
     high: number;
   };
 }
-

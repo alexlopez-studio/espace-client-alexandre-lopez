@@ -69,7 +69,7 @@ export default function ComparablesSection({ soldComparables: propComparables, p
       {/* Title block */}
       <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4" id="comparables-header">
         <div className="flex flex-col gap-1">
-          <span className="text-[10px] font-mono font-bold text-[#00A0E2] uppercase tracking-wider">Analyse comparative du marché</span>
+          <span className="text-[10px] font-bold text-[#00A0E2] uppercase tracking-wider">Analyse comparative du marché</span>
           <h2 className="text-2xl font-extrabold text-slate-800 tracking-tight">Biens comparables récemment vendus</h2>
           <p className="text-xs text-slate-500">Sélection publiée par votre conseiller depuis Mandat OS.</p>
         </div>
@@ -120,17 +120,17 @@ export default function ComparablesSection({ soldComparables: propComparables, p
                 {/* Sold Tag */}
                 <div className="flex justify-between items-start" id="comp-card-header">
                   <div className="flex items-center gap-2">
-                    <span className="bg-emerald-500 text-white text-[9px] font-black font-mono px-2 py-0.5 rounded-full uppercase tracking-wider">
+                    <span className="bg-emerald-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
                       Vendu
                     </span>
                     {comp.underCompromise && (
-                      <span className="bg-amber-500 text-white text-[9px] font-black font-mono px-2 py-0.5 rounded-full uppercase tracking-wider">
+                      <span className="bg-amber-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
                         Sous compromis
                       </span>
                     )}
-                    <span className="text-slate-400 font-bold font-mono text-[10px]">{comp.soldDate}</span>
+                    <span className="text-slate-400 font-bold text-[10px]">{comp.soldDate}</span>
                   </div>
-                  <span className="text-base font-extrabold text-slate-800 font-mono">
+                  <span className="text-base font-extrabold text-slate-800">
                     {formatEuro(comp.price)}
                   </span>
                 </div>
@@ -147,19 +147,19 @@ export default function ComparablesSection({ soldComparables: propComparables, p
 
                 {/* Badges/Specs summary */}
                 <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3" id="comp-card-specs">
-                  <span className="bg-slate-50 text-slate-600 px-2.5 py-1 rounded-lg font-bold font-mono text-[10px]">
+                  <span className="bg-slate-50 text-slate-600 px-2.5 py-1 rounded-lg font-bold text-[10px]">
                     {comp.surface} m²
                   </span>
-                  <span className="bg-slate-50 text-slate-600 px-2.5 py-1 rounded-lg font-bold font-mono text-[10px]">
+                  <span className="bg-slate-50 text-slate-600 px-2.5 py-1 rounded-lg font-bold text-[10px]">
                     Terrain {comp.landSurface} m²
                   </span>
-                  <span className="bg-slate-50 text-slate-600 px-2.5 py-1 rounded-lg font-bold font-mono text-[10px]">
+                  <span className="bg-slate-50 text-slate-600 px-2.5 py-1 rounded-lg font-bold text-[10px]">
                     {comp.rooms} p.
                   </span>
-                  <span className="bg-slate-50 text-slate-600 px-2.5 py-1 rounded-lg font-bold font-mono text-[10px]">
+                  <span className="bg-slate-50 text-slate-600 px-2.5 py-1 rounded-lg font-bold text-[10px]">
                     {comp.bedrooms} ch.
                   </span>
-                  <span className="bg-[#00A0E2]/10 text-[#00A0E2] ml-auto px-2.5 py-1 rounded-lg font-extrabold font-mono text-[10px]">
+                  <span className="bg-[#00A0E2]/10 text-[#00A0E2] ml-auto px-2.5 py-1 rounded-lg font-extrabold text-[10px]">
                     {comp.pricePerSqm} €/m²
                   </span>
                 </div>
@@ -186,7 +186,7 @@ export default function ComparablesSection({ soldComparables: propComparables, p
                 id="comparisons-pane"
               >
                 <div className="flex flex-col gap-1.5" id="comp-pane-header">
-                  <span className="text-[10px] font-mono font-bold text-[#00A0E2] uppercase tracking-widest flex items-center gap-1">
+                  <span className="text-[10px] font-bold text-[#00A0E2] uppercase tracking-widest flex items-center gap-1">
                     <GitCompare className="w-3.5 h-3.5" />
                     Comparateur d'actifs
                   </span>
@@ -202,8 +202,8 @@ export default function ComparablesSection({ soldComparables: propComparables, p
                   {/* Row: Surface */}
                   <div className="grid grid-cols-3 items-center py-2 border-b border-slate-50 text-xs" id="row-surface">
                     <div className="text-slate-500 font-semibold">Surface</div>
-                    <div className="text-slate-400 font-mono">Votre bien : <span className="font-extrabold text-slate-700">{activeDetails.surface}m²</span></div>
-                    <div className="text-right font-mono font-bold text-slate-800">
+                    <div className="text-slate-400">Votre bien : <span className="font-extrabold text-slate-700">{activeDetails.surface}m²</span></div>
+                    <div className="text-right font-bold text-slate-800">
                       {selectedComparable.surface}m² 
                       <span className={`ml-1.5 text-[10px] ${
                         activeDetails.surface > selectedComparable.surface ? 'text-emerald-600' : 'text-amber-600'
@@ -216,8 +216,8 @@ export default function ComparablesSection({ soldComparables: propComparables, p
                   {/* Row: Terrain */}
                   <div className="grid grid-cols-3 items-center py-2 border-b border-slate-50 text-xs" id="row-terrain">
                     <div className="text-slate-500 font-semibold">Terrain</div>
-                    <div className="text-slate-400 font-mono">Votre bien : <span className="font-extrabold text-slate-700">{activeDetails.landSurface}m²</span></div>
-                    <div className="text-right font-mono font-bold text-slate-800">
+                    <div className="text-slate-400">Votre bien : <span className="font-extrabold text-slate-700">{activeDetails.landSurface}m²</span></div>
+                    <div className="text-right font-bold text-slate-800">
                       {selectedComparable.landSurface}m²
                       <span className={`ml-1.5 text-[10px] ${
                         activeDetails.landSurface > selectedComparable.landSurface ? 'text-emerald-600' : 'text-amber-600'
@@ -230,8 +230,8 @@ export default function ComparablesSection({ soldComparables: propComparables, p
                   {/* Row: Pièces */}
                   <div className="grid grid-cols-3 items-center py-2 border-b border-slate-50 text-xs" id="row-rooms">
                     <div className="text-slate-500 font-semibold">Pièces / Ch.</div>
-                    <div className="text-slate-400 font-mono">Votre bien : <span className="font-extrabold text-slate-700">{activeDetails.rooms}p / {activeDetails.bedrooms}ch</span></div>
-                    <div className="text-right font-mono font-bold text-slate-800">
+                    <div className="text-slate-400">Votre bien : <span className="font-extrabold text-slate-700">{activeDetails.rooms}p / {activeDetails.bedrooms}ch</span></div>
+                    <div className="text-right font-bold text-slate-800">
                       {selectedComparable.rooms}p / {selectedComparable.bedrooms}ch
                     </div>
                   </div>
@@ -239,8 +239,8 @@ export default function ComparablesSection({ soldComparables: propComparables, p
                   {/* Row: Price */}
                   <div className="grid grid-cols-3 items-center py-2 border-b border-slate-50 text-xs" id="row-price">
                     <div className="text-slate-500 font-semibold">Prix de vente</div>
-                    <div className="text-slate-400 font-mono font-medium">Référence : <span className="font-extrabold text-slate-700">{Math.round(safeReferencePrice / 1000)}k €</span></div>
-                    <div className="text-right font-mono font-bold text-[#00A0E2]">
+                    <div className="text-slate-400 font-medium">Référence : <span className="font-extrabold text-slate-700">{Math.round(safeReferencePrice / 1000)}k €</span></div>
+                    <div className="text-right font-bold text-[#00A0E2]">
                       {formatEuro(selectedComparable.price)}
                     </div>
                   </div>
@@ -248,8 +248,8 @@ export default function ComparablesSection({ soldComparables: propComparables, p
                   {/* Row: Price/sqm */}
                   <div className="grid grid-cols-3 items-center py-2 border-b border-slate-50 text-xs" id="row-price-sqm">
                     <div className="text-slate-500 font-semibold">Prix au m²</div>
-                    <div className="text-slate-400 font-mono">Référence : <span className="font-extrabold text-slate-700">{new Intl.NumberFormat('fr-FR').format(referencePricePerSqm)} €</span></div>
-                    <div className="text-right font-mono font-black text-slate-800">
+                    <div className="text-slate-400">Référence : <span className="font-extrabold text-slate-700">{new Intl.NumberFormat('fr-FR').format(referencePricePerSqm)} €</span></div>
+                    <div className="text-right font-black text-slate-800">
                       {selectedComparable.pricePerSqm} €/m²
                     </div>
                   </div>
@@ -260,7 +260,7 @@ export default function ComparablesSection({ soldComparables: propComparables, p
                 <div className="bg-slate-50 rounded-2xl p-4.5 border border-slate-100 flex gap-3 text-[11px] leading-relaxed text-slate-700" id="comp-analysis-box">
                   <Sparkles className="w-4 h-4 text-[#00A0E2] shrink-0" />
                   <div>
-                    <span className="font-bold text-slate-800 block uppercase font-mono">Note comparative d'expert</span>
+                    <span className="font-bold text-slate-800 block uppercase">Note comparative d'expert</span>
                     <span>
                       {selectedComparable.pricePerSqm > referencePricePerSqm 
                         ? `Le bien situé ${selectedComparable.address.split(',')[0]} s'est vendu plus cher au m² (${selectedComparable.pricePerSqm} €/m²). Cela s'explique par sa configuration de plain-pied ou sa rénovation récente. Néanmoins, votre bien offre une opportunité compétitive grâce à son prix d'appel à ${new Intl.NumberFormat('fr-FR').format(referencePricePerSqm)} €/m².`
@@ -279,10 +279,10 @@ export default function ComparablesSection({ soldComparables: propComparables, p
       {/* Selector metrics graphic slider at bottom (Page 6 layout) */}
       <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col gap-4" id="comparables-summary-bar">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2" id="summary-bar-header">
-          <span className="text-xs font-extrabold text-slate-800 uppercase tracking-wider font-mono">
+          <span className="text-xs font-extrabold text-slate-800 uppercase tracking-wider">
             Moyenne de la sélection des comparables
           </span>
-          <span className="text-sm font-black text-[#00A0E2] font-mono">
+          <span className="text-sm font-black text-[#00A0E2]">
             Moyenne : {avgSqmPrice} €/m²
           </span>
         </div>
@@ -306,7 +306,7 @@ export default function ComparablesSection({ soldComparables: propComparables, p
             <div className="absolute -top-1 right-4 w-1.5 h-6 bg-slate-900 border border-white rounded-full translate-x-1/2" id="range-tick-high" />
           </div>
 
-          <div className="flex justify-between text-[10px] font-bold font-mono text-slate-400 mt-2" id="range-tick-labels">
+          <div className="flex justify-between text-[10px] font-bold text-slate-400 mt-2" id="range-tick-labels">
             <span>Prix Bas : {minSqmPrice} €/m²</span>
             <span>Moyenne de la sélection : {avgSqmPrice} €/m²</span>
             <span>Prix Haut : {maxSqmPrice} €/m²</span>

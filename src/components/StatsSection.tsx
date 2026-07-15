@@ -92,7 +92,7 @@ export default function StatsSection({
       <div className="w-full flex flex-col gap-6" id="stats-section-root">
         <div className="rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-12 text-center shadow-sm" id="empty-stats-message">
           <Activity className="mx-auto h-8 w-8 text-slate-300" />
-          <p className="mt-3 text-xs font-bold text-slate-700 font-mono">Aucune statistique de diffusion publiée pour le moment</p>
+          <p className="mt-3 text-xs font-bold text-slate-700">Aucune statistique de diffusion publiée pour le moment</p>
           <p className="mt-1 text-[11px] text-slate-400">Les performances de l’annonce apparaîtront ici après les premiers relevés.</p>
         </div>
       </div>
@@ -205,8 +205,8 @@ export default function StatsSection({
             <Eye className="w-5 h-5 text-indigo-500" />
           </div>
           <div>
-            <span className="text-[10px] text-slate-400 font-mono font-bold uppercase block">Vues cumulées</span>
-            <span className="text-xl font-black font-mono text-slate-800 leading-none mt-1 inline-block">{formatNumber(totalViews)}</span>
+            <span className="text-[10px] text-slate-400 font-bold uppercase block">Vues cumulées</span>
+            <span className="text-xl font-black text-slate-800 leading-none mt-1 inline-block">{formatNumber(totalViews)}</span>
           </div>
         </div>
 
@@ -222,8 +222,8 @@ export default function StatsSection({
             <MousePointer className="w-5 h-5 text-[#00A0E2]" />
           </div>
           <div>
-            <span className="text-[10px] text-slate-400 font-mono font-bold uppercase block">Fiches consultées</span>
-            <span className="text-xl font-black font-mono text-slate-800 leading-none mt-1 inline-block">{formatNumber(totalDetailedViews)}</span>
+            <span className="text-[10px] text-slate-400 font-bold uppercase block">Fiches consultées</span>
+            <span className="text-xl font-black text-slate-800 leading-none mt-1 inline-block">{formatNumber(totalDetailedViews)}</span>
           </div>
         </div>
 
@@ -239,8 +239,8 @@ export default function StatsSection({
             <MessageSquare className="w-5 h-5 text-emerald-600" />
           </div>
           <div>
-            <span className="text-[10px] text-slate-400 font-mono font-bold uppercase block">Contacts (Leads)</span>
-            <span className="text-xl font-black font-mono text-slate-800 leading-none mt-1 inline-block">{totalContacts}</span>
+            <span className="text-[10px] text-slate-400 font-bold uppercase block">Contacts (Leads)</span>
+            <span className="text-xl font-black text-slate-800 leading-none mt-1 inline-block">{totalContacts}</span>
           </div>
         </div>
 
@@ -256,8 +256,8 @@ export default function StatsSection({
             <PhoneCall className="w-5 h-5 text-pink-500" />
           </div>
           <div>
-            <span className="text-[10px] text-slate-400 font-mono font-bold uppercase block">Révélations de tél.</span>
-            <span className="text-xl font-black font-mono text-slate-800 leading-none mt-1 inline-block">{totalPhoneClicks}</span>
+            <span className="text-[10px] text-slate-400 font-bold uppercase block">Révélations de tél.</span>
+            <span className="text-xl font-black text-slate-800 leading-none mt-1 inline-block">{totalPhoneClicks}</span>
           </div>
         </div>
 
@@ -310,7 +310,7 @@ export default function StatsSection({
               <div className="absolute inset-x-0 top-0 bottom-6 flex flex-col justify-between pointer-events-none z-0" id="chart-y-grid-lines">
                 {gridYValues.map((val, index) => (
                   <div key={index} className="w-full border-t border-slate-200/30 relative">
-                    <span className="absolute left-1 -top-2 text-[8px] font-mono text-slate-400 font-bold">
+                    <span className="absolute left-1 -top-2 text-[8px] text-slate-400 font-bold">
                       {formatNumber(val)} {activeConf.label.toLowerCase()}
                     </span>
                   </div>
@@ -352,7 +352,7 @@ export default function StatsSection({
                         
                         {/* Inline tooltip on hover */}
                         <foreignObject x={cx - 30} y={cy - 35} width="60" height="24" className="opacity-0 group-hover/dot:opacity-100 transition-opacity duration-200 pointer-events-none">
-                          <div className="bg-slate-800 text-white font-mono text-[9px] font-extrabold rounded px-1 py-0.5 text-center shadow-lg leading-tight">
+                          <div className="bg-slate-800 text-white text-[9px] font-extrabold rounded px-1 py-0.5 text-center shadow-lg leading-tight">
                             {trend[activeMetric]}
                           </div>
                         </foreignObject>
@@ -371,7 +371,7 @@ export default function StatsSection({
               )}
 
               {/* X-axis labels aligned with columns */}
-              <div className="absolute inset-x-0 bottom-0 h-5 flex justify-between text-[10px] text-slate-400 font-mono font-bold px-1 pointer-events-none" id="chart-x-labels">
+              <div className="absolute inset-x-0 bottom-0 h-5 flex justify-between text-[10px] text-slate-400 font-bold px-1 pointer-events-none" id="chart-x-labels">
                 {weeklyTrends.map((trend, i) => (
                   <span key={i}>{trend.label}</span>
                 ))}
@@ -382,13 +382,13 @@ export default function StatsSection({
 
           <div className="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4" id="stats-trends-foot">
             <div className="flex flex-col animate-fade-in" id="trend-foot-clicks">
-              <span className="text-[10px] text-slate-400 font-mono uppercase font-bold">Ratios de consultation</span>
-              <span className="text-base font-black text-slate-800 font-mono mt-0.5">{globalClickThrough}%</span>
+              <span className="text-[10px] text-slate-400 uppercase font-bold">Ratios de consultation</span>
+              <span className="text-base font-black text-slate-800 mt-0.5">{globalClickThrough}%</span>
               <p className="text-[10px] text-slate-400 leading-snug mt-0.5">Pourcentage de vues qui se transforment en consultations de la fiche.</p>
             </div>
             <div className="flex flex-col animate-fade-in" id="trend-foot-conv">
-              <span className="text-[10px] text-slate-400 font-mono uppercase font-bold">Taux de conversion contact</span>
-              <span className="text-base font-black text-emerald-600 font-mono mt-0.5">{globalLeadConversion}%</span>
+              <span className="text-[10px] text-slate-400 uppercase font-bold">Taux de conversion contact</span>
+              <span className="text-base font-black text-emerald-600 mt-0.5">{globalLeadConversion}%</span>
               <p className="text-[10px] text-slate-400 leading-snug mt-0.5">Pourcentage de consultations fiches qui débouchent sur un message ou appel.</p>
             </div>
           </div>
@@ -413,7 +413,7 @@ export default function StatsSection({
                 <div key={portal.portalName} className="flex flex-col gap-1.5" id={`dist-bar-${portal.portalName}`}>
                   <div className="flex justify-between items-center text-xs text-slate-700" id={`dist-info-${portal.portalName}`}>
                     <span className="font-extrabold">{portal.portalName}</span>
-                    <span className="font-mono text-slate-400">
+                    <span className="text-slate-400">
                       <strong className="text-slate-800 font-black">{formatNumber(portal.views)}</strong> v ({viewPercent}%)
                     </span>
                   </div>
@@ -425,7 +425,7 @@ export default function StatsSection({
                     />
                   </div>
 
-                  <div className="flex justify-between text-[10px] text-slate-400 font-mono font-semibold" id={`dist-metrics-${portal.portalName}`}>
+                  <div className="flex justify-between text-[10px] text-slate-400 font-semibold" id={`dist-metrics-${portal.portalName}`}>
                     <span>{portal.contacts} lead{portal.contacts > 1 ? 's' : ''}</span>
                     <span className="text-[#00A0E2]">Index: {portal.performanceIndex}/100</span>
                   </div>
@@ -459,7 +459,7 @@ export default function StatsSection({
         <div className="overflow-x-auto border border-slate-100 rounded-2xl" id="stats-table-wrapper">
           <table className="w-full text-left border-collapse" id="stats-history-table">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-100 text-[10px] text-slate-400 font-mono font-bold uppercase tracking-wider">
+              <tr className="bg-slate-50 border-b border-slate-100 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
                 <th className="px-5 py-3.5">Période</th>
                 <th className="px-5 py-3.5 text-right">Vues de recherche</th>
                 <th className="px-5 py-3.5 text-right">Fiches consultées</th>
@@ -477,12 +477,12 @@ export default function StatsSection({
                 return (
                   <tr key={i} className="hover:bg-slate-50/40 transition-colors" id={`table-row-${trend.label}`}>
                     <td className="px-5 py-3.5 font-bold text-slate-800">{trend.label}</td>
-                    <td className="px-5 py-3.5 text-right font-mono text-slate-600">{formatNumber(trend.views)}</td>
-                    <td className="px-5 py-3.5 text-right font-mono text-slate-600">{formatNumber(trend.detailedViews)}</td>
-                    <td className="px-5 py-3.5 text-right font-mono font-extrabold text-[#00A0E2]">{ctr}%</td>
-                    <td className="px-5 py-3.5 text-right font-mono font-extrabold text-emerald-600">+{trend.contacts}</td>
-                    <td className="px-5 py-3.5 text-right font-mono font-extrabold text-pink-600">+{trend.phoneClicks}</td>
-                    <td className="px-5 py-3.5 text-right font-mono font-extrabold text-indigo-600">{conv}%</td>
+                    <td className="px-5 py-3.5 text-right text-slate-600">{formatNumber(trend.views)}</td>
+                    <td className="px-5 py-3.5 text-right text-slate-600">{formatNumber(trend.detailedViews)}</td>
+                    <td className="px-5 py-3.5 text-right font-extrabold text-[#00A0E2]">{ctr}%</td>
+                    <td className="px-5 py-3.5 text-right font-extrabold text-emerald-600">+{trend.contacts}</td>
+                    <td className="px-5 py-3.5 text-right font-extrabold text-pink-600">+{trend.phoneClicks}</td>
+                    <td className="px-5 py-3.5 text-right font-extrabold text-indigo-600">{conv}%</td>
                   </tr>
                 );
               })}
@@ -512,12 +512,12 @@ export default function StatsSection({
             >
               <div className="flex justify-between items-center" id={`p-stat-header-${p.portalName}`}>
                 <span className="text-xs font-black text-slate-800 group-hover:text-[#00A0E2] transition-colors">{p.portalName}</span>
-                <span className="bg-slate-50 text-slate-500 text-[9px] font-black font-mono px-2 py-0.5 rounded border border-slate-100">
+                <span className="bg-slate-50 text-slate-500 text-[9px] font-black px-2 py-0.5 rounded border border-slate-100">
                   Perf: {p.performanceIndex}/100
                 </span>
               </div>
 
-              <div className="bg-slate-50/60 rounded-xl p-3 border border-slate-100 flex justify-between items-center font-mono text-xs" id={`p-stat-box-${p.portalName}`}>
+              <div className="bg-slate-50/60 rounded-xl p-3 border border-slate-100 flex justify-between items-center text-xs" id={`p-stat-box-${p.portalName}`}>
                 <div className="flex flex-col" id={`p-stat-views-${p.portalName}`}>
                   <span className="text-[9px] text-slate-400 font-bold font-sans">VUES</span>
                   <span className="text-xs font-black text-slate-800">{formatNumber(portalViews)}</span>
@@ -534,7 +534,7 @@ export default function StatsSection({
                 </div>
               </div>
 
-              <div className="flex justify-between items-center text-[10px] text-slate-400 font-mono font-bold" id={`p-stat-footer-${p.portalName}`}>
+              <div className="flex justify-between items-center text-[10px] text-slate-400 font-bold" id={`p-stat-footer-${p.portalName}`}>
                 <span>CTR: <strong className="text-slate-700 font-black">{portalCTR}%</strong></span>
                 <span>Conv.: <strong className="text-slate-700 font-black">{portalConv}%</strong></span>
               </div>

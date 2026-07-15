@@ -19,16 +19,17 @@ export const defaultOffers: BuyerOffer[] = [];
 export const defaultPortalStats: PortalStat[] = [];
 
 export const emptyAdvisorInfo: AdvisorInfo = {
-  name: 'Votre conseiller',
-  title: 'Conseiller immobilier',
-  phone: '',
-  email: '',
-  avatar: '',
+  name: 'Alexandre Lopez',
+  title: 'Conseiller immobilier iad',
+  phone: '06 13 18 01 68',
+  email: 'alexandre.lopez@iadfrance.fr',
+  avatar: '/alexandre-lopez-face.jpg',
 };
 
 export const emptyClient: ClientRecord = {
   id: 'empty-dossier',
   estimationStatus: 'empty',
+  salesFollowUpStatus: 'teaser',
   clientInfo: {
     names: 'Client',
     address: '',
@@ -44,6 +45,10 @@ export const emptyClient: ClientRecord = {
     year: 0,
     address: '',
     description: '',
+  },
+  propertyContext: {
+    type: '',
+    commune: '',
   },
   pointsForts: [],
   pointsDefendre: [],
@@ -80,6 +85,8 @@ export const getInitialState = (): AppState => ({
   clientInfo: emptyClient.clientInfo,
   advisorInfo: emptyAdvisorInfo,
   estimationStatus: 'empty',
+  salesFollowUpStatus: 'teaser',
+  propertyContext: emptyClient.propertyContext,
   propertyDetails: emptyClient.propertyDetails,
   pointsForts: [],
   pointsDefendre: [],

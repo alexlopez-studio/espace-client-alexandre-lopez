@@ -41,7 +41,7 @@ export default function CoverSection({ client, advisor, propertyDetails, estimat
         
         <div className="flex justify-between items-start z-10" id="cover-header-row">
           <IadLogo className="h-14 self-start" color="#00A0E2" showText={true} />
-          <div className="flex items-center gap-2 bg-slate-100 text-slate-800 text-[11px] font-semibold tracking-wider px-3 py-1.5 rounded-full uppercase font-mono" id="cover-badge">
+          <div className="flex items-center gap-2 bg-slate-100 text-slate-800 text-[11px] font-semibold tracking-wider px-3 py-1.5 rounded-full uppercase" id="cover-badge">
             <BadgeCheck className="w-3.5 h-3.5 text-[#00A0E2]" />
             Dossier Certifié
           </div>
@@ -81,7 +81,7 @@ export default function CoverSection({ client, advisor, propertyDetails, estimat
           </div>
 
           <div className="flex flex-col gap-1.5" id="cover-detail-address">
-            <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider font-mono">Adresse du bien</span>
+            <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Adresse du bien</span>
             <div className="flex items-center gap-2.5">
               <div className="p-2 bg-slate-50 text-slate-700 rounded-lg">
                 <MapPin className="w-4 h-4 text-[#00A0E2]" />
@@ -93,7 +93,7 @@ export default function CoverSection({ client, advisor, propertyDetails, estimat
           </div>
 
           <div className="flex flex-col gap-1.5" id="cover-detail-date">
-            <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider font-mono">Date de réalisation</span>
+            <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Date de réalisation</span>
             <div className="flex items-center gap-2.5">
               <div className="p-2 bg-slate-50 text-slate-700 rounded-lg">
                 <Calendar className="w-4 h-4 text-emerald-600" />
@@ -111,7 +111,7 @@ export default function CoverSection({ client, advisor, propertyDetails, estimat
 
         {/* Large overlay title on top of picture */}
         <div className="absolute top-6 right-6 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-2xl px-5 py-3 flex flex-col items-end" id="cover-location-tag">
-          <span className="text-[10px] font-mono tracking-widest uppercase opacity-75">Statut</span>
+          <span className="text-[10px] font-semibold tracking-widest uppercase opacity-75">Statut</span>
           <span className="text-sm font-bold tracking-tight">{statusLabel}</span>
           {location && <span className="mt-1 text-xs opacity-75">{location}</span>}
         </div>
@@ -122,7 +122,8 @@ export default function CoverSection({ client, advisor, propertyDetails, estimat
             <img 
               src={advisor.avatar} 
               alt={advisor.name} 
-              className="w-16 h-16 rounded-full object-cover border-2 border-[#00A0E2]/30 shadow referrerPolicy='no-referrer'"
+              className="advisor-portrait w-16 h-16 rounded-full object-cover border-2 border-[#00A0E2]/30 shadow"
+              referrerPolicy="no-referrer"
               id="cover-advisor-avatar"
             />
           ) : (
@@ -131,7 +132,7 @@ export default function CoverSection({ client, advisor, propertyDetails, estimat
             </div>
           )}
           <div className="flex-1 flex flex-col text-center md:text-left gap-1">
-            <span className="text-[10px] font-mono font-bold text-[#00A0E2] uppercase tracking-wider">Votre conseiller iad</span>
+            <span className="text-[10px] font-bold text-[#00A0E2] uppercase tracking-wider">Votre conseiller iad</span>
             <h3 className="text-base font-extrabold text-slate-800 tracking-tight">{advisor.name}</h3>
             
             {hasAdvisorContact && (
@@ -173,7 +174,7 @@ export default function CoverSection({ client, advisor, propertyDetails, estimat
             <TrendingUp className="w-6 h-6" />
           </div>
           <div>
-            <p className="text-xs text-slate-400 font-bold uppercase tracking-wider font-mono">Surface Totale</p>
+            <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Surface Totale</p>
             <p className="text-xl font-extrabold text-slate-800">{propertyDetails.surface > 0 ? `${propertyDetails.surface} m² habitables` : 'Non renseigné'}</p>
           </div>
         </div>
@@ -183,7 +184,7 @@ export default function CoverSection({ client, advisor, propertyDetails, estimat
             <FileText className="w-6 h-6" />
           </div>
           <div>
-            <p className="text-xs text-slate-400 font-bold uppercase tracking-wider font-mono">Configuration</p>
+            <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Configuration</p>
             <p className="text-xl font-extrabold text-slate-800">
               {propertyDetails.rooms > 0 ? `${propertyDetails.rooms} pièce${propertyDetails.rooms > 1 ? 's' : ''}` : 'Non renseigné'}
               {propertyDetails.bedrooms > 0 ? ` • ${propertyDetails.bedrooms} ch.` : ''}
@@ -196,7 +197,7 @@ export default function CoverSection({ client, advisor, propertyDetails, estimat
             <MapPin className="w-6 h-6" />
           </div>
           <div>
-            <p className="text-xs text-slate-400 font-bold uppercase tracking-wider font-mono">Terrain Cadastral</p>
+            <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Terrain Cadastral</p>
             <p className="text-xl font-extrabold text-slate-800">{propertyDetails.landSurface > 0 ? `${propertyDetails.landSurface} m²` : 'Non renseigné'}</p>
           </div>
         </div>
