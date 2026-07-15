@@ -563,7 +563,7 @@ export default function App() {
               {activeSection === 'estimationEmpty' && (
                 <EmptyContentState
                   title="Estimation en préparation"
-                  description="Votre conseiller prépare l’avis de valeur. Dès qu’il sera publié depuis Mandat OS, il apparaîtra ici sans donnée générique."
+                  description="Je prépare votre estimation sur mesure, à partir des spécificités de votre bien et de ma connaissance du marché local. Dès sa publication, elle apparaîtra ici."
                 />
               )}
               {activeSection === 'situation' && (
@@ -673,6 +673,8 @@ export default function App() {
             <span>© 2026 iad France - Document d'accompagnement et suivi de dossier à caractère indicatif.</span>
           </div>
           <div className="flex items-center gap-4" id="footer-links">
+            <span>Votre espace vendeur privé, conçu par Alexandre Lopez.</span>
+            <span>•</span>
             <a href="https://www.iadfrance.fr" target="_blank" rel="noreferrer" className="hover:text-[#00A0E2] transition-colors">iadfrance.fr</a>
             <span>•</span>
             <span>Réseau de mandataires immobiliers</span>
