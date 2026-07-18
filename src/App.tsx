@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { 
-  Menu, 
-  X, 
-  Phone, 
+import {
+  Menu,
+  X,
+  Phone,
   Mail,
-  MapPin, 
+  MapPin,
   ChevronRight,
   ArrowUp,
   Download,
@@ -13,12 +13,15 @@ import {
   GitCompare,
   CheckSquare,
   FolderOpen,
-  Users,
+  Users as UsersIcon,
   Compass,
   Handshake,
   BarChart3,
   LockKeyhole,
-  RefreshCw
+  RefreshCw,
+  TrendingUp,
+  Target,
+  Award,
 } from 'lucide-react';
 
 import { clearAppState, getMultiClientState, saveMultiClientState } from './lib/store';
@@ -27,11 +30,13 @@ import Navbar from './components/Navbar';
 import CoverSection from './components/CoverSection';
 import SituationSection from './components/SituationSection';
 import PropertySection from './components/PropertySection';
+import MarketSection from './components/MarketSection';
+import CompetitionSection from './components/CompetitionSection';
 import ComparablesSection from './components/ComparablesSection';
 import ConclusionSection from './components/ConclusionSection';
+import IadSection from './components/IadSection';
 import IadLogo from './components/IadLogo';
 
-// Admin modules imports
 import DocumentsSection from './components/DocumentsSection';
 import VisitsSection from './components/VisitsSection';
 import SalesPlanSection from './components/SalesPlanSection';
@@ -39,6 +44,9 @@ import OffersSection from './components/OffersSection';
 import StatsSection from './components/StatsSection';
 import { DocumentItem, ViewingReport, SalesStep, BuyerOffer, PortalStat, ClientRecord, AppState } from './types';
 import { loadLocalTestDossiers, loadMandatOsPortalState, type LocalTestDossier, type RemotePortalStatus } from './lib/mandat-os-portal';
+
+const EVAL_SECTIONS = ['estimationEmpty', 'situation', 'property', 'market', 'competition', 'comparables', 'conclusion', 'iad'];
+const TRANS_SECTIONS = ['transactionTeaser', 'documents', 'viewings', 'salesPlan', 'offers', 'stats'];
 
 export default function App() {
   const [multiClientState, setMultiClientState] = useState(() => getMultiClientState());
@@ -50,8 +58,7 @@ export default function App() {
   const [lastEvalSection, setLastEvalSection] = useState<string>('situation');
   const [lastTransSection, setLastTransSection] = useState<string>('documents');
 
-  // Derive current client and appState
-  const currentClient = multiClientState.clients.find(c => c.id === multiClientState.currentClientId) || multiClientState.clients[0];
+  const currentClient = multiClientState.clients.find((c: ClientRecord) => c.id === multiClientState.currentClientId) || multiClientState.clients[0];
   const appState: AppState = {
     clientInfo: currentClient.clientInfo,
     advisorInfo: multiClientState.advisorInfo,
@@ -69,39 +76,55 @@ export default function App() {
     cadastralParcels: currentClient.cadastralParcels || [],
     marketPriceRanges: currentClient.marketPriceRanges,
     soldComparables: currentClient.soldComparables || [],
-    recommendedPriceRange: currentClient.recommendedPriceRange
+    recommendedPriceRange: currentClient.recommendedPriceRange,
+    socioEconomicData: currentClient.socioEconomicData,
+    marketDistribution: currentClient.marketDistribution,
+    marketTrend: currentClient.marketTrend,
+    marketTension: currentClient.marketTension,
+    competingProperties: currentClient.competingProperties,
+    unsoldProperties: currentClient.unsoldProperties,
+    positioningData: currentClient.positioningData,
+    synthesisData: currentClient.synthesisData,
+    iadTrackRecord: currentClient.iadTrackRecord,
   };
 
-  // Custom setAppState to map state updates back into the multiClientState
   const setAppState = (updater: AppState | ((prev: AppState) => AppState)) => {
-    setMultiClientState(prev => {
-      const currentClient = prev.clients.find(c => c.id === prev.currentClientId) || prev.clients[0];
+    setMultiClientState((prev) => {
+      const cc = prev.clients.find((c: ClientRecord) => c.id === prev.currentClientId) || prev.clients[0];
       const currentAppState: AppState = {
-        clientInfo: currentClient.clientInfo,
+        clientInfo: cc.clientInfo,
         advisorInfo: prev.advisorInfo,
-        estimationStatus: currentClient.estimationStatus,
-        salesFollowUpStatus: currentClient.salesFollowUpStatus,
-        propertyContext: currentClient.propertyContext,
-        propertyDetails: currentClient.propertyDetails,
-        pointsForts: currentClient.pointsForts,
-        pointsDefendre: currentClient.pointsDefendre,
-        documents: currentClient.documents,
-        viewings: currentClient.viewings,
-        salesSteps: currentClient.salesSteps,
-        offers: currentClient.offers,
-        portalStats: currentClient.portalStats,
-        cadastralParcels: currentClient.cadastralParcels || [],
-        marketPriceRanges: currentClient.marketPriceRanges,
-        soldComparables: currentClient.soldComparables || [],
-        recommendedPriceRange: currentClient.recommendedPriceRange
+        estimationStatus: cc.estimationStatus,
+        salesFollowUpStatus: cc.salesFollowUpStatus,
+        propertyContext: cc.propertyContext,
+        propertyDetails: cc.propertyDetails,
+        pointsForts: cc.pointsForts,
+        pointsDefendre: cc.pointsDefendre,
+        documents: cc.documents,
+        viewings: cc.viewings,
+        salesSteps: cc.salesSteps,
+        offers: cc.offers,
+        portalStats: cc.portalStats,
+        cadastralParcels: cc.cadastralParcels || [],
+        marketPriceRanges: cc.marketPriceRanges,
+        soldComparables: cc.soldComparables || [],
+        recommendedPriceRange: cc.recommendedPriceRange,
+        socioEconomicData: cc.socioEconomicData,
+        marketDistribution: cc.marketDistribution,
+        marketTrend: cc.marketTrend,
+        marketTension: cc.marketTension,
+        competingProperties: cc.competingProperties,
+        unsoldProperties: cc.unsoldProperties,
+        positioningData: cc.positioningData,
+        synthesisData: cc.synthesisData,
+        iadTrackRecord: cc.iadTrackRecord,
       };
 
       const newState = typeof updater === 'function' ? updater(currentAppState) : updater;
 
-      const updatedClients = prev.clients.map(c => {
+      const updatedClients = prev.clients.map((c: ClientRecord) => {
         if (c.id === prev.currentClientId) {
-          return {
-            ...c,
+          return { ...c,
             clientInfo: newState.clientInfo,
             estimationStatus: newState.estimationStatus,
             salesFollowUpStatus: newState.salesFollowUpStatus,
@@ -118,41 +141,36 @@ export default function App() {
             marketPriceRanges: newState.marketPriceRanges,
             soldComparables: newState.soldComparables,
             recommendedPriceRange: newState.recommendedPriceRange,
+            socioEconomicData: newState.socioEconomicData,
+            marketDistribution: newState.marketDistribution,
+            marketTrend: newState.marketTrend,
+            marketTension: newState.marketTension,
+            competingProperties: newState.competingProperties,
+            unsoldProperties: newState.unsoldProperties,
+            positioningData: newState.positioningData,
+            synthesisData: newState.synthesisData,
+            iadTrackRecord: newState.iadTrackRecord,
           };
         }
         return c;
       });
 
-      const nextMultiState = {
-        ...prev,
-        clients: updatedClients,
-        advisorInfo: newState.advisorInfo
-      };
-      saveMultiClientState(nextMultiState);
-      return nextMultiState;
+      const next = { ...prev, clients: updatedClients, advisorInfo: newState.advisorInfo };
+      saveMultiClientState(next);
+      return next;
     });
   };
 
-  // Track and remember the last sub-sections within main divisions
   useEffect(() => {
-    if (['estimationEmpty', 'situation', 'property', 'comparables', 'conclusion'].includes(activeSection)) {
-      setLastEvalSection(activeSection);
-    } else if (['documents', 'viewings', 'salesPlan', 'offers', 'stats'].includes(activeSection)) {
-      setLastTransSection(activeSection);
-    }
+    if (EVAL_SECTIONS.includes(activeSection)) setLastEvalSection(activeSection);
+    else if (TRANS_SECTIONS.includes(activeSection)) setLastTransSection(activeSection);
   }, [activeSection]);
 
-  // Sync multiClientState changes with localStorage
-  useEffect(() => {
-    saveMultiClientState(multiClientState);
-  }, [multiClientState]);
+  useEffect(() => { saveMultiClientState(multiClientState); }, [multiClientState]);
 
-  // Hydrate the standalone portal from Mandat OS / Supabase when a client
-  // session exists. Without Supabase envs or auth, the local demo remains active.
   useEffect(() => {
     let cancelled = false;
-
-    const hydrateFromMandatOs = async () => {
+    const hydrate = async () => {
       setRemoteStatus('loading');
       try {
         const result = await loadMandatOsPortalState();
@@ -160,381 +178,150 @@ export default function App() {
         if (result.state) setMultiClientState(result.state);
         setRemoteStatus(result.status);
       } catch (error) {
-        console.error('[Mandat OS portal bridge]', error);
+        console.error('[Mandat OS]', error);
         if (!cancelled) setRemoteStatus('error');
       }
     };
-
-    hydrateFromMandatOs();
-
-    return () => {
-      cancelled = true;
-    };
+    hydrate();
+    return () => { cancelled = true; };
   }, []);
 
-  // Handle client selection
-  const handleSelectClient = (clientId: string) => {
-    setMultiClientState(prev => {
-      const nextState = { ...prev, currentClientId: clientId };
-      saveMultiClientState(nextState);
-      return nextState;
-    });
-    setActiveSection('cover'); // Return to home page on client switch
-  };
-
-  // Monitor scroll for back-to-top button
   useEffect(() => {
-    const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 300);
-    };
+    const handleScroll = () => setShowScrollTop(window.scrollY > 300);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   const handleStartPresentation = () => {
     setActiveSection(appState.estimationStatus === 'published' ? 'situation' : 'estimationEmpty');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollToTop();
   };
 
-  // 1. Documents mutations
   const handleAddDocument = (newDoc: Omit<DocumentItem, 'id'>) => {
-    const doc: DocumentItem = {
-      ...newDoc,
-      id: `doc-${Date.now()}`
-    };
-    setAppState(prev => ({
-      ...prev,
-      documents: [...prev.documents, doc]
-    }));
+    const doc: DocumentItem = { ...newDoc, id: `doc-${Date.now()}` };
+    setAppState((prev) => ({ ...prev, documents: [...prev.documents, doc] }));
   };
+  const handleDeleteDocument = (id: string) => setAppState((prev) => ({ ...prev, documents: prev.documents.filter((d) => d.id !== id) }));
 
-  const handleDeleteDocument = (id: string) => {
-    setAppState(prev => ({
-      ...prev,
-      documents: prev.documents.filter(d => d.id !== id)
-    }));
-  };
-
-  // 2. Viewings mutations
   const handleAddViewing = (newViewing: Omit<ViewingReport, 'id'>) => {
-    const viewing: ViewingReport = {
-      ...newViewing,
-      id: `view-${Date.now()}`
-    };
-    setAppState(prev => ({
-      ...prev,
-      viewings: [...prev.viewings, viewing]
-    }));
+    const viewing: ViewingReport = { ...newViewing, id: `view-${Date.now()}` };
+    setAppState((prev) => ({ ...prev, viewings: [...prev.viewings, viewing] }));
   };
+  const handleDeleteViewing = (id: string) => setAppState((prev) => ({ ...prev, viewings: prev.viewings.filter((v) => v.id !== id) }));
 
-  const handleDeleteViewing = (id: string) => {
-    setAppState(prev => ({
-      ...prev,
-      viewings: prev.viewings.filter(v => v.id !== id)
-    }));
-  };
-
-  // 3. Sales steps mutations
   const handleUpdateStepStatus = (id: string, status: SalesStep['status']) => {
-    setAppState(prev => {
-      const steps = prev.salesSteps.map(step => {
-        if (step.id === id) {
-          return {
-            ...step,
-            status,
-            completedDate: status === 'Terminé' 
-              ? new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
-              : undefined
-          };
-        }
-        return step;
-      });
+    setAppState((prev) => {
+      const steps = prev.salesSteps.map((step) =>
+        step.id === id ? { ...step, status, completedDate: status === 'Terminé' ? new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : undefined } : step
+      );
       return { ...prev, salesSteps: steps };
     });
   };
 
-  // 4. Offers mutations
   const handleAddOffer = (newOffer: Omit<BuyerOffer, 'id'>) => {
-    const offer: BuyerOffer = {
-      ...newOffer,
-      id: `offer-${Date.now()}`
-    };
-    setAppState(prev => ({
-      ...prev,
-      offers: [...prev.offers, offer]
-    }));
+    setAppState((prev) => ({ ...prev, offers: [...prev.offers, { ...newOffer, id: `offer-${Date.now()}` }] }));
   };
-
-  const handleDeleteOffer = (id: string) => {
-    setAppState(prev => ({
-      ...prev,
-      offers: prev.offers.filter(o => o.id !== id)
-    }));
-  };
-
+  const handleDeleteOffer = (id: string) => setAppState((prev) => ({ ...prev, offers: prev.offers.filter((o) => o.id !== id) }));
   const handleUpdateOfferStatus = (id: string, status: BuyerOffer['status']) => {
-    setAppState(prev => {
-      const offers = prev.offers.map(off => {
-        if (off.id === id) {
-          return { ...off, status };
-        }
-        return off;
-      });
-      return { ...prev, offers };
-    });
-  };
-
-  const handleResetToDefaults = () => {
-    clearAppState();
-    window.location.reload();
+    setAppState((prev) => ({ ...prev, offers: prev.offers.map((o) => (o.id === id ? { ...o, status } : o)) }));
   };
 
   const isEstimationPublished = appState.estimationStatus === 'published';
   const isSalesFollowUpActive = appState.salesFollowUpStatus === 'active';
-  const isEvaluation = ['estimationEmpty', 'situation', 'property', 'comparables', 'conclusion'].includes(activeSection);
-  const isTransaction = ['transactionTeaser', 'documents', 'viewings', 'salesPlan', 'offers', 'stats'].includes(activeSection);
+  const isEvaluation = EVAL_SECTIONS.includes(activeSection);
+  const isTransaction = TRANS_SECTIONS.includes(activeSection);
   const shouldBlockForAccess = ['unauthenticated', 'empty', 'error'].includes(remoteStatus);
-  const headerContext = formatPropertyContext(appState.propertyContext, appState.clientInfo.address);
 
-  if (remoteStatus === 'loading') {
-    return <AccessState title="Chargement de votre espace" description="Nous préparons votre dossier client sécurisé." />;
-  }
-
-  if (shouldBlockForAccess) {
-    return (
-      <AccessState
-        title="Accès client requis"
-        description="Connectez-vous depuis le lien sécurisé transmis par votre conseiller pour consulter ce portail."
-        showLocalTestMode={import.meta.env.DEV}
-      />
-    );
-  }
+  if (remoteStatus === 'loading') return <AccessState title="Chargement..." description="Préparation du dossier client." />;
+  if (shouldBlockForAccess) return <AccessState title="Accès requis" description="Connectez-vous depuis le lien sécurisé transmis par votre conseiller." showLocalTestMode={import.meta.env.DEV} />;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex" id="app-root-layout">
-      
-      {/* 1. Desktop Sidebar Navigation */}
-      <Navbar 
-        activeSection={activeSection} 
-        setActiveSection={(sec) => {
-          setActiveSection(sec);
-          scrollToTop();
-        }} 
-        advisor={appState.advisorInfo}
-        lastEvalSection={isEstimationPublished ? lastEvalSection : 'estimationEmpty'}
-        lastTransSection={isSalesFollowUpActive ? lastTransSection : 'transactionTeaser'}
-      />
+    <div className="min-h-screen bg-slate-50 flex">
+      <Navbar activeSection={activeSection} setActiveSection={(sec: string) => { setActiveSection(sec); scrollToTop(); }} advisor={appState.advisorInfo} lastEvalSection={isEstimationPublished ? lastEvalSection : 'estimationEmpty'} lastTransSection={isSalesFollowUpActive ? lastTransSection : 'transactionTeaser'} />
 
-      {/* 2. Main Content Window */}
-      <div className="flex-1 flex flex-col lg:pl-72 min-w-0" id="main-content-window">
-        
-        {/* Top Sticky Header */}
-        <header 
-          className="sticky top-0 bg-white/90 backdrop-blur-md border-b border-slate-100 z-20 px-6 py-4.5 flex items-center justify-between"
-          id="sticky-app-header"
-        >
-          {/* Mobile hamburger menu toggle */}
-          <button 
-            id="mobile-menu-toggle"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2 text-slate-600 hover:text-slate-800 focus:outline-none"
-          >
+      <div className="flex-1 flex flex-col lg:pl-72 min-w-0">
+        <header className="sticky top-0 bg-white/90 backdrop-blur-md border-b border-slate-100 z-20 px-6 py-4.5 flex items-center justify-between">
+          <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-2 text-slate-600">
             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
-
-          {/* Quick context info */}
-          <div className="flex items-center gap-3 min-w-0" id="header-context">
-            <div className="lg:hidden shrink-0">
-              <IadLogo className="h-8" showText={false} />
-            </div>
-            <div className="min-w-0 flex flex-col" id="header-context-labels">
-              <p className="truncate text-sm font-extrabold tracking-tight text-slate-900">
-                {appState.clientInfo.names || 'Dossier client'}
-              </p>
-              <p className="mt-0.5 flex items-center gap-1 truncate text-[11px] font-medium text-slate-500">
-                <MapPin className="h-3 w-3 shrink-0 text-slate-300" />
-                <span className="truncate">{headerContext}</span>
-              </p>
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="lg:hidden shrink-0"><IadLogo className="h-8" showText={false} /></div>
+            <div className="min-w-0 flex flex-col">
+              <p className="truncate text-sm font-extrabold text-slate-900">{appState.clientInfo.names || 'Dossier client'}</p>
+              <p className="mt-0.5 flex items-center gap-1 truncate text-[11px] font-medium text-slate-500"><MapPin className="h-3 w-3 shrink-0 text-slate-300" /><span className="truncate">{formatPropertyContext(appState.propertyContext, appState.clientInfo.address)}</span></p>
             </div>
           </div>
-
-          {/* Share / PDF Quick Action button group */}
-          <div className="flex items-center gap-2" id="header-actions">
-            <button 
-              id="btn-print-report"
-              onClick={() => window.print()}
-              className="hidden sm:flex items-center gap-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold px-4 py-2.5 rounded-xl transition-all"
-            >
-              <Download className="w-3.5 h-3.5" />
-              <span>Imprimer le PDF</span>
-            </button>
-            <a 
-              href={`tel:${appState.advisorInfo.phone.replace(/\s/g, '')}`}
-              id="header-phone-call"
-              className="flex items-center justify-center p-2.5 bg-[#00A0E2] text-white rounded-xl hover:bg-[#008cc7] transition-all"
-              title={`Appeler ${appState.advisorInfo.name}`}
-            >
-              <Phone className="w-4 h-4" />
-            </a>
+          <div className="flex items-center gap-2">
+            <button onClick={() => window.print()} className="hidden sm:flex items-center gap-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold px-4 py-2.5 rounded-xl"><Download className="w-3.5 h-3.5" /><span>Imprimer</span></button>
+            <a href={`tel:${appState.advisorInfo.phone.replace(/\s/g, '')}`} className="flex items-center justify-center p-2.5 bg-[#00A0E2] text-white rounded-xl"><Phone className="w-4 h-4" /></a>
           </div>
         </header>
 
-        {/* Floating Mobile Sidebar Drawer Menu */}
         <AnimatePresence>
           {isMobileMenuOpen && (
-            <div id="mobile-sidebar-container">
-              {/* Overlay Backdrop */}
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.5 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="fixed inset-0 bg-slate-950 z-30 lg:hidden"
-              />
-
-              {/* Slide Drawer */}
-              <motion.div 
-                initial={{ x: '-100%' }}
-                animate={{ x: 0 }}
-                exit={{ x: '-100%' }}
-                transition={{ type: 'spring', damping: 25 }}
-                className="fixed inset-y-0 left-0 w-72 bg-slate-900 text-white p-6 z-40 lg:hidden flex flex-col gap-6"
-              >
-                <div className="flex justify-between items-center" id="mobile-drawer-header">
-                  <IadLogo className="h-10 self-start" color="#FFFFFF" showText={true} />
-                  <button 
-                    id="btn-close-mobile-drawer"
-                    onClick={() => setIsMobileMenuOpen(false)} 
-                    className="p-1 text-slate-400 hover:text-white"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
+            <div>
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 0.5 }} exit={{ opacity: 0 }} onClick={() => setIsMobileMenuOpen(false)} className="fixed inset-0 bg-slate-950 z-30 lg:hidden" />
+              <motion.div initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }} transition={{ type: 'spring', damping: 25 }} className="fixed inset-y-0 left-0 w-72 bg-slate-900 text-white p-6 z-40 lg:hidden flex flex-col gap-6">
+                <div className="flex justify-between items-center">
+                  <IadLogo className="h-10" color="#FFFFFF" showText={true} />
+                  <button onClick={() => setIsMobileMenuOpen(false)} className="p-1 text-slate-400 hover:text-white"><X className="w-5 h-5" /></button>
                 </div>
-
                 <div className="h-px bg-slate-800" />
-
-                {/* Mobile menu nav list */}
-                <nav className="flex-1 flex flex-col gap-1.5 overflow-y-auto" id="mobile-drawer-nav">
+                <nav className="flex-1 flex flex-col gap-1.5 overflow-y-auto">
                   {[
                     { id: 'cover', label: 'Accueil', target: 'cover', active: activeSection === 'cover' },
                     { id: 'evaluation', label: 'Estimation', target: isEstimationPublished ? lastEvalSection : 'estimationEmpty', active: isEvaluation },
-                    { id: 'transaction', label: 'Suivi de Vente', target: isSalesFollowUpActive ? lastTransSection : 'transactionTeaser', active: isTransaction }
+                    { id: 'transaction', label: 'Suivi de Vente', target: isSalesFollowUpActive ? lastTransSection : 'transactionTeaser', active: isTransaction },
                   ].map((item) => (
-                    <button
-                      key={item.id}
-                      id={`mobile-nav-item-${item.id}`}
-                      onClick={() => {
-                        setActiveSection(item.target);
-                        setIsMobileMenuOpen(false);
-                        scrollToTop();
-                      }}
-                      className={`w-full flex items-center justify-between text-left px-4 py-3 rounded-xl text-xs font-bold transition-all ${
-                        item.active 
-                          ? 'bg-[#00A0E2] text-white shadow' 
-                          : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-                      }`}
-                    >
-                      <span>{item.label}</span>
-                      <ChevronRight className="w-4 h-4 opacity-40" />
+                    <button key={item.id} onClick={() => { setActiveSection(item.target); setIsMobileMenuOpen(false); scrollToTop(); }} className={`w-full flex items-center justify-between text-left px-4 py-3 rounded-xl text-xs font-bold ${item.active ? 'bg-[#00A0E2] text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                      <span>{item.label}</span><ChevronRight className="w-4 h-4 opacity-40" />
                     </button>
                   ))}
                 </nav>
-
-                {/* Mobile Drawer Footer advisor signature */}
-                <div className="bg-slate-950/40 p-4 rounded-xl border border-slate-800 flex flex-col gap-3" id="mobile-drawer-advisor">
+                <div className="bg-slate-950/40 p-4 rounded-xl border border-slate-800 flex flex-col gap-3">
                   <div className="flex items-center gap-3">
-                    <img
-                      src={appState.advisorInfo.avatar}
-                      alt={appState.advisorInfo.name}
-                      className="advisor-portrait w-9 h-9 rounded-full object-cover border border-[#00A0E2]/30"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div className="min-w-0">
-                      <h4 className="text-xs font-bold text-white truncate">{appState.advisorInfo.name}</h4>
-                      <p className="text-[10px] text-slate-400 truncate">{appState.advisorInfo.title}</p>
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-1.5 text-[11px] text-slate-300">
-                    <a href={`tel:${appState.advisorInfo.phone.replace(/\s/g, '')}`} className="flex items-center gap-2 hover:text-[#00A0E2]">
-                      <Phone className="h-3.5 w-3.5 text-[#00A0E2]" />
-                      <span>{appState.advisorInfo.phone}</span>
-                    </a>
-                    <a href={`mailto:${appState.advisorInfo.email}`} className="flex items-center gap-2 hover:text-[#00A0E2]">
-                      <Mail className="h-3.5 w-3.5 shrink-0 text-[#00A0E2]" />
-                      <span className="truncate">{appState.advisorInfo.email}</span>
-                    </a>
+                    <img src={appState.advisorInfo.avatar} alt={appState.advisorInfo.name} className="w-9 h-9 rounded-full object-cover border border-[#00A0E2]/30" />
+                    <div className="min-w-0"><h4 className="text-xs font-bold text-white truncate">{appState.advisorInfo.name}</h4><p className="text-[10px] text-slate-400 truncate">{appState.advisorInfo.title}</p></div>
                   </div>
                 </div>
-
               </motion.div>
             </div>
           )}
         </AnimatePresence>
 
-        {/* Dynamic Section Renderer Container */}
-        <main className="flex-1 p-5 md:p-8 max-w-7xl mx-auto w-full flex flex-col gap-6" id="main-content-container">
-
-          {/* Division sub-tabs bar */}
+        <main className="flex-1 p-5 md:p-8 max-w-7xl mx-auto w-full flex flex-col gap-6">
           {activeSection !== 'cover' && !(activeSection === 'estimationEmpty' && !isEstimationPublished) && !(isTransaction && !isSalesFollowUpActive) && (
-            <div className="bg-white border border-slate-100 p-1.5 rounded-2xl flex items-center gap-1 overflow-x-auto scrollbar-none snap-x snap-mandatory shadow-sm" id="main-subtabs-bar">
+            <div className="bg-white border border-slate-100 p-1.5 rounded-2xl flex items-center gap-1 overflow-x-auto scrollbar-none shadow-sm">
               {(() => {
                 if (isEvaluation) {
-                  if (!isEstimationPublished) {
-                    return [
-                      { id: 'estimationEmpty', label: 'Estimation en préparation', icon: Info },
-                    ];
-                  }
+                  if (!isEstimationPublished) return [{ id: 'estimationEmpty', label: 'En préparation', icon: Info }];
                   return [
-                    { id: 'situation', label: 'Situation & Cadastre', icon: MapPin },
-                    { id: 'property', label: 'Fiche du Bien', icon: Info },
+                    { id: 'situation', label: 'Situation', icon: MapPin },
+                    { id: 'property', label: 'Fiche bien', icon: Info },
+                    { id: 'market', label: 'Marché', icon: TrendingUp },
+                    { id: 'competition', label: 'Concurrence', icon: Target },
                     { id: 'comparables', label: 'Comparables', icon: GitCompare },
-                    { id: 'conclusion', label: 'Recommandations', icon: CheckSquare },
-                  ];
-                } else if (isTransaction) {
-                  return [
-                    { id: 'documents', label: 'Dossier Vendeur', icon: FolderOpen, badge: appState.documents.length },
-                    { id: 'viewings', label: 'Suivi des Visites', icon: Users, badge: appState.viewings.length },
-                    { id: 'salesPlan', label: 'Plan de Vente', icon: Compass },
-                    { id: 'offers', label: "Offres d'Achat", icon: Handshake, badge: appState.offers.filter(o => o.status === 'Reçue').length || undefined },
-                    { id: 'stats', label: 'Performance Web', icon: BarChart3 },
+                    { id: 'conclusion', label: 'Avis', icon: CheckSquare },
+                    { id: 'iad', label: 'iad', icon: Award },
                   ];
                 }
+                if (isTransaction) return [
+                  { id: 'documents', label: 'Dossier', icon: FolderOpen },
+                  { id: 'viewings', label: 'Visites', icon: UsersIcon },
+                  { id: 'salesPlan', label: 'Plan', icon: Compass },
+                  { id: 'offers', label: 'Offres', icon: Handshake },
+                  { id: 'stats', label: 'Stats', icon: BarChart3 },
+                ];
                 return [];
               })().map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeSection === tab.id;
                 return (
-                  <button
-                    key={tab.id}
-                    id={`subtab-btn-${tab.id}`}
-                    onClick={() => {
-                      setActiveSection(tab.id);
-                      scrollToTop();
-                    }}
-                    className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 shrink-0 snap-start ${
-                      isActive 
-                        ? 'text-slate-800' 
-                        : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50/60'
-                    }`}
-                  >
-                    {isActive && (
-                      <motion.div 
-                        layoutId="activeSubTabIndicator" 
-                        className="absolute inset-0 bg-slate-100 rounded-xl -z-10"
-                        transition={{ type: "spring", stiffness: 350, damping: 28 }}
-                      />
-                    )}
-                    <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#00A0E2]' : 'text-slate-400'}`} />
-                    <span>{tab.label}</span>
-                    {tab.badge !== undefined && tab.badge > 0 && (
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-extrabold transition-colors ${isActive ? 'bg-[#00A0E2]/15 text-[#00A0E2]' : 'bg-slate-100 text-slate-600'}`}>
-                        {tab.badge}
-                      </span>
-                    )}
+                  <button key={tab.id} onClick={() => { setActiveSection(tab.id); scrollToTop(); }} className={`relative flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 shrink-0 ${isActive ? 'text-slate-800' : 'text-slate-500 hover:text-slate-800'}`}>
+                    {isActive && <motion.div layoutId="activeSubTab" className="absolute inset-0 bg-slate-100 rounded-xl -z-10" transition={{ type: 'spring', stiffness: 350, damping: 28 }} />}
+                    <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#00A0E2]' : 'text-slate-400'}`} /><span>{tab.label}</span>
                   </button>
                 );
               })}
@@ -542,162 +329,35 @@ export default function App() {
           )}
 
           <AnimatePresence mode="wait">
-            <motion.div
-              key={activeSection}
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.35 }}
-              className="w-full flex flex-col"
-              id={`section-container-${activeSection}`}
-            >
-              {activeSection === 'cover' && (
-                <CoverSection 
-                  client={appState.clientInfo} 
-                  advisor={appState.advisorInfo} 
-                  propertyDetails={appState.propertyDetails}
-                  estimationStatus={appState.estimationStatus}
-                  onStart={handleStartPresentation} 
-                />
-              )}
-              {activeSection === 'estimationEmpty' && (
-                <EmptyContentState
-                  title="Estimation en préparation"
-                  description="Je prépare votre estimation sur mesure, à partir des spécificités de votre bien et de ma connaissance du marché local. Dès sa publication, elle apparaîtra ici."
-                />
-              )}
-              {activeSection === 'situation' && (
-                appState.cadastralParcels && appState.cadastralParcels.length > 0 ? (
-                  <SituationSection 
-                    cadastralParcels={appState.cadastralParcels}
-                    clientAddress={appState.clientInfo.address}
-                  />
-                ) : (
-                  <EmptyContentState title="Situation en préparation" description="Les informations cadastrales seront visibles dès publication du rapport." />
-                )
-              )}
-              {activeSection === 'property' && (
-                hasPropertyDetails(appState.propertyDetails) ? (
-                  <PropertySection 
-                    propertyDetails={appState.propertyDetails}
-                    pointsForts={appState.pointsForts}
-                    pointsDefendre={appState.pointsDefendre}
-                  />
-                ) : (
-                  <EmptyContentState title="Fiche bien en préparation" description="Les caractéristiques détaillées seront visibles après publication." />
-                )
-              )}
-              {activeSection === 'comparables' && (
-                appState.soldComparables && appState.soldComparables.length > 0 ? (
-                  <ComparablesSection 
-                    soldComparables={appState.soldComparables}
-                    propertyDetails={appState.propertyDetails}
-                    referencePrice={appState.marketPriceRanges?.currentReferencePrice}
-                  />
-                ) : (
-                  <EmptyContentState title="Comparables en préparation" description="Aucun comparable publié pour le moment." />
-                )
-              )}
-              {activeSection === 'conclusion' && (
-                appState.recommendedPriceRange ? (
-                  <ConclusionSection 
-                    clientInfo={appState.clientInfo}
-                    advisorInfo={appState.advisorInfo}
-                    recommendedPriceRange={appState.recommendedPriceRange}
-                    propertySize={appState.propertyDetails.surface}
-                  />
-                ) : (
-                  <EmptyContentState title="Recommandations en préparation" description="Les recommandations seront visibles après publication de l’avis de valeur." />
-                )
-              )}
-              
-              {/* Follow-up Interactive sections */}
-              {activeSection === 'documents' && (
-                isSalesFollowUpActive ? (
-                  <DocumentsSection
-                    documents={appState.documents}
-                    onAddDocument={handleAddDocument}
-                    onDeleteDocument={handleDeleteDocument}
-                    readOnly
-                  />
-                ) : <SalesFollowUpTeaser />
-              )}
-              {activeSection === 'viewings' && (
-                isSalesFollowUpActive ? (
-                  <VisitsSection
-                    viewings={appState.viewings}
-                    onAddViewing={handleAddViewing}
-                    onDeleteViewing={handleDeleteViewing}
-                    readOnly
-                  />
-                ) : <SalesFollowUpTeaser />
-              )}
-              {activeSection === 'salesPlan' && (
-                isSalesFollowUpActive ? (
-                  <SalesPlanSection
-                    salesSteps={appState.salesSteps}
-                    onUpdateStepStatus={handleUpdateStepStatus}
-                    readOnly
-                  />
-                ) : <SalesFollowUpTeaser />
-              )}
-              {activeSection === 'offers' && (
-                isSalesFollowUpActive ? (
-                  <OffersSection
-                    offers={appState.offers}
-                    onAddOffer={handleAddOffer}
-                    onDeleteOffer={handleDeleteOffer}
-                    onUpdateOfferStatus={handleUpdateOfferStatus}
-                    readOnly
-                  />
-                ) : <SalesFollowUpTeaser />
-              )}
-              {activeSection === 'stats' && (
-                isSalesFollowUpActive ? (
-                  <StatsSection
-                    portalStats={appState.portalStats}
-                  />
-                ) : <SalesFollowUpTeaser />
-              )}
-              {activeSection === 'transactionTeaser' && (
-                <SalesFollowUpTeaser />
-              )}
+            <motion.div key={activeSection} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} transition={{ duration: 0.35 }} className="w-full flex flex-col">
+              {activeSection === 'cover' && <CoverSection client={appState.clientInfo} advisor={appState.advisorInfo} propertyDetails={appState.propertyDetails} estimationStatus={appState.estimationStatus} onStart={handleStartPresentation} />}
+              {activeSection === 'estimationEmpty' && <EmptyContentState title="Estimation en préparation" description="Votre estimation sera visible ici dès sa publication." />}
+              {activeSection === 'situation' && (appState.cadastralParcels?.length ? <SituationSection cadastralParcels={appState.cadastralParcels} clientAddress={appState.clientInfo.address} /> : <EmptyContentState title="Situation en préparation" description="Données cadastrales à venir." />)}
+              {activeSection === 'property' && (hasPropertyDetails(appState.propertyDetails) ? <PropertySection propertyDetails={appState.propertyDetails} pointsForts={appState.pointsForts} pointsDefendre={appState.pointsDefendre} /> : <EmptyContentState title="Fiche bien en préparation" description="Caractéristiques à venir." />)}
+              {activeSection === 'market' && <MarketSection socioEconomicData={appState.socioEconomicData} marketDistribution={appState.marketDistribution} marketTrend={appState.marketTrend} marketTension={appState.marketTension} />}
+              {activeSection === 'competition' && <CompetitionSection competingProperties={appState.competingProperties} unsoldProperties={appState.unsoldProperties} positioningData={appState.positioningData} synthesisData={appState.synthesisData} propertyDetails={appState.propertyDetails} referencePrice={appState.marketPriceRanges?.currentReferencePrice} />}
+              {activeSection === 'comparables' && (appState.soldComparables?.length ? <ComparablesSection soldComparables={appState.soldComparables} propertyDetails={appState.propertyDetails} referencePrice={appState.marketPriceRanges?.currentReferencePrice} /> : <EmptyContentState title="Comparables en préparation" description="Données à venir." />)}
+              {activeSection === 'conclusion' && (appState.recommendedPriceRange ? <ConclusionSection clientInfo={appState.clientInfo} advisorInfo={appState.advisorInfo} recommendedPriceRange={appState.recommendedPriceRange} propertySize={appState.propertyDetails.surface} /> : <EmptyContentState title="Recommandations en préparation" description="Avis de valeur à venir." />)}
+              {activeSection === 'iad' && <IadSection iadTrackRecord={appState.iadTrackRecord} />}
+
+              {activeSection === 'documents' && (isSalesFollowUpActive ? <DocumentsSection documents={appState.documents} onAddDocument={handleAddDocument} onDeleteDocument={handleDeleteDocument} readOnly /> : <SalesFollowUpTeaser />)}
+              {activeSection === 'viewings' && (isSalesFollowUpActive ? <VisitsSection viewings={appState.viewings} onAddViewing={handleAddViewing} onDeleteViewing={handleDeleteViewing} readOnly /> : <SalesFollowUpTeaser />)}
+              {activeSection === 'salesPlan' && (isSalesFollowUpActive ? <SalesPlanSection salesSteps={appState.salesSteps} onUpdateStepStatus={handleUpdateStepStatus} readOnly /> : <SalesFollowUpTeaser />)}
+              {activeSection === 'offers' && (isSalesFollowUpActive ? <OffersSection offers={appState.offers} onAddOffer={handleAddOffer} onDeleteOffer={handleDeleteOffer} onUpdateOfferStatus={handleUpdateOfferStatus} readOnly /> : <SalesFollowUpTeaser />)}
+              {activeSection === 'stats' && (isSalesFollowUpActive ? <StatsSection portalStats={appState.portalStats} /> : <SalesFollowUpTeaser />)}
+              {activeSection === 'transactionTeaser' && <SalesFollowUpTeaser />}
             </motion.div>
           </AnimatePresence>
         </main>
 
-        {/* App footer branding (Clean minimal margins) */}
-        <footer className="mt-auto py-6 px-8 border-t border-slate-100 bg-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-[11px] text-slate-400 font-medium" id="app-footer">
-          <div className="flex items-center gap-2" id="footer-branding-row">
-            <IadLogo className="h-6" showText={false} />
-            <span>© 2026 iad France - Document d'accompagnement et suivi de dossier à caractère indicatif.</span>
-          </div>
-          <div className="flex items-center gap-4" id="footer-links">
-            <span>Votre espace vendeur privé, conçu par Alexandre Lopez.</span>
-            <span>•</span>
-            <a href="https://www.iadfrance.fr" target="_blank" rel="noreferrer" className="hover:text-[#00A0E2] transition-colors">iadfrance.fr</a>
-            <span>•</span>
-            <span>Réseau de mandataires immobiliers</span>
-          </div>
+        <footer className="mt-auto py-6 px-8 border-t border-slate-100 bg-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-[11px] text-slate-400 font-medium">
+          <div className="flex items-center gap-2"><IadLogo className="h-6" showText={false} /><span>© 2026 iad France</span></div>
+          <div className="flex items-center gap-4"><span>Espace vendeur privé · Alexandre Lopez</span><span>•</span><a href="https://www.iadfrance.fr" target="_blank" rel="noreferrer" className="hover:text-[#00A0E2]">iadfrance.fr</a><span>•</span><span>Réseau de mandataires</span></div>
         </footer>
 
-        {/* Back to top scroll button */}
         <AnimatePresence>
-          {showScrollTop && (
-            <motion.button
-              id="btn-scroll-top"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              onClick={scrollToTop}
-              className="fixed bottom-6 right-6 p-3.5 bg-slate-900 text-white rounded-full shadow-2xl hover:bg-slate-800 transition-all z-20"
-              title="Retour en haut"
-            >
-              <ArrowUp className="w-5 h-5" />
-            </motion.button>
-          )}
+          {showScrollTop && <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} onClick={scrollToTop} className="fixed bottom-6 right-6 p-3.5 bg-slate-900 text-white rounded-full shadow-2xl z-20"><ArrowUp className="w-5 h-5" /></motion.button>}
         </AnimatePresence>
-
       </div>
     </div>
   );
@@ -705,13 +365,11 @@ export default function App() {
 
 function AccessState({ title, description, showLocalTestMode = false }: { title: string; description: string; showLocalTestMode?: boolean }) {
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-6 py-10" id="portal-access-state">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-6 py-10">
       <div className="max-w-3xl w-full bg-white border border-slate-100 rounded-3xl shadow-sm p-8 text-center">
-        <div className="mx-auto w-12 h-12 rounded-2xl bg-[#00A0E2]/10 text-[#00A0E2] flex items-center justify-center">
-          <LockKeyhole className="w-6 h-6" />
-        </div>
-        <h1 className="mt-5 text-2xl font-black tracking-tight text-slate-900">{title}</h1>
-        <p className="mt-2 text-sm leading-relaxed text-slate-500">{description}</p>
+        <div className="mx-auto w-12 h-12 rounded-2xl bg-[#00A0E2]/10 text-[#00A0E2] flex items-center justify-center"><LockKeyhole className="w-6 h-6" /></div>
+        <h1 className="mt-5 text-2xl font-black text-slate-900">{title}</h1>
+        <p className="mt-2 text-sm text-slate-500">{description}</p>
         {showLocalTestMode && <LocalTestModePanel />}
       </div>
     </div>
@@ -722,86 +380,20 @@ function LocalTestModePanel() {
   const [dossiers, setDossiers] = useState<LocalTestDossier[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
   const load = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const rows = await loadLocalTestDossiers();
-      setDossiers(rows);
-      if (rows.length === 0) {
-        setError('Aucun dossier actif disponible en local pour le moment.');
-      }
-    } catch {
-      setError('Impossible de charger les dossiers de test depuis Mandat OS local.');
-    } finally {
-      setLoading(false);
-    }
+    setLoading(true); setError('');
+    try { const rows = await loadLocalTestDossiers(); setDossiers(rows); if (rows.length === 0) setError('Aucun dossier test.'); } catch { setError('Erreur chargement.'); } finally { setLoading(false); }
   };
-
-  useEffect(() => {
-    load();
-  }, []);
-
+  useEffect(() => { load(); }, []);
   return (
-    <div className="mt-8 rounded-3xl border border-dashed border-[#00A0E2]/30 bg-[#00A0E2]/5 p-5 text-left" id="local-test-mode-panel">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <span className="inline-flex rounded-full bg-white px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-[#0077B6]">
-            Mode test local
-          </span>
-          <h2 className="mt-3 text-base font-extrabold tracking-tight text-slate-900">
-            Ouvrir un dossier client sans login
-          </h2>
-          <p className="mt-1 text-xs leading-relaxed text-slate-500">
-            Disponible uniquement en développement. Chaque bouton ouvre un aperçu temporaire généré par Mandat OS local.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={load}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:border-[#00A0E2]/40 hover:text-[#0077B6]"
-        >
-          <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
-          Actualiser
-        </button>
-      </div>
-
+    <div className="mt-8 rounded-3xl border border-dashed border-[#00A0E2]/30 bg-[#00A0E2]/5 p-5 text-left">
+      <div className="flex justify-between items-start"><div><span className="inline-flex rounded-full bg-white px-2.5 py-1 text-[10px] font-extrabold uppercase text-[#0077B6]">Mode test</span><h2 className="mt-3 text-base font-extrabold text-slate-900">Dossiers test disponibles</h2></div><button onClick={load} className="flex items-center gap-2 rounded-xl border bg-white px-3 py-2 text-xs font-bold"><RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />Actualiser</button></div>
       <div className="mt-4 space-y-2">
-        {loading && (
-          <p className="rounded-2xl bg-white p-4 text-center text-xs font-semibold text-slate-500">
-            Chargement des dossiers test…
-          </p>
-        )}
-
-        {!loading && error && (
-          <p className="rounded-2xl border border-amber-100 bg-amber-50 p-4 text-xs font-semibold text-amber-700">
-            {error}
-          </p>
-        )}
-
-        {!loading && dossiers.map((dossier) => (
-          <button
-            key={dossier.id}
-            type="button"
-            onClick={() => {
-              window.location.href = dossier.previewPath;
-            }}
-            className="w-full rounded-2xl border border-slate-100 bg-white p-4 text-left shadow-sm transition hover:border-[#00A0E2]/40 hover:shadow-md"
-          >
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="min-w-0">
-                <p className="truncate text-sm font-extrabold text-slate-900">{dossier.title}</p>
-                <p className="mt-1 truncate text-xs font-medium text-slate-500">
-                  {dossier.clientName} · {dossier.propertyLabel || 'Bien non renseigné'}
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                <LocalStatusPill label={dossier.estimationStatus === 'published' ? 'Estimation publiée' : 'Estimation non publiée'} tone={dossier.estimationStatus === 'published' ? 'green' : 'amber'} />
-                <LocalStatusPill label={dossier.salesFollowUpStatus === 'active' ? 'Suivi actif' : 'Teaser suivi'} tone={dossier.salesFollowUpStatus === 'active' ? 'green' : 'blue'} />
-                {dossier.opportunityStage && <LocalStatusPill label={dossier.opportunityStage} tone="slate" />}
-              </div>
-            </div>
+        {loading && <p className="text-xs text-slate-500 p-4 bg-white rounded-2xl text-center">Chargement...</p>}
+        {!loading && error && <p className="text-xs text-amber-700 p-4 bg-amber-50 rounded-2xl">{error}</p>}
+        {!loading && dossiers.map((d) => (
+          <button key={d.id} onClick={() => { window.location.href = d.previewPath; }} className="w-full rounded-2xl border bg-white p-4 text-left hover:border-[#00A0E2]/40">
+            <div className="flex justify-between items-center"><div><p className="text-sm font-extrabold">{d.title}</p><p className="text-xs text-slate-500">{d.clientName} · {d.propertyLabel}</p></div><LocalStatusPill label={d.estimationStatus === 'published' ? 'Publiée' : 'Brouillon'} tone={d.estimationStatus === 'published' ? 'green' : 'amber'} /></div>
           </button>
         ))}
       </div>
@@ -810,103 +402,44 @@ function LocalTestModePanel() {
 }
 
 function LocalStatusPill({ label, tone }: { label: string; tone: 'green' | 'amber' | 'blue' | 'slate' }) {
-  const classes = {
-    green: 'border-emerald-100 bg-emerald-50 text-emerald-700',
-    amber: 'border-amber-100 bg-amber-50 text-amber-700',
-    blue: 'border-[#00A0E2]/20 bg-[#00A0E2]/10 text-[#0077B6]',
-    slate: 'border-slate-100 bg-slate-50 text-slate-500',
-  }[tone];
-
-  return (
-    <span className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide ${classes}`}>
-      {label}
-    </span>
-  );
+  const c: Record<string, string> = { green: 'border-emerald-100 bg-emerald-50 text-emerald-700', amber: 'border-amber-100 bg-amber-50 text-amber-700', blue: 'border-[#00A0E2]/20 bg-[#00A0E2]/10 text-[#0077B6]', slate: 'border-slate-100 bg-slate-50 text-slate-500' };
+  return <span className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-extrabold uppercase ${c[tone]}`}>{label}</span>;
 }
 
 function EmptyContentState({ title, description }: { title: string; description: string }) {
   return (
-    <section className="w-full rounded-3xl border border-dashed border-slate-200 bg-white p-8 text-center shadow-sm">
-      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-50 text-[#00A0E2]">
-        <Info className="h-6 w-6" />
-      </div>
-      <h2 className="mt-4 text-xl font-extrabold tracking-tight text-slate-900">{title}</h2>
-      <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-slate-500">{description}</p>
+    <section className="w-full rounded-3xl border border-dashed border-slate-200 bg-white p-8 text-center">
+      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-50 text-[#00A0E2]"><Info className="h-6 w-6" /></div>
+      <h2 className="mt-4 text-xl font-extrabold text-slate-900">{title}</h2>
+      <p className="mt-2 text-sm text-slate-500 max-w-xl mx-auto">{description}</p>
     </section>
   );
 }
 
 function SalesFollowUpTeaser() {
   const steps = [
-    {
-      icon: FolderOpen,
-      title: 'Dossier vendeur centralisé',
-      description: 'Documents, diagnostics et pièces utiles sont suivis au même endroit.',
-    },
-    {
-      icon: Compass,
-      title: 'Méthode de commercialisation',
-      description: 'Plan de vente, diffusion, points de contrôle et prochaines étapes restent lisibles.',
-    },
-    {
-      icon: BarChart3,
-      title: 'Pilotage après mise en vente',
-      description: 'Visites, retours acquéreurs, offres et performances web sont partagés après signature.',
-    },
+    { icon: FolderOpen, title: 'Dossier vendeur', description: 'Documents et diagnostics centralisés.' },
+    { icon: Compass, title: 'Méthode de commercialisation', description: 'Plan de vente et prochaines étapes.' },
+    { icon: BarChart3, title: 'Pilotage après mise en vente', description: 'Visites, offres et performances.' },
   ];
-
   return (
-    <section className="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm" id="sales-follow-up-teaser">
+    <section className="rounded-3xl border border-slate-100 bg-white shadow-sm overflow-hidden">
       <div className="relative p-8 lg:p-10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(0,160,226,0.12),transparent_34%),linear-gradient(135deg,#ffffff,#f8fafc)]" />
-        <div className="relative max-w-3xl">
-          <span className="inline-flex items-center gap-2 rounded-full border border-[#00A0E2]/20 bg-[#00A0E2]/10 px-3 py-1 text-xs font-bold text-[#0077B6]">
-            <LockKeyhole className="h-3.5 w-3.5" />
-            Disponible après signature du mandat
-          </span>
-          <h2 className="mt-5 text-2xl font-extrabold tracking-tight text-slate-900">
-            Votre suivi de vente, prêt à s’ouvrir au bon moment
-          </h2>
-          <p className="mt-3 text-sm leading-relaxed text-slate-600">
-            Cet espace vous donnera une vision claire de la méthode de commercialisation : documents,
-            plan de vente, visites, offres et performances. Avant signature, il reste verrouillé pour
-            préserver un suivi propre et uniquement alimenté par les actions réelles.
-          </p>
-        </div>
-
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(0,160,226,0.12),transparent_34%),linear-gradient(135deg,#fff,#f8fafc)]" />
+        <div className="relative max-w-3xl"><span className="inline-flex items-center gap-2 rounded-full border border-[#00A0E2]/20 bg-[#00A0E2]/10 px-3 py-1 text-xs font-bold text-[#0077B6]"><LockKeyhole className="h-3.5 w-3.5" />Disponible après signature</span><h2 className="mt-5 text-2xl font-extrabold text-slate-900">Suivi de vente à venir</h2><p className="mt-3 text-sm text-slate-600">Cet espace donne une vision claire de la commercialisation une fois le mandat signé.</p></div>
         <div className="relative mt-8 grid gap-4 md:grid-cols-3">
-          {steps.map((step) => {
-            const Icon = step.icon;
-            return (
-              <article key={step.title} className="rounded-2xl border border-slate-100 bg-white/85 p-5 shadow-sm">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#00A0E2]/10 text-[#0077B6]">
-                  <Icon className="h-5 w-5" />
-                </div>
-                <h3 className="mt-4 text-sm font-extrabold text-slate-900">{step.title}</h3>
-                <p className="mt-2 text-xs leading-relaxed text-slate-500">{step.description}</p>
-              </article>
-            );
-          })}
+          {steps.map((s) => { const I = s.icon; return <article key={s.title} className="rounded-2xl border bg-white/85 p-5"><div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#00A0E2]/10 text-[#0077B6]"><I className="h-5 w-5" /></div><h3 className="mt-4 text-sm font-extrabold">{s.title}</h3><p className="mt-2 text-xs text-slate-500">{s.description}</p></article>; })}
         </div>
       </div>
     </section>
   );
 }
 
-function hasPropertyDetails(property: AppState['propertyDetails']) {
-  return Boolean(
-    property.address ||
-    property.description ||
-    property.surface > 0 ||
-    property.rooms > 0 ||
-    property.landSurface > 0 ||
-    property.bedrooms > 0 ||
-    property.year > 0
-  );
+function hasPropertyDetails(p: AppState['propertyDetails']) {
+  return Boolean(p.address || p.description || p.surface > 0 || p.rooms > 0 || p.landSurface > 0 || p.bedrooms > 0 || p.year > 0);
 }
 
-function formatPropertyContext(context: AppState['propertyContext'], address: string) {
-  const values = [context.type, context.commune].map((value) => value?.trim()).filter(Boolean);
-  if (values.length > 0) return values.join(' · ');
-  return address || 'Dossier immobilier';
+function formatPropertyContext(ctx: AppState['propertyContext'], addr: string) {
+  const v = [ctx.type, ctx.commune].map((x) => x?.trim()).filter(Boolean);
+  return v.length > 0 ? v.join(' · ') : addr || 'Dossier immobilier';
 }

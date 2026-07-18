@@ -4,9 +4,17 @@ import type {
   ClientRecord,
   ComparableProperty,
   DocumentItem,
+  ExtendedComparableProperty,
+  MarketDistribution,
+  MarketTension,
+  MarketTrend,
   PortalStat,
+  PositioningData,
   PropertyPoint,
   SalesStep,
+  SocioEconomicData,
+  SoldPropertyByIad,
+  SynthesisData,
   ViewingReport,
 } from '../types';
 import { emptyAdvisorInfo, emptyClient, type MultiClientState } from './store';
@@ -219,6 +227,16 @@ function mapDossierToMultiClientState(payload: ClientPortalPayload): MultiClient
     marketPriceRanges: estimationStatus === 'published' ? mapMarketPriceRanges(market, positioning, opinion) : undefined,
     soldComparables: estimationStatus === 'published' ? mapComparables(comparables.sold ?? opinion.comparables) ?? [] : [],
     recommendedPriceRange: estimationStatus === 'published' ? mapRecommendedPriceRange(opinion, positioning) : undefined,
+    // Nouvelles sections estimation
+    socioEconomicData: estimationStatus === 'published' ? mapSocioEconomic(report) : undefined,
+    marketDistribution: estimationStatus === 'published' ? mapMarketDistribution(report) : undefined,
+    marketTrend: estimationStatus === 'published' ? mapMarketTrend(report) : undefined,
+    marketTension: estimationStatus === 'published' ? mapMarketTension(report) : undefined,
+    competingProperties: estimationStatus === 'published' ? mapExtendedComparables(comparables.competing ?? comparables.en_vente) : undefined,
+    unsoldProperties: estimationStatus === 'published' ? mapExtendedComparables(comparables.unsold ?? comparables.invendus) : undefined,
+    positioningData: estimationStatus === 'published' ? mapPositioning(report) : undefined,
+    synthesisData: estimationStatus === 'published' ? mapSynthesis(report) : undefined,
+    iadTrackRecord: estimationStatus === 'published' ? mapIadTrackRecord(report) : undefined,
   };
 
   return {
@@ -544,4 +562,237 @@ function numberValue(...values: unknown[]) {
     }
   }
   return undefined;
+}
+
+// ====================================================================
+// NOUVEAUX MAPPINGS : Sections estimation manquantes (pages 4-15 du PDF)
+// ====================================================================
+
+function mapSocioEconomic(report: JsonRecord): SocioEconomicData | undefined {
+  const socio = asRecord(report.socio_economic);
+  if (Object.keys(socio).length === 0) return undefined;
+  return {
+    population: numberValue(socio.population) ?? 0,
+    households: numberValue(socio.households, socio.menages) ?? 0,
+    medianIncome: numberValue(socio.median_income, socio.revenu_median) ?? 0,
+    buyerProfiles: mapBuyerProfiles(socio.buyer_profiles ?? socio.profils_acquereurs),
+    interestRate: numberValue(socio.interest_rate, socio.taux_interet) ?? 0,
+    seniorityDistribution: mapSeniorityItems(socio.seniority ?? socio.anciennete),
+    activityDistribution: mapActivityDistribution(socio.activities ?? socio.activites),
+  };
+}
+
+function mapBuyerProfiles(value: unknown): SocioEconomicData['buyerProfiles'] {
+  return asArray(value).map((item) => {
+    const row = asRecord(item);
+    return {
+      type: (text(row.type) as SocioEconomicData['buyerProfiles'][0]['type']) || 'COUPLE',
+      interestedIn: text(row.interested_in, row.interesse_par, ''),
+      budgetRange: {
+        low: numberValue(row.budget_low, row.budget_min) ?? 0,
+        high: numberValue(row.budget_high, row.budget_max) ?? 0,
+      },
+      requiredIncomeRange: {
+        low: numberValue(row.income_low, row.revenu_min) ?? 0,
+        high: numberValue(row.income_high, row.revenu_max) ?? 0,
+      },
+    };
+  });
+}
+
+function mapSeniorityItems(value: unknown): SocioEconomicData['seniorityDistribution'] {
+  return asArray(value).map((item) => {
+    const row = asRecord(item);
+    return {
+      label: text(row.label, ''),
+      percent: numberValue(row.percent, row.pourcent) ?? 0,
+    };
+  });
+}
+
+function mapActivityDistribution(value: unknown): SocioEconomicData['activityDistribution'] | undefined {
+  const row = asRecord(value);
+  const keys = ['agriculteurs', 'artisans', 'cadres', 'intermediaires', 'employes', 'ouvriers', 'retraites', 'sansEmploi'] as const;
+  const hasAny = keys.some(k => numberValue(row[k]) !== undefined);
+  if (!hasAny) return undefined;
+  return {
+    agriculteurs: numberValue(row.agriculteurs) ?? 0,
+    artisans: numberValue(row.artisans) ?? 0,
+    cadres: numberValue(row.cadres) ?? 0,
+    intermediaires: numberValue(row.intermediaires) ?? 0,
+    employes: numberValue(row.employes) ?? 0,
+    ouvriers: numberValue(row.ouvriers) ?? 0,
+    retraites: numberValue(row.retraites) ?? 0,
+    sansEmploi: numberValue(row.sansEmploi, row.sans_emploi) ?? 0,
+  };
+}
+
+function mapMarketDistribution(report: JsonRecord): MarketDistribution | undefined {
+  const market = asRecord(report.market);
+  const dist = asRecord(market.distribution);
+  if (Object.keys(dist).length === 0) return undefined;
+  return {
+    housingTypes: {
+      maison: numberValue(dist.housing_maison, dist.maison) ?? 0,
+      appartement: numberValue(dist.housing_appartement, dist.appartement) ?? 0,
+      hlm: numberValue(dist.housing_hlm, dist.hlm) ?? 0,
+    },
+    occupancy: {
+      principales: numberValue(dist.occupancy_principales, dist.principales) ?? 0,
+      secondaires: numberValue(dist.occupancy_secondaires, dist.secondaires) ?? 0,
+      vacants: numberValue(dist.occupancy_vacants, dist.vacants) ?? 0,
+    },
+    roomsDistribution: mapDistributionItems(dist.rooms ?? dist.pieces),
+    surfaceDistribution: mapDistributionItems(dist.surfaces ?? dist.surface_distribution),
+    bienPosition: {
+      surfaceRange: text(dist.bien_surface_range, ''),
+      roomsCount: numberValue(dist.bien_rooms, dist.bien_pieces) ?? 0,
+    },
+  };
+}
+
+function mapDistributionItems(value: unknown): { label: string; percent: number }[] {
+  return asArray(value).map((item) => {
+    const row = asRecord(item);
+    return {
+      label: text(row.label, ''),
+      percent: numberValue(row.percent, row.pourcent) ?? 0,
+    };
+  });
+}
+
+function mapMarketTrend(report: JsonRecord): MarketTrend | undefined {
+  const market = asRecord(report.market);
+  const trend = asRecord(market.trend ?? market.tendance);
+  if (Object.keys(trend).length === 0) return undefined;
+  const history = asArray(trend.history ?? trend.historique).map((item) => {
+    const row = asRecord(item);
+    return {
+      quarter: text(row.quarter, row.trimestre, ''),
+      medianPrice: numberValue(row.medianPrice, row.median_price) ?? 0,
+      highPrice: numberValue(row.highPrice, row.high_price) ?? 0,
+      lowPrice: numberValue(row.lowPrice, row.low_price) ?? 0,
+      changePercent: numberValue(row.changePercent, row.change_percent) ?? 0,
+    };
+  });
+  return {
+    pricePerSqmLow: numberValue(trend.price_per_sqm_low, trend.low) ?? 0,
+    pricePerSqmMedian: numberValue(trend.price_per_sqm_median, trend.median) ?? 0,
+    pricePerSqmHigh: numberValue(trend.price_per_sqm_high, trend.high) ?? 0,
+    evolution6m: numberValue(trend.evolution_6m) ?? 0,
+    evolution1y: numberValue(trend.evolution_1y) ?? 0,
+    evolution2y: numberValue(trend.evolution_2y) ?? 0,
+    history,
+  };
+}
+
+function mapMarketTension(report: JsonRecord): MarketTension | undefined {
+  const market = asRecord(report.market);
+  const tension = asRecord(market.tension);
+  if (Object.keys(tension).length === 0) return undefined;
+  const level = (text(tension.level, tension.niveau) || 'équilibré') as MarketTension['level'];
+  return {
+    level,
+    levelLabel: text(tension.label, tension.libelle, level),
+    levelDescription: text(tension.description, tension.description_marche, ''),
+    history: asArray(tension.history ?? tension.historique).map((item) => {
+      const row = asRecord(item);
+      return { quarter: text(row.quarter, row.trimestre, ''), value: numberValue(row.value, row.valeur) ?? 0 };
+    }),
+    saleDelays: {
+      fastest: numberValue(tension.delay_fastest, tension.delai_rapide) ?? 0,
+      median: numberValue(tension.delay_median, tension.delai_median) ?? 0,
+      slowest: numberValue(tension.delay_slowest, tension.delai_lent) ?? 0,
+    },
+    stockIndicator: text(tension.stock_indicator, tension.indicateur_stock, ''),
+    priceRevisionIndicator: text(tension.price_revision, tension.revision_prix, ''),
+  };
+}
+
+function mapExtendedComparables(value: unknown): ExtendedComparableProperty[] | undefined {
+  const rows = asArray(value).map((item, index) => {
+    const comp = asRecord(item);
+    const surface = numberValue(comp.surface) ?? 0;
+    const price = numberValue(comp.price, comp.prix) ?? 0;
+    return {
+      id: text(comp.id, `ext-comp-${index + 1}`),
+      title: text(comp.title, comp.titre, `Bien ${index + 1}`),
+      price,
+      pricePerSqm: numberValue(comp.pricePerSqm, comp.price_per_sqm, comp.prix_m2) ?? (surface > 0 ? Math.round(price / surface) : 0),
+      surface,
+      landSurface: numberValue(comp.landSurface, comp.land_surface, comp.surface_terrain) ?? 0,
+      rooms: numberValue(comp.rooms, comp.nb_pieces) ?? 0,
+      bedrooms: numberValue(comp.bedrooms, comp.chambres) ?? 0,
+      stairs: numberValue(comp.stairs, comp.escaliers),
+      garage: numberValue(comp.garage),
+      year: numberValue(comp.year, comp.annee),
+      address: text(comp.address, comp.adresse, ''),
+      daysOnMarket: text(comp.daysOnMarket, comp.days_on_market, comp.jours_en_ligne),
+      status: (text(comp.status, comp.statut) || 'En vente') as ExtendedComparableProperty['status'],
+      energyLabel: text(comp.energyLabel, comp.energy_label),
+    };
+  }).filter((comp) => comp.price > 0 || comp.surface > 0);
+  return rows.length > 0 ? rows : undefined;
+}
+
+function mapPositioning(report: JsonRecord): PositioningData | undefined {
+  const positioning = asRecord(report.positioning);
+  if (Object.keys(positioning).length === 0) return undefined;
+  const thresholds = asRecord(positioning.thresholds ?? positioning.seuils);
+  return {
+    pricePerSqmRank: numberValue(positioning.price_per_sqm_rank, positioning.rang_prix_m2) ?? 0,
+    totalCompetitors: numberValue(positioning.total_competitors, positioning.total_concurrents) ?? 0,
+    cheaperPercent: numberValue(positioning.cheaper_percent, positioning.moins_cher_pct) ?? 0,
+    largerPercent: numberValue(positioning.larger_percent, positioning.plus_grand_pct) ?? 0,
+    cheaperAndLargerPercent: numberValue(positioning.cheaper_and_larger_percent, positioning.moins_cher_plus_grand_pct) ?? 0,
+    priceThresholds: {
+      low: numberValue(thresholds.low) ?? 0,
+      median: numberValue(thresholds.median) ?? 0,
+      high: numberValue(thresholds.high) ?? 0,
+    },
+    averageCompetitorPricePerSqm: numberValue(positioning.average_competitor_price_per_sqm, positioning.prix_m2_moyen_concurrents) ?? 0,
+  };
+}
+
+function mapSynthesis(report: JsonRecord): SynthesisData | undefined {
+  const synthesis = asRecord(report.synthesis ?? report.synthese);
+  if (Object.keys(synthesis).length === 0) return undefined;
+  const marketMethod = asRecord(synthesis.market ?? synthesis.marche);
+  const comparablesMethod = asRecord(synthesis.comparables);
+  const aiMethod = asRecord(synthesis.ai ?? synthesis.ia);
+  return {
+    marketMethod: {
+      low: numberValue(marketMethod.low) ?? 0,
+      median: numberValue(marketMethod.median) ?? 0,
+      high: numberValue(marketMethod.high) ?? 0,
+    },
+    comparablesMethod: {
+      low: numberValue(comparablesMethod.low) ?? 0,
+      median: numberValue(comparablesMethod.median) ?? 0,
+      high: numberValue(comparablesMethod.high) ?? 0,
+    },
+    aiMethod: {
+      low: numberValue(aiMethod.low) ?? 0,
+      median: numberValue(aiMethod.median) ?? 0,
+      high: numberValue(aiMethod.high) ?? 0,
+    },
+  };
+}
+
+function mapIadTrackRecord(report: JsonRecord): SoldPropertyByIad[] | undefined {
+  const records = asArray(report.track_record ?? report.biens_vendus_iad).map((item, index) => {
+    const row = asRecord(item);
+    const price = numberValue(row.price, row.prix) ?? 0;
+    const surface = numberValue(row.surface) ?? 0;
+    return {
+      id: text(row.id, `iad-${index + 1}`),
+      title: text(row.title, row.titre, `Bien iad ${index + 1}`),
+      address: text(row.address, row.adresse, ''),
+      price,
+      pricePerSqm: numberValue(row.pricePerSqm, row.price_per_sqm, row.prix_m2) ?? (surface > 0 ? Math.round(price / surface) : 0),
+      soldDate: text(row.soldDate, row.sold_date, row.date_vente, ''),
+      type: (text(row.type) === 'Appartement' ? 'Appartement' : 'Maison') as SoldPropertyByIad['type'],
+    };
+  }).filter((r) => r.price > 0 || r.title);
+  return records.length > 0 ? records : undefined;
 }
