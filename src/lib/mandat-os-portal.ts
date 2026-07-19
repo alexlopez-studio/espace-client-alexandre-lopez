@@ -40,6 +40,7 @@ type ClientDossierRow = {
   advisor_note?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
+  mandate_signed_at?: string | null;
 };
 
 type ClientDocumentRow = {
@@ -85,6 +86,7 @@ type ClientPortalPayload = {
   sales_follow_up?: {
     status?: 'teaser' | 'active';
   };
+  mandate_stage?: string | null;
   estimation?: {
     status: 'empty' | 'draft' | 'published';
     published_at?: string | null;
@@ -190,6 +192,8 @@ function mapDossierToMultiClientState(payload: ClientPortalPayload): MultiClient
     id: dossier.id,
     estimationStatus,
     salesFollowUpStatus: payload.sales_follow_up?.status === 'active' ? 'active' : 'teaser',
+    mandateStage: payload.mandate_stage ?? null,
+    mandateSignedAt: dossier.mandate_signed_at ?? null,
     propertyContext: {
       type: text(payload.property_context?.type, snapshot.type_bien, snapshot.property_type, snapshot.type),
       commune: text(payload.property_context?.commune, snapshot.commune, snapshot.city, snapshot.ville),

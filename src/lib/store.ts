@@ -30,6 +30,8 @@ export const emptyClient: ClientRecord = {
   id: 'empty-dossier',
   estimationStatus: 'empty',
   salesFollowUpStatus: 'teaser',
+  mandateStage: null,
+  mandateSignedAt: null,
   clientInfo: {
     names: 'Client',
     address: '',
@@ -86,6 +88,8 @@ export const getInitialState = (): AppState => ({
   advisorInfo: emptyAdvisorInfo,
   estimationStatus: 'empty',
   salesFollowUpStatus: 'teaser',
+  mandateStage: null,
+  mandateSignedAt: null,
   propertyContext: emptyClient.propertyContext,
   propertyDetails: emptyClient.propertyDetails,
   pointsForts: [],

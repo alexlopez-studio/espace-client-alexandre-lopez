@@ -273,6 +273,8 @@ export interface AppState {
   advisorInfo: AdvisorInfo;
   estimationStatus: 'empty' | 'draft' | 'published';
   salesFollowUpStatus: 'teaser' | 'active';
+  mandateStage: string | null;
+  mandateSignedAt: string | null;
   propertyContext: PropertyContext;
   propertyDetails: PropertyDetails;
   pointsForts: PropertyPoint[];
@@ -312,6 +314,8 @@ export interface ClientRecord {
   clientInfo: ClientInfo;
   estimationStatus: 'empty' | 'draft' | 'published';
   salesFollowUpStatus: 'teaser' | 'active';
+  mandateStage: string | null;
+  mandateSignedAt: string | null;
   propertyContext: PropertyContext;
   propertyDetails: PropertyDetails;
   pointsForts: PropertyPoint[];

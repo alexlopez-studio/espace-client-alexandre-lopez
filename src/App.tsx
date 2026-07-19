@@ -54,6 +54,8 @@ export default function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const [showScrollTop, setShowScrollTop] = useState<boolean>(false);
   const [remoteStatus, setRemoteStatus] = useState<RemotePortalStatus>('idle');
+  const [showDownloadMenu, setShowDownloadMenu] = useState<boolean>(false);
+  const [urlKey, setUrlKey] = useState<string>(`${window.location.pathname}${window.location.search}`);
 
   const [lastEvalSection, setLastEvalSection] = useState<string>('situation');
   const [lastTransSection, setLastTransSection] = useState<string>('documents');
@@ -64,6 +66,8 @@ export default function App() {
     advisorInfo: multiClientState.advisorInfo,
     estimationStatus: currentClient.estimationStatus,
     salesFollowUpStatus: currentClient.salesFollowUpStatus,
+    mandateStage: currentClient.mandateStage,
+    mandateSignedAt: currentClient.mandateSignedAt,
     propertyContext: currentClient.propertyContext,
     propertyDetails: currentClient.propertyDetails,
     pointsForts: currentClient.pointsForts,
@@ -96,6 +100,8 @@ export default function App() {
         advisorInfo: prev.advisorInfo,
         estimationStatus: cc.estimationStatus,
         salesFollowUpStatus: cc.salesFollowUpStatus,
+        mandateStage: cc.mandateStage,
+        mandateSignedAt: cc.mandateSignedAt,
         propertyContext: cc.propertyContext,
         propertyDetails: cc.propertyDetails,
         pointsForts: cc.pointsForts,
@@ -128,6 +134,8 @@ export default function App() {
             clientInfo: newState.clientInfo,
             estimationStatus: newState.estimationStatus,
             salesFollowUpStatus: newState.salesFollowUpStatus,
+            mandateStage: newState.mandateStage,
+            mandateSignedAt: newState.mandateSignedAt,
             propertyContext: newState.propertyContext,
             propertyDetails: newState.propertyDetails,
             pointsForts: newState.pointsForts,
@@ -169,6 +177,12 @@ export default function App() {
   useEffect(() => { saveMultiClientState(multiClientState); }, [multiClientState]);
 
   useEffect(() => {
+    const handlePopState = () => setUrlKey(`${window.location.pathname}${window.location.search}`);
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  useEffect(() => {
     let cancelled = false;
     const hydrate = async () => {
       setRemoteStatus('loading');
@@ -184,7 +198,7 @@ export default function App() {
     };
     hydrate();
     return () => { cancelled = true; };
-  }, []);
+  }, [urlKey]);
 
   useEffect(() => {
     const handleScroll = () => setShowScrollTop(window.scrollY > 300);
@@ -195,7 +209,11 @@ export default function App() {
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   const handleStartPresentation = () => {
-    setActiveSection(appState.estimationStatus === 'published' ? 'situation' : 'estimationEmpty');
+    if (isSalesFollowUpActive) {
+      setActiveSection('documents');
+    } else {
+      setActiveSection(appState.estimationStatus === 'published' ? 'situation' : 'estimationEmpty');
+    }
     scrollToTop();
   };
 
@@ -253,8 +271,16 @@ export default function App() {
               <p className="mt-0.5 flex items-center gap-1 truncate text-[11px] font-medium text-slate-500"><MapPin className="h-3 w-3 shrink-0 text-slate-300" /><span className="truncate">{formatPropertyContext(appState.propertyContext, appState.clientInfo.address)}</span></p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button onClick={() => window.print()} className="hidden sm:flex items-center gap-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold px-4 py-2.5 rounded-xl"><Download className="w-3.5 h-3.5" /><span>Imprimer</span></button>
+          <div className="flex items-center gap-2 relative">
+            <div className="hidden sm:block relative">
+              <button onClick={() => setShowDownloadMenu(!showDownloadMenu)} className="flex items-center gap-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold px-4 py-2.5 rounded-xl"><Download className="w-3.5 h-3.5" /><span>Télécharger</span></button>
+              {showDownloadMenu && (
+                <div className="absolute top-full right-0 mt-2 bg-white border border-slate-200 rounded-xl shadow-lg z-50 min-w-max">
+                  <button onClick={() => { window.print(); setShowDownloadMenu(false); }} className="block w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 first:rounded-t-xl">Avis de valeur</button>
+                  {isSalesFollowUpActive && <button onClick={() => { window.print(); setShowDownloadMenu(false); }} className="block w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 last:rounded-b-xl">Mandat signé</button>}
+                </div>
+              )}
+            </div>
             <a href={`tel:${appState.advisorInfo.phone.replace(/\s/g, '')}`} className="flex items-center justify-center p-2.5 bg-[#00A0E2] text-white rounded-xl"><Phone className="w-4 h-4" /></a>
           </div>
         </header>
@@ -330,7 +356,7 @@ export default function App() {
 
           <AnimatePresence mode="wait">
             <motion.div key={activeSection} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} transition={{ duration: 0.35 }} className="w-full flex flex-col">
-              {activeSection === 'cover' && <CoverSection client={appState.clientInfo} advisor={appState.advisorInfo} propertyDetails={appState.propertyDetails} estimationStatus={appState.estimationStatus} onStart={handleStartPresentation} />}
+              {activeSection === 'cover' && <CoverSection client={appState.clientInfo} advisor={appState.advisorInfo} propertyDetails={appState.propertyDetails} estimationStatus={appState.estimationStatus} mandateStage={appState.mandateStage} mandateSignedAt={appState.mandateSignedAt} onStart={handleStartPresentation} />}
               {activeSection === 'estimationEmpty' && <EmptyContentState title="Estimation en préparation" description="Votre estimation sera visible ici dès sa publication." />}
               {activeSection === 'situation' && (appState.cadastralParcels?.length ? <SituationSection cadastralParcels={appState.cadastralParcels} clientAddress={appState.clientInfo.address} /> : <EmptyContentState title="Situation en préparation" description="Données cadastrales à venir." />)}
               {activeSection === 'property' && (hasPropertyDetails(appState.propertyDetails) ? <PropertySection propertyDetails={appState.propertyDetails} pointsForts={appState.pointsForts} pointsDefendre={appState.pointsDefendre} /> : <EmptyContentState title="Fiche bien en préparation" description="Caractéristiques à venir." />)}
@@ -350,9 +376,8 @@ export default function App() {
           </AnimatePresence>
         </main>
 
-        <footer className="mt-auto py-6 px-8 border-t border-slate-100 bg-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-[11px] text-slate-400 font-medium">
-          <div className="flex items-center gap-2"><IadLogo className="h-6" showText={false} /><span>© 2026 iad France</span></div>
-          <div className="flex items-center gap-4"><span>Espace vendeur privé · Alexandre Lopez</span><span>•</span><a href="https://www.iadfrance.fr" target="_blank" rel="noreferrer" className="hover:text-[#00A0E2]">iadfrance.fr</a><span>•</span><span>Réseau de mandataires</span></div>
+        <footer className="mt-auto py-6 px-8 border-t border-slate-100 bg-white flex items-center justify-center text-[11px] text-slate-400 font-medium">
+          <span>© Logiciel conçu par Alexandre Lopez</span>
         </footer>
 
         <AnimatePresence>
@@ -440,6 +465,7 @@ function hasPropertyDetails(p: AppState['propertyDetails']) {
 }
 
 function formatPropertyContext(ctx: AppState['propertyContext'], addr: string) {
-  const v = [ctx.type, ctx.commune].map((x) => x?.trim()).filter(Boolean);
+  const type = ctx.type?.trim() ? ctx.type.trim().charAt(0).toUpperCase() + ctx.type.trim().slice(1) : '';
+  const v = [type, ctx.commune?.trim()].filter(Boolean);
   return v.length > 0 ? v.join(' · ') : addr || 'Dossier immobilier';
 }

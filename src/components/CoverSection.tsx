@@ -19,10 +19,12 @@ interface CoverSectionProps {
   advisor: AdvisorInfo;
   propertyDetails: PropertyDetails;
   estimationStatus: 'empty' | 'draft' | 'published';
+  mandateStage: string | null;
+  mandateSignedAt: string | null;
   onStart: () => void;
 }
 
-export default function CoverSection({ client, advisor, propertyDetails, estimationStatus, onStart }: CoverSectionProps) {
+export default function CoverSection({ client, advisor, propertyDetails, estimationStatus, mandateStage, mandateSignedAt, onStart }: CoverSectionProps) {
   const propertySummary = [
     propertyDetails.surface > 0 ? `${propertyDetails.surface} m²` : null,
     propertyDetails.rooms > 0 ? `${propertyDetails.rooms} pièce${propertyDetails.rooms > 1 ? 's' : ''}` : null,
@@ -30,7 +32,12 @@ export default function CoverSection({ client, advisor, propertyDetails, estimat
   ].filter(Boolean).join(' • ');
   const location = getLocationLabel(client.address);
   const hasAdvisorContact = advisor.phone || advisor.email;
-  const statusLabel = estimationStatus === 'published' ? 'Estimation publiée' : 'Estimation en préparation';
+  const isMandateSigned = mandateStage === 'Mandat signé' || mandateStage === 'Vendu';
+  const formattedMandateSignedAt = mandateSignedAt ? new Date(mandateSignedAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+  const statusLabel = isMandateSigned
+    ? (mandateStage === 'Vendu' ? 'Bien vendu' : 'Commercialisation en cours')
+    : (estimationStatus === 'published' ? 'Estimation publiée' : 'Estimation en préparation');
+  const stageLabel = mandateStage || 'Dossier en cours';
 
   return (
     <div className="w-full flex flex-col gap-8 lg:p-4" id="cover-section-container">
@@ -43,19 +50,19 @@ export default function CoverSection({ client, advisor, propertyDetails, estimat
           <IadLogo className="h-14 self-start" color="#00A0E2" showText={true} />
           <div className="flex items-center gap-2 bg-slate-100 text-slate-800 text-[11px] font-semibold tracking-wider px-3 py-1.5 rounded-full uppercase" id="cover-badge">
             <BadgeCheck className="w-3.5 h-3.5 text-[#00A0E2]" />
-            Dossier Certifié
+            {stageLabel}
           </div>
         </div>
 
         <div className="flex flex-col gap-2 mt-4 z-10" id="cover-titles">
-          <motion.h1 
+          <motion.h1
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight"
             id="cover-main-title"
           >
-            {client.projectTitle || "Dossier de commercialisation & Suivi de vente"}
+            {isMandateSigned ? "Commercialisation & Suivi de vente" : "Estimation & Préparation"}
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: 15 }}
@@ -71,7 +78,7 @@ export default function CoverSection({ client, advisor, propertyDetails, estimat
         {/* Client & Date Details Panel */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-6 border-t border-b border-slate-100 mt-2 z-10" id="cover-details-grid">
           <div className="flex flex-col gap-1.5" id="cover-detail-client">
-            <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">À l'attention de</span>
+            <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">{isMandateSigned ? 'Vendeur' : 'À l\'attention de'}</span>
             <div className="flex items-center gap-2.5">
               <div className="p-2 bg-slate-50 text-slate-700 rounded-lg">
                 <User className="w-4 h-4" />
@@ -93,12 +100,12 @@ export default function CoverSection({ client, advisor, propertyDetails, estimat
           </div>
 
           <div className="flex flex-col gap-1.5" id="cover-detail-date">
-            <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Date de réalisation</span>
+            <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">{isMandateSigned ? 'Date de signature' : 'Date de réalisation'}</span>
             <div className="flex items-center gap-2.5">
               <div className="p-2 bg-slate-50 text-slate-700 rounded-lg">
                 <Calendar className="w-4 h-4 text-emerald-600" />
               </div>
-              <span className="text-sm font-semibold text-slate-800">{client.date}</span>
+              <span className="text-sm font-semibold text-slate-800">{isMandateSigned ? formattedMandateSignedAt || 'À renseigner' : client.date}</span>
             </div>
           </div>
         </div>
@@ -156,12 +163,16 @@ export default function CoverSection({ client, advisor, propertyDetails, estimat
 
         {/* Start button at the bottom right */}
         <div className="absolute bottom-6 right-6 hidden md:block">
-          <button 
+          <button
             id="btn-start-presentation"
             onClick={onStart}
             className="flex items-center gap-2 bg-[#00A0E2] hover:bg-[#008cc7] text-white font-semibold px-6 py-4 rounded-2xl shadow-xl shadow-[#00A0E2]/30 transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300"
           >
-            <span>{estimationStatus === 'published' ? 'Démarrer la présentation' : 'Voir l’état du dossier'}</span>
+            <span>
+              {isMandateSigned
+                ? "Accéder au suivi de vente"
+                : (estimationStatus === "published" ? "Démarrer la présentation" : "Voir l’état du dossier")}
+            </span>
             <ArrowRight className="w-4 h-4 animate-pulse" />
           </button>
         </div>
@@ -204,12 +215,16 @@ export default function CoverSection({ client, advisor, propertyDetails, estimat
       </div>
 
       {/* Mobile Start button */}
-      <button 
+      <button
         id="btn-start-presentation-mobile"
         onClick={onStart}
         className="md:hidden w-full flex items-center justify-center gap-2 bg-[#00A0E2] text-white font-bold py-4.5 rounded-2xl shadow-lg shadow-[#00A0E2]/20 mt-2"
       >
-        <span>{estimationStatus === 'published' ? 'Accéder au dossier' : 'Voir l’état du dossier'}</span>
+        <span>
+          {isMandateSigned
+            ? "Accéder au suivi de vente"
+            : (estimationStatus === "published" ? "Accéder au dossier" : "Voir l’état du dossier")}
+        </span>
         <ArrowRight className="w-4 h-4" />
       </button>
     </div>
