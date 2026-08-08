@@ -453,7 +453,7 @@ function SalesFollowUpTeaser() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(0,160,226,0.12),transparent_34%),linear-gradient(135deg,#fff,#f8fafc)]" />
         <div className="relative max-w-3xl"><span className="inline-flex items-center gap-2 rounded-full border border-[#00A0E2]/20 bg-[#00A0E2]/10 px-3 py-1 text-xs font-bold text-[#0077B6]"><LockKeyhole className="h-3.5 w-3.5" />Disponible après signature</span><h2 className="mt-5 text-2xl font-extrabold text-slate-900">Suivi de vente à venir</h2><p className="mt-3 text-sm text-slate-600">Cet espace donne une vision claire de la commercialisation une fois le mandat signé.</p></div>
         <div className="relative mt-8 grid gap-4 md:grid-cols-3">
-          {steps.map((s) => { const I = s.icon; return <article key={s.title} className="rounded-2xl border bg-white/85 p-5"><div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#00A0E2]/10 text-[#0077B6]"><I className="h-5 w-5" /></div><h3 className="mt-4 text-sm font-extrabold">{s.title}</h3><p className="mt-2 text-xs text-slate-500">{s.description}</p></article>; })}
+          {steps.map((s) => { const I = s.icon; return <article key={s.title} className="rounded-2xl border border-slate-100 bg-white/85 p-5 shadow-sm"><div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#00A0E2]/10 text-[#0077B6]"><I className="h-5 w-5" /></div><h3 className="mt-4 text-sm font-extrabold text-slate-900">{s.title}</h3><p className="mt-2 text-xs leading-relaxed text-slate-500">{s.description}</p></article>; })}
         </div>
       </div>
     </section>
