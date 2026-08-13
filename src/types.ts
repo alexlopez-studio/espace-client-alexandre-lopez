@@ -238,6 +238,22 @@ export interface SalesStep {
   responsible: 'Conseiller' | 'Vendeur' | 'Tous';
 }
 
+/**
+ * Action de préparation du mandat — DPE, diagnostics, shooting photo.
+ *
+ * Distincte de `SalesStep` : les actions sont parallèles, chacune avec son
+ * propre calendrier, et ne font pas avancer le statut du projet d'un cran.
+ */
+export interface MandateAction {
+  id: string;
+  title: string;
+  description: string;
+  status: 'À faire' | 'En attente' | 'Fait';
+  responsible: 'Conseiller' | 'Vendeur' | 'Tous';
+  dueDate?: string;
+  doneDate?: string;
+}
+
 export interface BuyerOffer {
   id: string;
   buyerName: string;
@@ -282,6 +298,7 @@ export interface AppState {
   documents: DocumentItem[];
   viewings: ViewingReport[];
   salesSteps: SalesStep[];
+  mandateActions: MandateAction[];
   offers: BuyerOffer[];
   portalStats: PortalStat[];
   cadastralParcels?: CadastralParcel[];
@@ -323,6 +340,7 @@ export interface ClientRecord {
   documents: DocumentItem[];
   viewings: ViewingReport[];
   salesSteps: SalesStep[];
+  mandateActions: MandateAction[];
   offers: BuyerOffer[];
   portalStats: PortalStat[];
   cadastralParcels?: CadastralParcel[];

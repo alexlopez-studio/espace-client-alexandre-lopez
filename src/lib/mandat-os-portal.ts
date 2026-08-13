@@ -5,6 +5,7 @@ import type {
   ComparableProperty,
   DocumentItem,
   ExtendedComparableProperty,
+  MandateAction,
   MarketDistribution,
   MarketTension,
   MarketTrend,
@@ -73,6 +74,28 @@ type ClientEventRow = {
 
 export type RemotePortalStatus = 'idle' | 'loading' | 'synced' | 'demo' | 'unauthenticated' | 'empty' | 'error';
 
+/** Jalon du socle tel que Mandat OS l'envoie. */
+type RemoteSalesStep = {
+  key?: string;
+  order?: number;
+  title?: string;
+  description?: string;
+  status?: 'todo' | 'in_progress' | 'done';
+  completed_at?: string | null;
+  responsible?: 'advisor' | 'seller' | 'both';
+};
+
+/** Action de préparation du mandat telle que Mandat OS l'envoie. */
+type RemoteAction = {
+  id?: string;
+  title?: string;
+  description?: string | null;
+  status?: 'todo' | 'done' | 'blocked' | 'info';
+  responsible?: 'advisor' | 'seller';
+  due_date?: string | null;
+  done_at?: string | null;
+};
+
 type ClientPortalPayload = {
   readOnly: true;
   profile: ClientProfileRow;
@@ -86,6 +109,14 @@ type ClientPortalPayload = {
   sales_follow_up?: {
     status?: 'teaser' | 'active';
   };
+  /**
+   * Socle de jalons projeté depuis le pipeline vendeur, calculé par Mandat OS
+   * (`seller-milestones`). Volontairement sans visites ni offres : elles courent
+   * tout au long de la commercialisation et ont leurs propres sections.
+   */
+  sales_steps?: RemoteSalesStep[];
+  /** Actions de préparation du mandat, parallèles au statut. */
+  actions?: RemoteAction[];
   mandate_stage?: string | null;
   estimation?: {
     status: 'empty' | 'draft' | 'published';
@@ -224,7 +255,8 @@ function mapDossierToMultiClientState(payload: ClientPortalPayload): MultiClient
     pointsDefendre: mapPoints(property.objections),
     documents: documents.map(mapDocument),
     viewings: mapViewings(events) ?? [],
-    salesSteps: mapSalesSteps(events) ?? [],
+    salesSteps: mapSalesSteps(payload.sales_steps) ?? [],
+    mandateActions: mapMandateActions(payload.actions),
     offers: mapOffers(events) ?? [],
     portalStats: mapPortalStats(opinion.audience) ?? [],
     cadastralParcels: estimationStatus === 'published' ? mapCadastralRows(report) ?? [] : [],
@@ -269,6 +301,7 @@ function mapDocument(document: ClientDocumentRow): DocumentItem {
 }
 
 function mapEvent(event: ClientEventRow, index: number): SalesStep {
+  const payload = asRecord(event.payload);
   return {
     id: event.id,
     order: index + 1,
@@ -276,15 +309,65 @@ function mapEvent(event: ClientEventRow, index: number): SalesStep {
     description: text(event.description, ''),
     status: mapEventStatus(event.status),
     completedDate: ['done', 'completed', 'validated'].includes(String(event.status)) ? formatDate(event.event_date ?? event.created_at) : undefined,
-    responsible: 'Conseiller',
+    responsible: mapResponsible(payload.responsible ?? payload.responsable),
   };
 }
 
-function mapSalesSteps(events: ClientEventRow[]): SalesStep[] | undefined {
-  const rows = events
-    .filter((event) => !['visit', 'offer'].includes(String(event.type)))
-    .map(mapEvent);
+/** Traduit le vocabulaire neutre du payload en libellé affiché. */
+function mapResponsible(value: unknown): SalesStep['responsible'] {
+  const normalized = String(value ?? '').toLowerCase();
+  if (normalized === 'both' || normalized.includes('tous')) return 'Tous';
+  if (normalized === 'seller' || normalized.includes('vendeur')) return 'Vendeur';
+  return 'Conseiller';
+}
+
+function mapMilestoneStatus(status: RemoteSalesStep['status']): SalesStep['status'] {
+  if (status === 'done') return 'Terminé';
+  if (status === 'in_progress') return 'En cours';
+  return 'A faire';
+}
+
+/**
+ * Le fil de la vente ne porte que le statut : des jalons linéaires et
+ * irréversibles, projetés depuis le pipeline par Mandat OS.
+ *
+ * Les actions de préparation — DPE, diagnostics, shooting — n'y figurent pas.
+ * Elles sont parallèles, chacune avec son propre calendrier, et les ranger dans
+ * la chronologie les faisait passer pour des étapes séquentielles : le vendeur
+ * lisait « Signature mandat — à faire » juste après « Mandat signé — terminé ».
+ * Elles ont leur propre liste, alimentée par `payload.actions`.
+ */
+function mapSalesSteps(milestones: RemoteSalesStep[] | undefined): SalesStep[] | undefined {
+  const rows: SalesStep[] = (milestones ?? []).map((milestone, index) => ({
+    id: `milestone-${milestone.key ?? index}`,
+    order: milestone.order ?? index + 1,
+    title: text(milestone.title, `Étape ${index + 1}`),
+    description: text(milestone.description, ''),
+    status: mapMilestoneStatus(milestone.status),
+    completedDate: milestone.completed_at ? formatDate(milestone.completed_at) : undefined,
+    responsible: mapResponsible(milestone.responsible),
+  }));
+
   return rows.length > 0 ? rows : undefined;
+}
+
+/** Actions de préparation du mandat, parallèles au statut du projet. */
+function mapMandateActions(actions: RemoteAction[] | undefined): MandateAction[] {
+  return (actions ?? []).map((action, index) => ({
+    id: text(action.id, `action-${index}`),
+    title: text(action.title, 'Action'),
+    description: text(action.description, ''),
+    status: mapActionStatus(action.status),
+    responsible: mapResponsible(action.responsible),
+    dueDate: action.due_date ? formatDate(action.due_date) : undefined,
+    doneDate: action.done_at ? formatDate(action.done_at) : undefined,
+  }));
+}
+
+function mapActionStatus(status: RemoteAction['status']): MandateAction['status'] {
+  if (status === 'done') return 'Fait';
+  if (status === 'blocked') return 'En attente';
+  return 'À faire';
 }
 
 function mapViewings(events: ClientEventRow[]): ViewingReport[] | undefined {

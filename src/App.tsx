@@ -40,6 +40,7 @@ import IadLogo from './components/IadLogo';
 import DocumentsSection from './components/DocumentsSection';
 import VisitsSection from './components/VisitsSection';
 import SalesPlanSection from './components/SalesPlanSection';
+import MandateActionsSection from './components/MandateActionsSection';
 import OffersSection from './components/OffersSection';
 import StatsSection from './components/StatsSection';
 import { DocumentItem, ViewingReport, SalesStep, BuyerOffer, PortalStat, ClientRecord, AppState } from './types';
@@ -75,6 +76,7 @@ export default function App() {
     documents: currentClient.documents,
     viewings: currentClient.viewings,
     salesSteps: currentClient.salesSteps,
+    mandateActions: currentClient.mandateActions,
     offers: currentClient.offers,
     portalStats: currentClient.portalStats,
     cadastralParcels: currentClient.cadastralParcels || [],
@@ -109,6 +111,7 @@ export default function App() {
         documents: cc.documents,
         viewings: cc.viewings,
         salesSteps: cc.salesSteps,
+        mandateActions: cc.mandateActions,
         offers: cc.offers,
         portalStats: cc.portalStats,
         cadastralParcels: cc.cadastralParcels || [],
@@ -143,6 +146,7 @@ export default function App() {
             documents: newState.documents,
             viewings: newState.viewings,
             salesSteps: newState.salesSteps,
+            mandateActions: newState.mandateActions,
             offers: newState.offers,
             portalStats: newState.portalStats,
             cadastralParcels: newState.cadastralParcels,
@@ -368,7 +372,13 @@ export default function App() {
 
               {activeSection === 'documents' && (isSalesFollowUpActive ? <DocumentsSection documents={appState.documents} onAddDocument={handleAddDocument} onDeleteDocument={handleDeleteDocument} readOnly /> : <SalesFollowUpTeaser />)}
               {activeSection === 'viewings' && (isSalesFollowUpActive ? <VisitsSection viewings={appState.viewings} onAddViewing={handleAddViewing} onDeleteViewing={handleDeleteViewing} readOnly /> : <SalesFollowUpTeaser />)}
-              {activeSection === 'salesPlan' && (isSalesFollowUpActive ? <SalesPlanSection salesSteps={appState.salesSteps} onUpdateStepStatus={handleUpdateStepStatus} readOnly /> : <SalesFollowUpTeaser />)}
+              {activeSection === 'salesPlan' && (isSalesFollowUpActive ? (
+                <div className="flex flex-col gap-6">
+                  <SalesPlanSection salesSteps={appState.salesSteps} onUpdateStepStatus={handleUpdateStepStatus} readOnly />
+                  {/* Les actions vivent en parallele du fil de la vente, jamais dedans. */}
+                  <MandateActionsSection actions={appState.mandateActions} />
+                </div>
+              ) : <SalesFollowUpTeaser />)}
               {activeSection === 'offers' && (isSalesFollowUpActive ? <OffersSection offers={appState.offers} onAddOffer={handleAddOffer} onDeleteOffer={handleDeleteOffer} onUpdateOfferStatus={handleUpdateOfferStatus} readOnly /> : <SalesFollowUpTeaser />)}
               {activeSection === 'stats' && (isSalesFollowUpActive ? <StatsSection portalStats={appState.portalStats} /> : <SalesFollowUpTeaser />)}
               {activeSection === 'transactionTeaser' && <SalesFollowUpTeaser />}
@@ -442,23 +452,91 @@ function EmptyContentState({ title, description }: { title: string; description:
 }
 
 function SalesFollowUpTeaser() {
+  const [activeStep, setActiveStep] = useState(0);
   const steps = [
-    { icon: FolderOpen, title: 'Dossier vendeur', description: 'Documents et diagnostics centralisés.' },
-    { icon: Compass, title: 'Méthode de commercialisation', description: 'Plan de vente et prochaines étapes.' },
-    { icon: BarChart3, title: 'Pilotage après mise en vente', description: 'Visites, offres et performances.' },
+    { number: 1, icon: FolderOpen, title: '1. Dossier vendeur', phase: 'Préparation', description: 'Centralisation de vos pièces administratives, titres de propriété, diagnostics techniques et documents légaux.' },
+    { number: 2, icon: Compass, title: '2. Commercialisation', phase: 'Lancement', description: 'Élaboration du plan de vente personnalisé, shooting photo professionnel et diffusion ciblée sur les portails majeurs.' },
+    { number: 3, icon: BarChart3, title: '3. Pilotage & Offres', phase: 'Suivi actif', description: 'Compte-rendu détaillé des visites en temps réel, analyse des propositions d’achat et accompagnement jusqu’au notaire.' },
   ];
+  const currentStep = steps[activeStep];
+  const CurrentIcon = currentStep.icon;
+
   return (
-    <section className="rounded-3xl border border-slate-100 bg-white shadow-sm overflow-hidden">
+    <section className="rounded-3xl border border-slate-100 bg-white shadow-sm overflow-hidden" id="sales-teaser-root">
       <div className="relative p-8 lg:p-10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(0,160,226,0.12),transparent_34%),linear-gradient(135deg,#fff,#f8fafc)]" />
-        <div className="relative max-w-3xl"><span className="inline-flex items-center gap-2 rounded-full border border-[#00A0E2]/20 bg-[#00A0E2]/10 px-3 py-1 text-xs font-bold text-[#0077B6]"><LockKeyhole className="h-3.5 w-3.5" />Disponible après signature</span><h2 className="mt-5 text-2xl font-extrabold text-slate-900">Suivi de vente à venir</h2><p className="mt-3 text-sm text-slate-600">Cet espace donne une vision claire de la commercialisation une fois le mandat signé.</p></div>
-        <div className="relative mt-8 grid gap-4 md:grid-cols-3">
-          {steps.map((s) => { const I = s.icon; return <article key={s.title} className="rounded-2xl border border-slate-100 bg-white/85 p-5 shadow-sm"><div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#00A0E2]/10 text-[#0077B6]"><I className="h-5 w-5" /></div><h3 className="mt-4 text-sm font-extrabold text-slate-900">{s.title}</h3><p className="mt-2 text-xs leading-relaxed text-slate-500">{s.description}</p></article>; })}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(0,160,226,0.12),transparent_34%),linear-gradient(135deg,#fff,#f8fafc)] pointer-events-none" />
+        
+        <div className="relative max-w-3xl">
+          <span className="inline-flex items-center gap-2 rounded-full border border-[#00A0E2]/20 bg-[#00A0E2]/10 px-3 py-1 text-xs font-bold text-[#0077B6]">
+            <LockKeyhole className="h-3.5 w-3.5" />
+            Disponible après signature du mandat
+          </span>
+          <h2 className="mt-4 text-2xl font-black text-slate-900 tracking-tight">Fil conducteur du suivi de vente</h2>
+          <p className="mt-2 text-sm text-slate-600">Découvrez l'avancement pas-à-pas de la commercialisation une fois votre mandat de vente activé.</p>
         </div>
+
+        {/* Interactive Stepper Track */}
+        <div className="relative mt-8 bg-slate-50 border border-slate-100 rounded-2xl p-6 overflow-x-auto">
+          <div className="relative min-w-max px-6 py-2">
+            {/* Track line */}
+            <div className="absolute left-10 right-10 top-7 h-1 bg-slate-200 rounded-full z-0" />
+            <div 
+              className="absolute left-10 h-1 bg-gradient-to-r from-[#00A0E2] to-cyan-500 rounded-full z-0 transition-all duration-500"
+              style={{ width: `calc(${(activeStep / (steps.length - 1)) * 100}% * (100% - 80px) / 100)` }}
+            />
+
+            <div className="flex items-center justify-between gap-12 relative z-10">
+              {steps.map((s, idx) => {
+                const IconComp = s.icon;
+                const isActive = idx === activeStep;
+                const isPassed = idx < activeStep;
+
+                return (
+                  <button
+                    key={s.title}
+                    type="button"
+                    onClick={() => setActiveStep(idx)}
+                    className="flex flex-col items-center gap-2 text-center group cursor-pointer focus:outline-none min-w-32"
+                  >
+                    <div className={`w-11 h-11 rounded-full border-2 flex items-center justify-center text-xs font-black transition-all duration-300 ${
+                      isActive 
+                        ? 'bg-[#00A0E2] border-[#00A0E2] text-white ring-4 ring-[#00A0E2]/25 scale-110 shadow-sm'
+                        : isPassed
+                        ? 'bg-emerald-500 border-emerald-500 text-white'
+                        : 'bg-white border-slate-200 text-slate-400 group-hover:border-[#00A0E2]/60 group-hover:text-slate-700'
+                    }`}>
+                      <IconComp className="w-5 h-5" />
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <span className={`text-xs font-bold transition-colors ${isActive ? 'text-[#00A0E2]' : 'text-slate-700'}`}>
+                        {s.title}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-medium">{s.phase}</span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Active Step Preview Panel */}
+          <div className="mt-6 bg-white border border-slate-200/70 rounded-xl p-5 flex flex-col gap-2 shadow-2xs">
+            <div className="flex items-center gap-2 text-xs font-extrabold text-[#00A0E2]">
+              <CurrentIcon className="w-4 h-4" />
+              <span>Phase {currentStep.number} — {currentStep.phase}</span>
+            </div>
+            <p className="text-xs leading-relaxed text-slate-600">
+              {currentStep.description}
+            </p>
+          </div>
+
+        </div>
+
       </div>
     </section>
   );
 }
+
 
 function hasPropertyDetails(p: AppState['propertyDetails']) {
   return Boolean(p.address || p.description || p.surface > 0 || p.rooms > 0 || p.landSurface > 0 || p.bedrooms > 0 || p.year > 0);
