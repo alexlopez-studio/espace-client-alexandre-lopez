@@ -220,17 +220,17 @@ export default function DocumentsSection({
         {/* Actions header and Tab filters */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-50 pb-4" id="documents-list-header">
 
-          {/* Category Tabs */}
-          <div className="flex flex-wrap gap-1 bg-slate-100 p-1 rounded-xl" id="doc-filters-tabs">
+          {/* Category Tabs / Menubar */}
+          <div className="flex flex-wrap flex-1 gap-1 bg-white border border-slate-200/80 p-1.5 rounded-2xl shadow-xs" id="doc-filters-tabs">
             {categories.map((cat) => (
               <button
                 key={cat}
                 id={`btn-filter-doc-${cat}`}
                 onClick={() => setFilter(cat)}
-                className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all ${
+                className={`flex-1 sm:flex-initial flex items-center justify-center px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
                   filter === cat
-                    ? 'bg-slate-900 text-white shadow-sm'
-                    : 'text-slate-600 hover:text-slate-800 hover:bg-slate-50'
+                    ? 'bg-[#00A0E2] text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
                 }`}
               >
                 {cat === 'All' ? 'Tous' : cat}

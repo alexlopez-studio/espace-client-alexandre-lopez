@@ -1,16 +1,27 @@
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-mono: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Mandat OS Semantic Colors */
+  --color-primary: #00A0E2;
+  --color-primary-dark: #008EC3;
+  --color-primary-light: #CDF7FF;
 }
 
 html {
   font-family: var(--font-sans);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01", "ss03", "tnum", "zero";
+  font-variant-numeric: tabular-nums;
+  text-rendering: optimizeLegibility;
 }
 
 body {
   font-family: var(--font-sans);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01", "ss03", "tnum", "zero";
+  font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -20,7 +31,63 @@ button,
 input,
 select,
 textarea {
-  font-family: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  font-family: var(--font-sans) !important;
+}
+
+/* ─── Mandat OS Typography System ─── */
+.portal-h1 {
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.portal-h2 {
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.portal-h3 {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.portal-value,
+.tabular-nums,
+table,
+.kpi-value {
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum", "zero", "cv02", "cv03", "cv04", "cv11", "ss01", "ss03";
+}
+
+.portal-body {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.55;
+}
+
+.portal-button-text {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.portal-meta {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.portal-label {
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .advisor-portrait {

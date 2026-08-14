@@ -264,28 +264,43 @@ export default function App() {
       <Navbar activeSection={activeSection} setActiveSection={(sec: string) => { setActiveSection(sec); scrollToTop(); }} advisor={appState.advisorInfo} lastEvalSection={isEstimationPublished ? lastEvalSection : 'estimationEmpty'} lastTransSection={isSalesFollowUpActive ? lastTransSection : 'transactionTeaser'} />
 
       <div className="flex-1 flex flex-col lg:pl-72 min-w-0">
-        <header className="sticky top-0 bg-white/90 backdrop-blur-md border-b border-slate-100 z-20 px-6 py-4.5 flex items-center justify-between">
-          <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-2 text-slate-600">
-            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+        <header className="sticky top-0 bg-white/95 backdrop-blur-md border-b border-slate-200/80 z-20 px-4 sm:px-6 h-14 flex items-center justify-between shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="lg:hidden shrink-0"><IadLogo className="h-8" showText={false} /></div>
+            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-1.5 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100">
+              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+            <div className="lg:hidden shrink-0"><IadLogo className="h-7" showText={false} /></div>
             <div className="min-w-0 flex flex-col">
-              <p className="truncate text-sm font-extrabold text-slate-900">{appState.clientInfo.names || 'Dossier client'}</p>
-              <p className="mt-0.5 flex items-center gap-1 truncate text-[11px] font-medium text-slate-500"><MapPin className="h-3 w-3 shrink-0 text-slate-300" /><span className="truncate">{formatPropertyContext(appState.propertyContext, appState.clientInfo.address)}</span></p>
+              <p className="truncate text-sm font-bold text-slate-900">{appState.clientInfo.names || 'Dossier client'}</p>
+              <p className="flex items-center gap-1 truncate text-[11px] font-medium text-slate-500">
+                <MapPin className="h-3 w-3 shrink-0 text-slate-400" />
+                <span className="truncate">{formatPropertyContext(appState.propertyContext, appState.clientInfo.address)}</span>
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-2 relative">
             <div className="hidden sm:block relative">
-              <button onClick={() => setShowDownloadMenu(!showDownloadMenu)} className="flex items-center gap-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold px-4 py-2.5 rounded-xl"><Download className="w-3.5 h-3.5" /><span>Télécharger</span></button>
+              <button onClick={() => setShowDownloadMenu(!showDownloadMenu)} className="flex items-center gap-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-lg shadow-sm transition-colors">
+                <Download className="w-3.5 h-3.5 text-slate-500" />
+                <span>Télécharger</span>
+              </button>
               {showDownloadMenu && (
-                <div className="absolute top-full right-0 mt-2 bg-white border border-slate-200 rounded-xl shadow-lg z-50 min-w-max">
-                  <button onClick={() => { window.print(); setShowDownloadMenu(false); }} className="block w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 first:rounded-t-xl">Avis de valeur</button>
-                  {isSalesFollowUpActive && <button onClick={() => { window.print(); setShowDownloadMenu(false); }} className="block w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 last:rounded-b-xl">Mandat signé</button>}
+                <div className="absolute top-full right-0 mt-2 bg-white border border-slate-200 rounded-xl shadow-lg z-50 min-w-[160px] py-1">
+                  <button onClick={() => { window.print(); setShowDownloadMenu(false); }} className="block w-full text-left px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+                    Avis de valeur
+                  </button>
+                  {isSalesFollowUpActive && (
+                    <button onClick={() => { window.print(); setShowDownloadMenu(false); }} className="block w-full text-left px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+                      Mandat signé
+                    </button>
+                  )}
                 </div>
               )}
             </div>
-            <a href={`tel:${appState.advisorInfo.phone.replace(/\s/g, '')}`} className="flex items-center justify-center p-2.5 bg-[#00A0E2] text-white rounded-xl"><Phone className="w-4 h-4" /></a>
+            <a href={`tel:${appState.advisorInfo.phone.replace(/\s/g, '')}`} className="flex items-center gap-1.5 px-3 py-1.5 bg-[#00A0E2] hover:bg-[#008ec9] text-white text-xs font-semibold rounded-lg shadow-sm transition-colors">
+              <Phone className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Conseiller</span>
+            </a>
           </div>
         </header>
 
@@ -293,24 +308,23 @@ export default function App() {
           {isMobileMenuOpen && (
             <div>
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 0.5 }} exit={{ opacity: 0 }} onClick={() => setIsMobileMenuOpen(false)} className="fixed inset-0 bg-slate-950 z-30 lg:hidden" />
-              <motion.div initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }} transition={{ type: 'spring', damping: 25 }} className="fixed inset-y-0 left-0 w-72 bg-slate-900 text-white p-6 z-40 lg:hidden flex flex-col gap-6">
-                <div className="flex justify-between items-center">
-                  <IadLogo className="h-10" color="#FFFFFF" showText={true} />
+              <motion.div initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }} transition={{ type: 'spring', damping: 25 }} className="fixed inset-y-0 left-0 w-72 bg-slate-950 text-slate-100 p-6 z-40 lg:hidden flex flex-col gap-6">
+                <div className="flex justify-between items-center pb-3 border-b border-slate-800/80">
+                  <IadLogo className="h-9" color="#FFFFFF" showText={true} />
                   <button onClick={() => setIsMobileMenuOpen(false)} className="p-1 text-slate-400 hover:text-white"><X className="w-5 h-5" /></button>
                 </div>
-                <div className="h-px bg-slate-800" />
                 <nav className="flex-1 flex flex-col gap-1.5 overflow-y-auto">
                   {[
                     { id: 'cover', label: 'Accueil', target: 'cover', active: activeSection === 'cover' },
                     { id: 'evaluation', label: 'Estimation', target: isEstimationPublished ? lastEvalSection : 'estimationEmpty', active: isEvaluation },
                     { id: 'transaction', label: 'Suivi de Vente', target: isSalesFollowUpActive ? lastTransSection : 'transactionTeaser', active: isTransaction },
                   ].map((item) => (
-                    <button key={item.id} onClick={() => { setActiveSection(item.target); setIsMobileMenuOpen(false); scrollToTop(); }} className={`w-full flex items-center justify-between text-left px-4 py-3 rounded-xl text-xs font-bold ${item.active ? 'bg-[#00A0E2] text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                      <span>{item.label}</span><ChevronRight className="w-4 h-4 opacity-40" />
+                    <button key={item.id} onClick={() => { setActiveSection(item.target); setIsMobileMenuOpen(false); scrollToTop(); }} className={`w-full flex items-center justify-between text-left px-3.5 py-3 rounded-xl text-xs font-bold transition-colors ${item.active ? 'bg-[#00A0E2]/15 text-white border border-[#00A0E2]/40' : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'}`}>
+                      <span>{item.label}</span><ChevronRight className="w-4 h-4 opacity-60 text-[#00A0E2]" />
                     </button>
                   ))}
                 </nav>
-                <div className="bg-slate-950/40 p-4 rounded-xl border border-slate-800 flex flex-col gap-3">
+                <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-800/80 flex flex-col gap-3">
                   <div className="flex items-center gap-3">
                     <img src={appState.advisorInfo.avatar} alt={appState.advisorInfo.name} className="w-9 h-9 rounded-full object-cover border border-[#00A0E2]/30" />
                     <div className="min-w-0"><h4 className="text-xs font-bold text-white truncate">{appState.advisorInfo.name}</h4><p className="text-[10px] text-slate-400 truncate">{appState.advisorInfo.title}</p></div>
@@ -321,9 +335,9 @@ export default function App() {
           )}
         </AnimatePresence>
 
-        <main className="flex-1 p-5 md:p-8 max-w-7xl mx-auto w-full flex flex-col gap-6">
+        <main className="flex-1 p-4 sm:p-6 md:p-8 max-w-7xl mx-auto w-full flex flex-col gap-6">
           {activeSection !== 'cover' && !(activeSection === 'estimationEmpty' && !isEstimationPublished) && !(isTransaction && !isSalesFollowUpActive) && (
-            <div className="bg-white border border-slate-100 p-1.5 rounded-2xl flex items-center gap-1 overflow-x-auto scrollbar-none shadow-sm">
+            <div className="w-full border border-slate-200/80 bg-white p-1.5 shadow-xs rounded-2xl gap-1.5 overflow-x-auto flex items-center scrollbar-none" id="section-menubar">
               {(() => {
                 if (isEvaluation) {
                   if (!isEstimationPublished) return [{ id: 'estimationEmpty', label: 'En préparation', icon: Info }];
@@ -332,26 +346,42 @@ export default function App() {
                     { id: 'property', label: 'Fiche bien', icon: Info },
                     { id: 'market', label: 'Marché', icon: TrendingUp },
                     { id: 'competition', label: 'Concurrence', icon: Target },
-                    { id: 'comparables', label: 'Comparables', icon: GitCompare },
-                    { id: 'conclusion', label: 'Avis', icon: CheckSquare },
-                    { id: 'iad', label: 'iad', icon: Award },
+                    { id: 'comparables', label: 'Comparables', icon: GitCompare, count: (appState.soldComparables?.length || appState.competingProperties?.length) ? `${(appState.soldComparables?.length || 0) + (appState.competingProperties?.length || 0)}` : undefined },
+                    { id: 'conclusion', label: 'Avis de valeur', icon: CheckSquare },
+                    { id: 'iad', label: 'Références iad', icon: Award, count: appState.iadTrackRecord?.length ? `${appState.iadTrackRecord.length}` : undefined },
                   ];
                 }
                 if (isTransaction) return [
-                  { id: 'documents', label: 'Dossier', icon: FolderOpen },
-                  { id: 'viewings', label: 'Visites', icon: UsersIcon },
-                  { id: 'salesPlan', label: 'Plan', icon: Compass },
-                  { id: 'offers', label: 'Offres', icon: Handshake },
-                  { id: 'stats', label: 'Stats', icon: BarChart3 },
+                  { id: 'documents', label: 'Documents', icon: FolderOpen, count: `${appState.documents.filter(d => d.status === 'Valide').length}/${appState.documents.length}` },
+                  { id: 'viewings', label: 'Visites', icon: UsersIcon, count: appState.viewings.length },
+                  { id: 'salesPlan', label: 'Plan de vente', icon: Compass, count: appState.salesSteps.length },
+                  { id: 'offers', label: 'Offres', icon: Handshake, count: appState.offers.length },
+                  { id: 'stats', label: 'Diffusion & stats', icon: BarChart3 },
                 ];
                 return [];
               })().map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeSection === tab.id;
                 return (
-                  <button key={tab.id} onClick={() => { setActiveSection(tab.id); scrollToTop(); }} className={`relative flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 shrink-0 ${isActive ? 'text-slate-800' : 'text-slate-500 hover:text-slate-800'}`}>
-                    {isActive && <motion.div layoutId="activeSubTab" className="absolute inset-0 bg-slate-100 rounded-xl -z-10" transition={{ type: 'spring', stiffness: 350, damping: 28 }} />}
-                    <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#00A0E2]' : 'text-slate-400'}`} /><span>{tab.label}</span>
+                  <button
+                    key={tab.id}
+                    id={`menubar-item-${tab.id}`}
+                    onClick={() => { setActiveSection(tab.id); scrollToTop(); }}
+                    className={`flex-1 flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-xs font-bold transition-all whitespace-nowrap min-w-max ${
+                      isActive
+                        ? 'bg-[#00A0E2] text-white shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4 shrink-0" />
+                    <span>{tab.label}</span>
+                    {tab.count !== undefined && (
+                      <span className={`ml-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                        isActive ? 'bg-white/25 text-white' : 'bg-slate-100 text-slate-600 border border-slate-200/60'
+                      }`}>
+                        {tab.count}
+                      </span>
+                    )}
                   </button>
                 );
               })}
@@ -362,7 +392,7 @@ export default function App() {
             <motion.div key={activeSection} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} transition={{ duration: 0.35 }} className="w-full flex flex-col">
               {activeSection === 'cover' && <CoverSection client={appState.clientInfo} advisor={appState.advisorInfo} propertyDetails={appState.propertyDetails} estimationStatus={appState.estimationStatus} mandateStage={appState.mandateStage} mandateSignedAt={appState.mandateSignedAt} onStart={handleStartPresentation} />}
               {activeSection === 'estimationEmpty' && <EmptyContentState title="Estimation en préparation" description="Votre estimation sera visible ici dès sa publication." />}
-              {activeSection === 'situation' && (appState.cadastralParcels?.length ? <SituationSection cadastralParcels={appState.cadastralParcels} clientAddress={appState.clientInfo.address} /> : <EmptyContentState title="Situation en préparation" description="Données cadastrales à venir." />)}
+              {activeSection === 'situation' && (appState.cadastralParcels?.length ? <SituationSection cadastralParcels={appState.cadastralParcels} clientAddress={appState.clientInfo.address} propertyDetails={appState.propertyDetails} /> : <EmptyContentState title="Situation en préparation" description="Données cadastrales à venir." />)}
               {activeSection === 'property' && (hasPropertyDetails(appState.propertyDetails) ? <PropertySection propertyDetails={appState.propertyDetails} pointsForts={appState.pointsForts} pointsDefendre={appState.pointsDefendre} /> : <EmptyContentState title="Fiche bien en préparation" description="Caractéristiques à venir." />)}
               {activeSection === 'market' && <MarketSection socioEconomicData={appState.socioEconomicData} marketDistribution={appState.marketDistribution} marketTrend={appState.marketTrend} marketTension={appState.marketTension} />}
               {activeSection === 'competition' && <CompetitionSection positioningData={appState.positioningData} synthesisData={appState.synthesisData} />}

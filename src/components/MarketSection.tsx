@@ -78,23 +78,23 @@ export default function MarketSection({
         </div>
       </div>
 
-      {/* Sub-tabs */}
-      <div className="bg-white border border-slate-100 p-1.5 rounded-2xl flex items-center gap-1 overflow-x-auto scrollbar-none">
+      {/* Sub-tabs / Menubar */}
+      <div className="w-full border border-slate-200/80 bg-white p-1.5 shadow-xs rounded-2xl gap-1.5 overflow-x-auto flex items-center scrollbar-none" id="market-sub-menubar">
         {subTabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeSubTab === tab.id;
           return (
             <button
               key={tab.id}
+              id={`market-tab-${tab.id}`}
               onClick={() => setActiveSubTab(tab.id)}
-              className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                isActive ? 'text-slate-800' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50/60'
+              className={`flex-1 flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-xs font-bold transition-all whitespace-nowrap min-w-max ${
+                isActive
+                  ? 'bg-[#00A0E2] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
               }`}
             >
-              {isActive && (
-                <motion.div layoutId="marketSubTab" className="absolute inset-0 bg-slate-100 rounded-xl -z-10" transition={{ type: 'spring', stiffness: 350, damping: 28 }} />
-              )}
-              <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#00A0E2]' : 'text-slate-400'}`} />
+              <Icon className="w-4 h-4 shrink-0" />
               <span>{tab.label}</span>
             </button>
           );

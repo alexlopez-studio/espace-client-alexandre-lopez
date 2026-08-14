@@ -162,14 +162,14 @@ export default function StatsSection({
     <div className="w-full flex flex-col gap-6" id="stats-section-root">
       
       {/* 1. Selector Bar: Portal Filtering */}
-      <div className="bg-white p-1.5 rounded-2xl border border-slate-100 flex items-center gap-1 overflow-x-auto shadow-sm" id="stats-portal-filter">
+      <div className="w-full border border-slate-200/80 bg-white p-1.5 shadow-xs rounded-2xl gap-1.5 overflow-x-auto flex items-center scrollbar-none" id="stats-portal-filter">
         <button
           id="btn-filter-portal-all"
           onClick={() => setSelectedPortal('All')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 ${
+          className={`flex-1 flex items-center justify-center px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap min-w-max cursor-pointer ${
             selectedPortal === 'All' 
-              ? 'bg-slate-800 text-white shadow' 
-              : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50/80'
+              ? 'bg-[#00A0E2] text-white shadow-xs' 
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
           }`}
         >
           Tous les réseaux partenaires
@@ -179,10 +179,10 @@ export default function StatsSection({
             key={portal.portalName}
             id={`btn-filter-portal-${portal.portalName.replace(/\./g, '-')}`}
             onClick={() => setSelectedPortal(portal.portalName)}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 ${
+            className={`flex-1 flex items-center justify-center px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap min-w-max cursor-pointer ${
               selectedPortal === portal.portalName 
-                ? 'bg-[#00A0E2] text-white shadow' 
-                : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50/80'
+                ? 'bg-[#00A0E2] text-white shadow-xs' 
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
             }`}
           >
             {portal.portalName}
