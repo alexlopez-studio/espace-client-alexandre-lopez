@@ -34,7 +34,7 @@ import MarketSection from './components/MarketSection';
 import CompetitionSection from './components/CompetitionSection';
 import ComparablesSection from './components/ComparablesSection';
 import ConclusionSection from './components/ConclusionSection';
-import IadSection from './components/IadSection';
+import WhyMeSection from './components/WhyMeSection';
 import IadLogo from './components/IadLogo';
 
 import DocumentsSection from './components/DocumentsSection';
@@ -46,7 +46,7 @@ import StatsSection from './components/StatsSection';
 import { DocumentItem, ViewingReport, SalesStep, BuyerOffer, PortalStat, ClientRecord, AppState } from './types';
 import { loadLocalTestDossiers, loadMandatOsPortalState, type LocalTestDossier, type RemotePortalStatus } from './lib/mandat-os-portal';
 
-const EVAL_SECTIONS = ['estimationEmpty', 'situation', 'property', 'market', 'competition', 'comparables', 'conclusion', 'iad'];
+const EVAL_SECTIONS = ['estimationEmpty', 'situation', 'property', 'market', 'competition', 'comparables', 'conclusion'];
 const TRANS_SECTIONS = ['transactionTeaser', 'documents', 'viewings', 'salesPlan', 'offers', 'stats'];
 
 export default function App() {
@@ -318,6 +318,7 @@ export default function App() {
                     { id: 'cover', label: 'Accueil', target: 'cover', active: activeSection === 'cover' },
                     { id: 'evaluation', label: 'Estimation', target: isEstimationPublished ? lastEvalSection : 'estimationEmpty', active: isEvaluation },
                     { id: 'transaction', label: 'Suivi de Vente', target: isSalesFollowUpActive ? lastTransSection : 'transactionTeaser', active: isTransaction },
+                    { id: 'whyMe', label: 'Pourquoi me choisir ?', target: 'whyMe', active: activeSection === 'whyMe' },
                   ].map((item) => (
                     <button key={item.id} onClick={() => { setActiveSection(item.target); setIsMobileMenuOpen(false); scrollToTop(); }} className={`w-full flex items-center justify-between text-left px-3.5 py-3 rounded-xl text-xs font-bold transition-colors ${item.active ? 'bg-[#00A0E2]/15 text-white border border-[#00A0E2]/40' : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'}`}>
                       <span>{item.label}</span><ChevronRight className="w-4 h-4 opacity-60 text-[#00A0E2]" />
@@ -348,7 +349,6 @@ export default function App() {
                     { id: 'competition', label: 'Concurrence', icon: Target },
                     { id: 'comparables', label: 'Comparables', icon: GitCompare, count: (appState.soldComparables?.length || appState.competingProperties?.length) ? `${(appState.soldComparables?.length || 0) + (appState.competingProperties?.length || 0)}` : undefined },
                     { id: 'conclusion', label: 'Avis de valeur', icon: CheckSquare },
-                    { id: 'iad', label: 'Références iad', icon: Award, count: appState.iadTrackRecord?.length ? `${appState.iadTrackRecord.length}` : undefined },
                   ];
                 }
                 if (isTransaction) return [
@@ -398,7 +398,7 @@ export default function App() {
               {activeSection === 'competition' && <CompetitionSection positioningData={appState.positioningData} synthesisData={appState.synthesisData} />}
               {activeSection === 'comparables' && <ComparablesSection soldComparables={appState.soldComparables} competingProperties={appState.competingProperties} unsoldProperties={appState.unsoldProperties} propertyDetails={appState.propertyDetails} referencePrice={appState.marketPriceRanges?.currentReferencePrice} />}
               {activeSection === 'conclusion' && (appState.recommendedPriceRange ? <ConclusionSection clientInfo={appState.clientInfo} advisorInfo={appState.advisorInfo} recommendedPriceRange={appState.recommendedPriceRange} propertySize={appState.propertyDetails.surface} /> : <EmptyContentState title="Recommandations en préparation" description="Avis de valeur à venir." />)}
-              {activeSection === 'iad' && <IadSection iadTrackRecord={appState.iadTrackRecord} />}
+              {activeSection === 'whyMe' && <WhyMeSection advisor={appState.advisorInfo} client={appState.clientInfo} iadTrackRecord={appState.iadTrackRecord} />}
 
               {activeSection === 'documents' && (isSalesFollowUpActive ? <DocumentsSection documents={appState.documents} onAddDocument={handleAddDocument} onDeleteDocument={handleDeleteDocument} readOnly /> : <SalesFollowUpTeaser />)}
               {activeSection === 'viewings' && (isSalesFollowUpActive ? <VisitsSection viewings={appState.viewings} onAddViewing={handleAddViewing} onDeleteViewing={handleDeleteViewing} readOnly /> : <SalesFollowUpTeaser />)}

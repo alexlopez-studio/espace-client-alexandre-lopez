@@ -5,7 +5,8 @@ import {
   Handshake, 
   Phone,
   Mail,
-  ChevronRight
+  ChevronRight,
+  Sparkles
 } from 'lucide-react';
 import IadLogo from './IadLogo';
 import { AdvisorInfo } from '../types';
@@ -26,8 +27,9 @@ export default function Navbar({
   lastTransSection = 'documents',
 }: NavbarProps) {
   
-  const isEvaluationActive = ['estimationEmpty', 'situation', 'property', 'market', 'competition', 'comparables', 'conclusion', 'iad'].includes(activeSection);
+  const isEvaluationActive = ['estimationEmpty', 'situation', 'property', 'market', 'competition', 'comparables', 'conclusion'].includes(activeSection);
   const isTransactionActive = ['transactionTeaser', 'documents', 'viewings', 'salesPlan', 'offers', 'stats'].includes(activeSection);
+  const isWhyMeActive = activeSection === 'whyMe';
 
   const mainCategories = [
     { 
@@ -36,7 +38,8 @@ export default function Navbar({
       badge: 'Vue générale',
       icon: Home,
       isActive: activeSection === 'cover',
-      onClick: () => setActiveSection('cover')
+      onClick: () => setActiveSection('cover'),
+      isHighlight: false,
     },
     { 
       id: 'evaluation', 
@@ -44,7 +47,8 @@ export default function Navbar({
       badge: 'Avis de valeur',
       icon: TrendingUp,
       isActive: isEvaluationActive,
-      onClick: () => setActiveSection(lastEvalSection)
+      onClick: () => setActiveSection(lastEvalSection),
+      isHighlight: false,
     },
     { 
       id: 'transaction', 
@@ -52,7 +56,17 @@ export default function Navbar({
       badge: 'Fil du mandat',
       icon: Handshake,
       isActive: isTransactionActive,
-      onClick: () => setActiveSection(lastTransSection)
+      onClick: () => setActiveSection(lastTransSection),
+      isHighlight: false,
+    },
+    { 
+      id: 'whyMe', 
+      label: 'Pourquoi me choisir ?', 
+      badge: 'La force iad & mon profil',
+      icon: Sparkles,
+      isActive: isWhyMeActive,
+      onClick: () => setActiveSection('whyMe'),
+      isHighlight: true,
     }
   ];
 
@@ -86,15 +100,25 @@ export default function Navbar({
                 className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-semibold transition-all duration-200 group ${
                   cat.isActive 
                     ? 'bg-[#00A0E2]/15 text-white border border-[#00A0E2]/40 shadow-sm' 
-                    : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200 border border-transparent'
+                    : cat.isHighlight
+                      ? 'text-slate-300 hover:text-white bg-slate-900/50 hover:bg-slate-900 border border-slate-800 hover:border-[#00A0E2]/40'
+                      : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200 border border-transparent'
                 }`}
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className={`p-1.5 rounded-lg transition-colors ${cat.isActive ? 'bg-[#00A0E2] text-white shadow-sm' : 'bg-slate-900 text-slate-400 group-hover:text-white group-hover:bg-slate-800'}`}>
+                  <div className={`p-1.5 rounded-lg transition-colors ${
+                    cat.isActive 
+                      ? 'bg-[#00A0E2] text-white shadow-sm' 
+                      : cat.isHighlight
+                        ? 'bg-[#00A0E2]/20 text-[#00A0E2] group-hover:bg-[#00A0E2] group-hover:text-white'
+                        : 'bg-slate-900 text-slate-400 group-hover:text-white group-hover:bg-slate-800'
+                  }`}>
                     <Icon className="w-4 h-4 shrink-0" />
                   </div>
                   <div className="flex flex-col text-left min-w-0">
-                    <span className="truncate font-bold text-slate-100">{cat.label}</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="truncate font-bold text-slate-100">{cat.label}</span>
+                    </div>
                     <span className="truncate text-[10px] text-slate-400 font-normal">{cat.badge}</span>
                   </div>
                 </div>
