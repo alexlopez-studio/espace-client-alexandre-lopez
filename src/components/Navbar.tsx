@@ -1,8 +1,8 @@
-import React from 'react';
 import { 
   Home, 
   TrendingUp, 
   Handshake, 
+  Compass,
   Phone,
   Mail,
   ChevronRight,
@@ -15,6 +15,7 @@ interface NavbarProps {
   activeSection: string;
   setActiveSection: (section: string) => void;
   advisor: AdvisorInfo;
+  isSalesFollowUpActive?: boolean;
   lastEvalSection?: string;
   lastTransSection?: string;
 }
@@ -23,12 +24,14 @@ export default function Navbar({
   activeSection, 
   setActiveSection, 
   advisor,
+  isSalesFollowUpActive = false,
   lastEvalSection = 'situation',
   lastTransSection = 'documents',
 }: NavbarProps) {
   
   const isEvaluationActive = ['estimationEmpty', 'situation', 'property', 'market', 'competition', 'comparables', 'conclusion'].includes(activeSection);
-  const isTransactionActive = ['transactionTeaser', 'documents', 'viewings', 'salesPlan', 'offers', 'stats'].includes(activeSection);
+  const isActionPlanActive = activeSection === 'actionPlan' || activeSection === 'transactionTeaser';
+  const isTransactionActive = isSalesFollowUpActive && ['documents', 'viewings', 'salesPlan', 'offers', 'stats'].includes(activeSection);
   const isWhyMeActive = activeSection === 'whyMe';
 
   const mainCategories = [
@@ -44,21 +47,31 @@ export default function Navbar({
     { 
       id: 'evaluation', 
       label: 'Estimation', 
-      badge: 'Avis de valeur',
+      badge: 'Valeur du bien',
       icon: TrendingUp,
       isActive: isEvaluationActive,
       onClick: () => setActiveSection(lastEvalSection),
       isHighlight: false,
     },
-    { 
-      id: 'transaction', 
-      label: 'Suivi de Vente', 
-      badge: 'Fil du mandat',
-      icon: Handshake,
-      isActive: isTransactionActive,
-      onClick: () => setActiveSection(lastTransSection),
-      isHighlight: false,
-    },
+    isSalesFollowUpActive
+      ? { 
+          id: 'transaction', 
+          label: 'Suivi de Vente', 
+          badge: 'Fil du mandat',
+          icon: Handshake,
+          isActive: isTransactionActive,
+          onClick: () => setActiveSection(lastTransSection),
+          isHighlight: false,
+        }
+      : { 
+          id: 'actionPlan', 
+          label: 'Plan d\'action', 
+          badge: 'Prochaines étapes',
+          icon: Compass,
+          isActive: isActionPlanActive,
+          onClick: () => setActiveSection('actionPlan'),
+          isHighlight: false,
+        },
     { 
       id: 'whyMe', 
       label: 'Pourquoi me choisir ?', 

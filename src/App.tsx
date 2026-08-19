@@ -34,6 +34,7 @@ import MarketSection from './components/MarketSection';
 import CompetitionSection from './components/CompetitionSection';
 import ComparablesSection from './components/ComparablesSection';
 import ConclusionSection from './components/ConclusionSection';
+import ActionPlanSection from './components/ActionPlanSection';
 import WhyMeSection from './components/WhyMeSection';
 import IadLogo from './components/IadLogo';
 
@@ -261,7 +262,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
-      <Navbar activeSection={activeSection} setActiveSection={(sec: string) => { setActiveSection(sec); scrollToTop(); }} advisor={appState.advisorInfo} lastEvalSection={isEstimationPublished ? lastEvalSection : 'estimationEmpty'} lastTransSection={isSalesFollowUpActive ? lastTransSection : 'transactionTeaser'} />
+      <Navbar activeSection={activeSection} setActiveSection={(sec: string) => { setActiveSection(sec); scrollToTop(); }} advisor={appState.advisorInfo} isSalesFollowUpActive={isSalesFollowUpActive} lastEvalSection={isEstimationPublished ? lastEvalSection : 'estimationEmpty'} lastTransSection={isSalesFollowUpActive ? lastTransSection : 'actionPlan'} />
 
       <div className="flex-1 flex flex-col lg:pl-72 min-w-0">
         <header className="sticky top-0 bg-white/95 backdrop-blur-md border-b border-slate-200/80 z-20 px-4 sm:px-6 h-14 flex items-center justify-between shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
@@ -287,7 +288,7 @@ export default function App() {
               {showDownloadMenu && (
                 <div className="absolute top-full right-0 mt-2 bg-white border border-slate-200 rounded-xl shadow-lg z-50 min-w-[160px] py-1">
                   <button onClick={() => { window.print(); setShowDownloadMenu(false); }} className="block w-full text-left px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">
-                    Avis de valeur
+                    Valeur du bien
                   </button>
                   {isSalesFollowUpActive && (
                     <button onClick={() => { window.print(); setShowDownloadMenu(false); }} className="block w-full text-left px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">
@@ -317,7 +318,9 @@ export default function App() {
                   {[
                     { id: 'cover', label: 'Accueil', target: 'cover', active: activeSection === 'cover' },
                     { id: 'evaluation', label: 'Estimation', target: isEstimationPublished ? lastEvalSection : 'estimationEmpty', active: isEvaluation },
-                    { id: 'transaction', label: 'Suivi de Vente', target: isSalesFollowUpActive ? lastTransSection : 'transactionTeaser', active: isTransaction },
+                    isSalesFollowUpActive
+                      ? { id: 'transaction', label: 'Suivi de Vente', target: lastTransSection, active: isTransaction }
+                      : { id: 'actionPlan', label: 'Plan d\'action', target: 'actionPlan', active: activeSection === 'actionPlan' || activeSection === 'transactionTeaser' },
                     { id: 'whyMe', label: 'Pourquoi me choisir ?', target: 'whyMe', active: activeSection === 'whyMe' },
                   ].map((item) => (
                     <button key={item.id} onClick={() => { setActiveSection(item.target); setIsMobileMenuOpen(false); scrollToTop(); }} className={`w-full flex items-center justify-between text-left px-3.5 py-3 rounded-xl text-xs font-bold transition-colors ${item.active ? 'bg-[#00A0E2]/15 text-white border border-[#00A0E2]/40' : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'}`}>
@@ -348,7 +351,7 @@ export default function App() {
                     { id: 'market', label: 'Marché', icon: TrendingUp },
                     { id: 'competition', label: 'Concurrence', icon: Target },
                     { id: 'comparables', label: 'Comparables', icon: GitCompare, count: (appState.soldComparables?.length || appState.competingProperties?.length) ? `${(appState.soldComparables?.length || 0) + (appState.competingProperties?.length || 0)}` : undefined },
-                    { id: 'conclusion', label: 'Avis de valeur', icon: CheckSquare },
+                    { id: 'conclusion', label: 'Valeur du bien', icon: CheckSquare },
                   ];
                 }
                 if (isTransaction) return [
@@ -397,21 +400,27 @@ export default function App() {
               {activeSection === 'market' && <MarketSection socioEconomicData={appState.socioEconomicData} marketDistribution={appState.marketDistribution} marketTrend={appState.marketTrend} marketTension={appState.marketTension} />}
               {activeSection === 'competition' && <CompetitionSection positioningData={appState.positioningData} synthesisData={appState.synthesisData} />}
               {activeSection === 'comparables' && <ComparablesSection soldComparables={appState.soldComparables} competingProperties={appState.competingProperties} unsoldProperties={appState.unsoldProperties} propertyDetails={appState.propertyDetails} referencePrice={appState.marketPriceRanges?.currentReferencePrice} />}
-              {activeSection === 'conclusion' && (appState.recommendedPriceRange ? <ConclusionSection clientInfo={appState.clientInfo} advisorInfo={appState.advisorInfo} recommendedPriceRange={appState.recommendedPriceRange} propertySize={appState.propertyDetails.surface} /> : <EmptyContentState title="Recommandations en préparation" description="Avis de valeur à venir." />)}
+              {activeSection === 'conclusion' && (appState.recommendedPriceRange ? <ConclusionSection clientInfo={appState.clientInfo} advisorInfo={appState.advisorInfo} recommendedPriceRange={appState.recommendedPriceRange} propertySize={appState.propertyDetails.surface} onGoToActionPlan={() => { setActiveSection(isSalesFollowUpActive ? 'salesPlan' : 'actionPlan'); scrollToTop(); }} /> : <EmptyContentState title="Recommandations en préparation" description="Valeur du bien à venir." />)}
+              
+              {/* Onglet Plan d'action (quand le mandat n'est pas encore signé) */}
+              {(activeSection === 'actionPlan' || (activeSection === 'transactionTeaser' && !isSalesFollowUpActive)) && (
+                <ActionPlanSection advisor={appState.advisorInfo} client={appState.clientInfo} recommendedPriceRange={appState.recommendedPriceRange} onStartFollowUp={() => { setActiveSection('salesPlan'); scrollToTop(); }} />
+              )}
+
               {activeSection === 'whyMe' && <WhyMeSection advisor={appState.advisorInfo} client={appState.clientInfo} iadTrackRecord={appState.iadTrackRecord} />}
 
-              {activeSection === 'documents' && (isSalesFollowUpActive ? <DocumentsSection documents={appState.documents} onAddDocument={handleAddDocument} onDeleteDocument={handleDeleteDocument} readOnly /> : <SalesFollowUpTeaser />)}
-              {activeSection === 'viewings' && (isSalesFollowUpActive ? <VisitsSection viewings={appState.viewings} onAddViewing={handleAddViewing} onDeleteViewing={handleDeleteViewing} readOnly /> : <SalesFollowUpTeaser />)}
+              {/* Sections Suivi de Vente (quand le mandat est activé) */}
+              {activeSection === 'documents' && (isSalesFollowUpActive ? <DocumentsSection documents={appState.documents} onAddDocument={handleAddDocument} onDeleteDocument={handleDeleteDocument} readOnly /> : <ActionPlanSection advisor={appState.advisorInfo} client={appState.clientInfo} recommendedPriceRange={appState.recommendedPriceRange} />)}
+              {activeSection === 'viewings' && (isSalesFollowUpActive ? <VisitsSection viewings={appState.viewings} onAddViewing={handleAddViewing} onDeleteViewing={handleDeleteViewing} readOnly /> : <ActionPlanSection advisor={appState.advisorInfo} client={appState.clientInfo} recommendedPriceRange={appState.recommendedPriceRange} />)}
               {activeSection === 'salesPlan' && (isSalesFollowUpActive ? (
                 <div className="flex flex-col gap-6">
                   <SalesPlanSection salesSteps={appState.salesSteps} onUpdateStepStatus={handleUpdateStepStatus} readOnly />
                   {/* Les actions vivent en parallele du fil de la vente, jamais dedans. */}
                   <MandateActionsSection actions={appState.mandateActions} />
                 </div>
-              ) : <SalesFollowUpTeaser />)}
-              {activeSection === 'offers' && (isSalesFollowUpActive ? <OffersSection offers={appState.offers} onAddOffer={handleAddOffer} onDeleteOffer={handleDeleteOffer} onUpdateOfferStatus={handleUpdateOfferStatus} readOnly /> : <SalesFollowUpTeaser />)}
-              {activeSection === 'stats' && (isSalesFollowUpActive ? <StatsSection portalStats={appState.portalStats} /> : <SalesFollowUpTeaser />)}
-              {activeSection === 'transactionTeaser' && <SalesFollowUpTeaser />}
+              ) : <ActionPlanSection advisor={appState.advisorInfo} client={appState.clientInfo} recommendedPriceRange={appState.recommendedPriceRange} />)}
+              {activeSection === 'offers' && (isSalesFollowUpActive ? <OffersSection offers={appState.offers} onAddOffer={handleAddOffer} onDeleteOffer={handleDeleteOffer} onUpdateOfferStatus={handleUpdateOfferStatus} readOnly /> : <ActionPlanSection advisor={appState.advisorInfo} client={appState.clientInfo} recommendedPriceRange={appState.recommendedPriceRange} />)}
+              {activeSection === 'stats' && (isSalesFollowUpActive ? <StatsSection portalStats={appState.portalStats} /> : <ActionPlanSection advisor={appState.advisorInfo} client={appState.clientInfo} recommendedPriceRange={appState.recommendedPriceRange} />)}
             </motion.div>
           </AnimatePresence>
         </main>

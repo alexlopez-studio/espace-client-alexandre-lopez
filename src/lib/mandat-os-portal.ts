@@ -212,11 +212,21 @@ function mapDossierToMultiClientState(payload: ClientPortalPayload): MultiClient
   const comparables = asRecord(report.comparables);
   const estimationStatus = payload.estimation?.status ?? inferEstimationStatus(opinion);
 
-  const address = text(
-    snapshot.adresse,
-    snapshot.address,
-    cover.subtitle,
-  );
+  const rawCommune = text(payload.property_context?.commune, snapshot.commune, snapshot.city, snapshot.ville);
+  const rawStreet = text(snapshot.adresse, snapshot.address);
+  const rawCoverAddress = text(cover.subtitle);
+
+  let address = rawCoverAddress;
+  if (!address || (rawCommune && !address.toLowerCase().includes(rawCommune.toLowerCase()))) {
+    if (rawStreet && rawCommune && !rawStreet.toLowerCase().includes(rawCommune.toLowerCase())) {
+      address = `${rawStreet}, ${rawCommune}`;
+    } else if (rawStreet) {
+      address = rawStreet;
+    }
+  }
+  if (!address) {
+    address = rawStreet || rawCommune || '';
+  }
 
   const client: ClientRecord = {
     ...emptyClient,

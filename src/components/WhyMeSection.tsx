@@ -94,38 +94,7 @@ export default function WhyMeSection({ advisor, client, iadTrackRecord }: WhyMeS
     },
   ];
 
-  const commitments = [
-    {
-      step: '01',
-      title: 'Avis de valeur objectif & argumenté',
-      desc: 'Une estimation chirurgicale basée sur l’analyse du marché réel local pour vendre au meilleur prix sans délai superflu.',
-    },
-    {
-      step: '02',
-      title: 'Stratégie de communication percutante',
-      desc: 'Mise en avant ciblée de votre bien auprès des acheteurs finançables et diffusion massive sur les canaux leaders.',
-    },
-    {
-      step: '03',
-      title: 'Comptes-rendus systématiques sous 24h',
-      desc: 'Un retour exhaustif après chaque visite consigné directement dans votre espace client pour un suivi limpide.',
-    },
-    {
-      step: '04',
-      title: 'Négociation rigoureuse à vos côtés',
-      desc: 'Défense ferme de vos intérêts financiers pour maximiser la valeur de votre patrimoine.',
-    },
-    {
-      step: '05',
-      title: 'Gestion administrative & notariée complète',
-      desc: 'Préparation du dossier technique, liaison notaire et suivi juridique jusqu’à la signature de l’acte authentique.',
-    },
-    {
-      step: '06',
-      title: 'Accompagnement continu & bienveillant',
-      desc: 'Conseils sur-mesure, assistance déménagement / conciergerie iad et écoute permanente.',
-    },
-  ];
+
 
   return (
     <div className="w-full flex flex-col gap-8 lg:p-4" id="why-me-section-container">
@@ -333,29 +302,7 @@ export default function WhyMeSection({ advisor, client, iadTrackRecord }: WhyMeS
         </div>
       )}
 
-      {/* 6 Commitments Grid */}
-      <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 sm:p-8 flex flex-col gap-6" id="why-me-commitments">
-        <div className="flex flex-col gap-1 text-center max-w-2xl mx-auto">
-          <span className="text-[10px] font-bold text-[#00A0E2] uppercase tracking-wider">Charte de confiance</span>
-          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Mes 6 engagements pour la réussite de votre vente</h2>
-          <p className="text-xs text-slate-500 mt-1">Un processus clair, rigoureux et transparent pour transformer votre projet en succès.</p>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-2">
-          {commitments.map((item, idx) => (
-            <div key={idx} className="bg-slate-50/80 border border-slate-100 rounded-2xl p-5 flex flex-col gap-3 hover:bg-slate-50 transition-colors">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-black text-[#00A0E2] bg-[#00A0E2]/10 px-2 py-0.5 rounded-md">
-                  Étape {item.step}
-                </span>
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-              </div>
-              <h3 className="text-sm font-bold text-slate-900">{item.title}</h3>
-              <p className="text-xs text-slate-500 leading-relaxed">{item.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
 
       {/* Final Conversion Section & Appointment Booker */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6" id="strategic-appointment">

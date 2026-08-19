@@ -103,7 +103,7 @@ export default function IadSection({ iadTrackRecord }: IadSectionProps) {
             {
               icon: GraduationCap,
               title: 'Valorisation optimale',
-              description: 'Avis de valeur complet par un professionnel du marché local.',
+              description: 'Étude de la valeur du bien par un professionnel du marché local.',
             },
           ].map((item) => {
             const Icon = item.icon;
