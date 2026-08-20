@@ -223,8 +223,29 @@ export default function App() {
   };
 
   const handleAddDocument = (newDoc: Omit<DocumentItem, 'id'>) => {
-    const doc: DocumentItem = { ...newDoc, id: `doc-${Date.now()}` };
-    setAppState((prev) => ({ ...prev, documents: [...prev.documents, doc] }));
+    setAppState((prev) => {
+      const existingIdx = prev.documents.findIndex(
+        (d) => d.name.trim().toLowerCase() === newDoc.name.trim().toLowerCase()
+      );
+      if (existingIdx !== -1) {
+        const updated = [...prev.documents];
+        updated[existingIdx] = {
+          ...updated[existingIdx],
+          ...newDoc,
+          id: updated[existingIdx].id,
+          status: 'À valider',
+          uploadedBy: 'Vendeur',
+          dateAdded: newDoc.dateAdded || new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }),
+        };
+        return { ...prev, documents: updated };
+      }
+      const doc: DocumentItem = {
+        ...newDoc,
+        id: `doc-${Date.now()}`,
+        dateAdded: newDoc.dateAdded || new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }),
+      };
+      return { ...prev, documents: [doc, ...prev.documents] };
+    });
   };
   const handleDeleteDocument = (id: string) => setAppState((prev) => ({ ...prev, documents: prev.documents.filter((d) => d.id !== id) }));
 
@@ -410,7 +431,7 @@ export default function App() {
               {activeSection === 'whyMe' && <WhyMeSection advisor={appState.advisorInfo} client={appState.clientInfo} iadTrackRecord={appState.iadTrackRecord} />}
 
               {/* Sections Suivi de Vente (quand le mandat est activé) */}
-              {activeSection === 'documents' && (isSalesFollowUpActive ? <DocumentsSection documents={appState.documents} onAddDocument={handleAddDocument} onDeleteDocument={handleDeleteDocument} readOnly /> : <ActionPlanSection advisor={appState.advisorInfo} client={appState.clientInfo} recommendedPriceRange={appState.recommendedPriceRange} />)}
+              {activeSection === 'documents' && (isSalesFollowUpActive ? <DocumentsSection documents={appState.documents} onAddDocument={handleAddDocument} /> : <ActionPlanSection advisor={appState.advisorInfo} client={appState.clientInfo} recommendedPriceRange={appState.recommendedPriceRange} />)}
               {activeSection === 'viewings' && (isSalesFollowUpActive ? <VisitsSection viewings={appState.viewings} onAddViewing={handleAddViewing} onDeleteViewing={handleDeleteViewing} readOnly /> : <ActionPlanSection advisor={appState.advisorInfo} client={appState.clientInfo} recommendedPriceRange={appState.recommendedPriceRange} />)}
               {activeSection === 'salesPlan' && (isSalesFollowUpActive ? (
                 <div className="flex flex-col gap-6">

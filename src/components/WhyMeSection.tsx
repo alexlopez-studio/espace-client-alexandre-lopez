@@ -1,5 +1,3 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import {
   Sparkles,
   Award,
@@ -9,8 +7,6 @@ import {
   Users,
   Phone,
   Mail,
-  Calendar,
-  CheckCircle2,
   Globe2,
   Camera,
   Layers,
@@ -19,8 +15,6 @@ import {
   Handshake,
   Star,
   MapPin,
-  ArrowRight,
-  Clock,
   Laptop
 } from 'lucide-react';
 import type { AdvisorInfo, ClientInfo, SoldPropertyByIad } from '../types';
@@ -32,21 +26,10 @@ interface WhyMeSectionProps {
 }
 
 export default function WhyMeSection({ advisor, client, iadTrackRecord }: WhyMeSectionProps) {
-  const [meetingDate, setMeetingDate] = useState('');
-  const [meetingTime, setMeetingTime] = useState('');
-  const [isMeetingBooked, setIsMeetingBooked] = useState(false);
-
   const formatEuro = (val: number) =>
     new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(val);
 
   const hasTrackRecord = iadTrackRecord && iadTrackRecord.length > 0;
-
-  const handleBookMeeting = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (meetingDate && meetingTime) {
-      setIsMeetingBooked(true);
-    }
-  };
 
   const iadStrengths = [
     {
@@ -166,13 +149,6 @@ export default function WhyMeSection({ advisor, client, iadTrackRecord }: WhyMeS
                 <span>Échanger par email</span>
               </a>
             )}
-            <a
-              href="#strategic-appointment"
-              className="flex items-center gap-2 px-5 py-3 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 text-xs font-bold transition-all ml-auto"
-            >
-              <Calendar className="w-4 h-4 text-[#00A0E2]" />
-              <span>Planifier un rendez-vous</span>
-            </a>
           </div>
         </div>
       </div>
@@ -304,14 +280,13 @@ export default function WhyMeSection({ advisor, client, iadTrackRecord }: WhyMeS
 
 
 
-      {/* Final Conversion Section & Appointment Booker */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6" id="strategic-appointment">
-        {/* Left Column: Direct Call / Profile Card */}
-        <div className="lg:col-span-7 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 text-white rounded-3xl p-8 shadow-xl border border-slate-800 flex flex-col justify-between gap-6 relative overflow-hidden">
-          <div className="absolute -right-20 -top-20 w-56 h-56 bg-[#00A0E2] rounded-full opacity-10 filter blur-3xl pointer-events-none" />
+      {/* Final Conversion Section : Contact Direct */}
+      <div className="w-full bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 text-white rounded-3xl p-8 lg:p-10 shadow-xl border border-slate-800 flex flex-col justify-between gap-6 relative overflow-hidden" id="advisor-contact">
+        <div className="absolute -right-20 -top-20 w-56 h-56 bg-[#00A0E2] rounded-full opacity-10 filter blur-3xl pointer-events-none" />
 
-          <div className="flex flex-col gap-4 relative z-10">
-            <div className="flex items-center gap-3">
+        <div className="flex flex-col gap-6 relative z-10">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
               {advisor.avatar ? (
                 <img
                   src={advisor.avatar}
@@ -330,15 +305,11 @@ export default function WhyMeSection({ advisor, client, iadTrackRecord }: WhyMeS
               </div>
             </div>
 
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mt-2">
-              Prêt à concrétiser votre vente dans les meilleures conditions ? Je suis à votre entière disposition pour répondre à toutes vos questions, affiner la stratégie et lancer la commercialisation de votre bien.
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+            <div className="flex flex-wrap items-center gap-3">
               {advisor.phone && (
                 <a
                   href={`tel:${advisor.phone.replace(/\s/g, '')}`}
-                  className="flex items-center gap-2.5 p-3.5 rounded-xl bg-[#00A0E2] hover:bg-[#008ec9] text-white font-bold text-xs shadow-md transition-all"
+                  className="flex items-center gap-2.5 px-5 py-3.5 rounded-xl bg-[#00A0E2] hover:bg-[#008ec9] text-white font-bold text-xs shadow-md transition-all"
                 >
                   <Phone className="w-4 h-4" />
                   <div className="flex flex-col text-left">
@@ -351,7 +322,7 @@ export default function WhyMeSection({ advisor, client, iadTrackRecord }: WhyMeS
               {advisor.email && (
                 <a
                   href={`mailto:${advisor.email}`}
-                  className="flex items-center gap-2.5 p-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-bold text-xs border border-slate-700 transition-all truncate"
+                  className="flex items-center gap-2.5 px-5 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-bold text-xs border border-slate-700 transition-all truncate"
                 >
                   <Mail className="w-4 h-4 text-[#00A0E2] shrink-0" />
                   <div className="flex flex-col text-left truncate min-w-0">
@@ -363,86 +334,14 @@ export default function WhyMeSection({ advisor, client, iadTrackRecord }: WhyMeS
             </div>
           </div>
 
-          <div className="pt-4 border-t border-slate-800 text-[11px] text-slate-400 flex items-center gap-2 relative z-10">
+          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-3xl">
+            Prêt à concrétiser votre vente dans les meilleures conditions ? Je suis à votre entière disposition pour répondre à toutes vos questions, affiner la stratégie et lancer la commercialisation de votre bien.
+          </p>
+
+          <div className="pt-4 border-t border-slate-800 text-[11px] text-slate-400 flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
             <span>Estimation confidentielle & sans engagement. Mandat encadré juridiquement.</span>
           </div>
-        </div>
-
-        {/* Right Column: Appointment Form */}
-        <div className="lg:col-span-5 bg-white rounded-3xl border border-slate-100 shadow-sm p-6 sm:p-8 flex flex-col justify-between gap-5" id="booker-card">
-          <div className="flex flex-col gap-1">
-            <span className="text-[10px] font-bold text-[#00A0E2] uppercase tracking-wider">Discutons de votre projet</span>
-            <h3 className="text-lg font-extrabold text-slate-800 tracking-tight flex items-center gap-1.5">
-              <Calendar className="w-5 h-5 text-[#00A0E2]" />
-              Planifier un débriefing
-            </h3>
-            <p className="text-xs text-slate-500">Choisissez une date pour échanger ensemble sur votre estimation et la mise en vente.</p>
-          </div>
-
-          <AnimatePresence mode="wait">
-            {!isMeetingBooked ? (
-              <motion.form
-                key="booking-form"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onSubmit={handleBookMeeting}
-                className="flex flex-col gap-4"
-              >
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] font-bold text-slate-700">Date souhaitée</label>
-                  <input
-                    type="date"
-                    required
-                    value={meetingDate}
-                    onChange={(e) => setMeetingDate(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#00A0E2]/20 focus:border-[#00A0E2]"
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] font-bold text-slate-700">Créneau horaire</label>
-                  <select
-                    required
-                    value={meetingTime}
-                    onChange={(e) => setMeetingTime(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#00A0E2]/20 focus:border-[#00A0E2]"
-                  >
-                    <option value="">Sélectionnez une heure...</option>
-                    <option value="09:00">09:00 - Matinée</option>
-                    <option value="11:00">11:00 - Fin de matinée</option>
-                    <option value="14:00">14:00 - Début d'après-midi</option>
-                    <option value="16:30">16:30 - Fin d'après-midi</option>
-                    <option value="18:30">18:30 - Soirée</option>
-                  </select>
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full py-3 bg-[#00A0E2] hover:bg-[#008ec9] text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 mt-1"
-                >
-                  <span>Confirmer la demande de rendez-vous</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </motion.form>
-            ) : (
-              <motion.div
-                key="booking-success"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 text-center flex flex-col items-center gap-3"
-              >
-                <div className="w-12 h-12 rounded-full bg-emerald-500 text-white flex items-center justify-center">
-                  <CheckCircle2 className="w-6 h-6" />
-                </div>
-                <h4 className="text-sm font-extrabold text-emerald-900">Demande enregistrée !</h4>
-                <p className="text-xs text-emerald-700">
-                  Votre demande pour le <span className="font-bold">{meetingDate}</span> à <span className="font-bold">{meetingTime}</span> a bien été transmise à {advisor.name}. Vous recevrez une confirmation rapidement.
-                </p>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </div>
       </div>
     </div>

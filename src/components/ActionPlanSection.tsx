@@ -1,27 +1,18 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { useState } from 'react';
 import { 
   Compass, 
   CheckSquare, 
-  Calendar, 
-  ArrowRight, 
   ShieldCheck, 
   CheckCircle, 
   CheckCircle2, 
   FileCheck, 
-  Briefcase, 
   Sparkles, 
-  Phone, 
-  Mail, 
   LockKeyhole, 
   FolderOpen, 
   BarChart3, 
-  Users, 
-  Camera, 
   Globe2, 
   Handshake, 
   Award,
-  ChevronRight
 } from 'lucide-react';
 import type { AdvisorInfo, ClientInfo } from '../types';
 
@@ -38,9 +29,6 @@ export default function ActionPlanSection({
   recommendedPriceRange,
 }: ActionPlanSectionProps) {
   const [activeTeaserStep, setActiveTeaserStep] = useState(0);
-  const [meetingDate, setMeetingDate] = useState('');
-  const [meetingTime, setMeetingTime] = useState('');
-  const [isMeetingBooked, setIsMeetingBooked] = useState(false);
 
   const formatEuro = (val: number) =>
     new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(val);
@@ -59,13 +47,6 @@ export default function ActionPlanSection({
 
   const toggleChecklist = (id: number) => {
     setChecklist(prev => prev.map(item => item.id === id ? { ...item, checked: !item.checked } : item));
-  };
-
-  const handleBookMeeting = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (meetingDate && meetingTime) {
-      setIsMeetingBooked(true);
-    }
   };
 
   const commitments = [
@@ -140,7 +121,7 @@ export default function ActionPlanSection({
               La feuille de route pour <span className="text-[#00A0E2]">concrétiser votre vente</span>.
             </h1>
             <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-              Maintenant que la valeur de votre bien est établie, découvrez le déroulement chronologique des actions, nos 6 engagements d'excellence et planifiez votre débriefing stratégique avec {advisor.name}.
+              Maintenant que la valeur de votre bien est établie, découvrez le déroulement chronologique des actions et nos 6 engagements d'excellence pour préparer la mise en vente avec {advisor.name}.
             </p>
           </div>
 
@@ -166,140 +147,43 @@ export default function ActionPlanSection({
         </div>
       </div>
 
-      {/* 2. Split Grid: Interactive Onboarding Checklist & Appointment Booker */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6" id="action-plan-interactive-grid">
-        
-        {/* Left Column: Interactive Checklist (lg:col-span-7) */}
-        <div className="lg:col-span-7 bg-white rounded-3xl border border-slate-100 shadow-sm p-6 lg:p-8 flex flex-col gap-5" id="action-checklist-card">
-          <div className="flex flex-col gap-1">
-            <span className="text-[10px] font-bold text-[#00A0E2] uppercase tracking-wider">Feuille de route opérationnelle</span>
-            <h3 className="text-lg font-extrabold text-slate-800 tracking-tight flex items-center gap-1.5">
-              <CheckSquare className="w-5 h-5 text-emerald-600" />
-              Plan d'action pour la mise en vente
-            </h3>
-            <p className="text-xs text-slate-500">Cochez les étapes clés de préparation que nous allons mener ensemble pour réussir votre transaction.</p>
-          </div>
-
-          <div className="flex flex-col gap-3 mt-1" id="checklist-interactive-items">
-            {checklist.map((item) => (
-              <button
-                key={item.id}
-                id={`btn-checklist-item-${item.id}`}
-                onClick={() => toggleChecklist(item.id)}
-                className={`w-full text-left p-4 rounded-2xl border text-xs flex items-start gap-3.5 transition-all group cursor-pointer ${
-                  item.checked 
-                    ? 'bg-slate-50 border-slate-200 text-slate-500 line-through decoration-slate-300' 
-                    : 'bg-white border-slate-100 text-slate-800 hover:border-slate-200 shadow-sm'
-                }`}
-              >
-                <div className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-all ${
-                  item.checked 
-                    ? 'bg-[#00A0E2] border-[#00A0E2] text-white' 
-                    : 'border-slate-300 group-hover:border-[#00A0E2] text-transparent'
-                }`}>
-                  <CheckCircle className="w-3.5 h-3.5" />
-                </div>
-                <div className="flex flex-col gap-0.5">
-                  <span className="font-semibold leading-relaxed">{item.text}</span>
-                  <span className="text-[10px] font-bold text-[#00A0E2] uppercase tracking-wider not-italic">{item.phase}</span>
-                </div>
-              </button>
-            ))}
-          </div>
+      {/* 2. Interactive Onboarding Checklist */}
+      <div className="w-full bg-white rounded-3xl border border-slate-100 shadow-sm p-6 lg:p-8 flex flex-col gap-5" id="action-checklist-card">
+        <div className="flex flex-col gap-1">
+          <span className="text-[10px] font-bold text-[#00A0E2] uppercase tracking-wider">Feuille de route opérationnelle</span>
+          <h3 className="text-lg font-extrabold text-slate-800 tracking-tight flex items-center gap-1.5">
+            <CheckSquare className="w-5 h-5 text-emerald-600" />
+            Plan d'action pour la mise en vente
+          </h3>
+          <p className="text-xs text-slate-500">Cochez les étapes clés de préparation que nous allons mener ensemble pour réussir votre transaction.</p>
         </div>
 
-        {/* Right Column: Appointment Booker (lg:col-span-5) */}
-        <div className="lg:col-span-5 bg-white rounded-3xl border border-slate-100 shadow-sm p-6 flex flex-col gap-5" id="action-booker-card">
-          <div className="flex flex-col gap-1">
-            <span className="text-[10px] font-bold text-[#00A0E2] uppercase tracking-wider">Prendre rendez-vous</span>
-            <h3 className="text-lg font-extrabold text-slate-800 tracking-tight flex items-center gap-1.5">
-              <Calendar className="w-5 h-5 text-[#00A0E2]" />
-              Planifier un débriefing stratégique
-            </h3>
-            <p className="text-xs text-slate-500">Choisissez un créneau horaire pour faire le point sur cette estimation avec {advisor.name}.</p>
-          </div>
-
-          <AnimatePresence mode="wait">
-            {!isMeetingBooked ? (
-              <motion.form 
-                key="booking-form"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onSubmit={handleBookMeeting}
-                className="flex flex-col gap-4 mt-2"
-                id="meeting-booker-form"
-              >
-                <div className="flex flex-col gap-1.5" id="form-group-date">
-                  <label className="text-[10px] text-slate-400 font-bold uppercase">Date souhaitée</label>
-                  <input 
-                    id="input-meeting-date"
-                    type="date" 
-                    required
-                    min={new Date().toISOString().split('T')[0]}
-                    value={meetingDate}
-                    onChange={(e) => setMeetingDate(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-100 px-4 py-3 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#00A0E2] focus:bg-white transition-all"
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1.5" id="form-group-time">
-                  <label className="text-[10px] text-slate-400 font-bold uppercase">Heure de rendez-vous</label>
-                  <select 
-                    id="select-meeting-time"
-                    required
-                    value={meetingTime}
-                    onChange={(e) => setMeetingTime(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-100 px-4 py-3 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#00A0E2] focus:bg-white transition-all"
-                  >
-                    <option value="">Sélectionner une heure</option>
-                    <option value="09:00">09:00 - Matin</option>
-                    <option value="10:30">10:30 - Matin</option>
-                    <option value="14:00">14:00 - Après-midi</option>
-                    <option value="16:00">16:00 - Après-midi</option>
-                    <option value="18:30">18:30 - Fin de journée</option>
-                  </select>
-                </div>
-
-                <button 
-                  id="btn-confirm-meeting"
-                  type="submit"
-                  className="w-full flex items-center justify-center gap-2 bg-[#00A0E2] hover:bg-[#008cc7] text-white font-bold py-4 rounded-xl shadow-lg shadow-[#00A0E2]/20 mt-2 transition-all cursor-pointer"
-                >
-                  <span>Confirmer le rendez-vous</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </motion.form>
-            ) : (
-              <motion.div
-                key="booking-confirmation"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-emerald-50/50 rounded-2xl p-5 border border-emerald-100 text-center flex flex-col items-center gap-4 py-8 mt-2"
-                id="booking-success-panel"
-              >
-                <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shadow-sm">
-                  <CheckCircle className="w-6 h-6" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-extrabold text-emerald-950">Rendez-vous pré-enregistré !</h4>
-                  <p className="text-xs text-emerald-800/80 mt-1 leading-relaxed">
-                    {advisor.name} a bien reçu votre demande pour le <span className="font-extrabold">{new Date(meetingDate).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span> à <span className="font-extrabold">{meetingTime}</span>. Un email de confirmation vient de vous être envoyé.
-                  </p>
-                </div>
-                <button 
-                  id="btn-reset-meeting"
-                  onClick={() => setIsMeetingBooked(false)}
-                  className="text-xs text-[#00A0E2] font-semibold hover:underline mt-2 cursor-pointer"
-                >
-                  Modifier le créneau
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-1" id="checklist-interactive-items">
+          {checklist.map((item) => (
+            <button
+              key={item.id}
+              id={`btn-checklist-item-${item.id}`}
+              onClick={() => toggleChecklist(item.id)}
+              className={`w-full text-left p-4 rounded-2xl border text-xs flex items-start gap-3.5 transition-all group cursor-pointer ${
+                item.checked 
+                  ? 'bg-slate-50 border-slate-200 text-slate-500 line-through decoration-slate-300' 
+                  : 'bg-white border-slate-100 text-slate-800 hover:border-slate-200 shadow-sm'
+              }`}
+            >
+              <div className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-all ${
+                item.checked 
+                  ? 'bg-[#00A0E2] border-[#00A0E2] text-white' 
+                  : 'border-slate-300 group-hover:border-[#00A0E2] text-transparent'
+              }`}>
+                <CheckCircle className="w-3.5 h-3.5" />
+              </div>
+              <div className="flex flex-col gap-0.5">
+                <span className="font-semibold leading-relaxed">{item.text}</span>
+                <span className="text-[10px] font-bold text-[#00A0E2] uppercase tracking-wider not-italic">{item.phase}</span>
+              </div>
+            </button>
+          ))}
         </div>
-
       </div>
 
       {/* 3. Mes 6 engagements pour la réussite de votre vente */}
