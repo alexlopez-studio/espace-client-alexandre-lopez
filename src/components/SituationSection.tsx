@@ -779,8 +779,8 @@ export default function SituationSection({
               id={`btn-view-${tab.id}`}
               onClick={() => { setViewMode(tab.id); setSelectedZone(null); }}
               className={`flex-1 flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-xs font-bold transition-all whitespace-nowrap min-w-max cursor-pointer ${isActive
-                  ? 'bg-[#00A0E2] text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
+                ? 'bg-[#00A0E2] text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
                 }`}
             >
               <Icon className="w-4 h-4 shrink-0" />
@@ -1039,8 +1039,8 @@ export default function SituationSection({
                         key={zone.id}
                         onClick={() => setSelectedZone(isSelected ? null : zone)}
                         className={`flex items-center justify-between p-2.5 rounded-xl text-xs border transition-all text-left cursor-pointer ${isSelected
-                            ? 'bg-[#00A0E2]/10 border-[#00A0E2]/40 text-[#0077B6]'
-                            : 'bg-slate-50/70 border-slate-100 hover:border-slate-200 text-slate-700'
+                          ? 'bg-[#00A0E2]/10 border-[#00A0E2]/40 text-[#0077B6]'
+                          : 'bg-slate-50/70 border-slate-100 hover:border-slate-200 text-slate-700'
                           }`}
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
